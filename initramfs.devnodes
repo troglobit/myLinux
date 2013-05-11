@@ -1,0 +1,5 @@
+dir /dev 755 0 0
+nod /dev/console 644 0 0 c 5 1
+dir /proc 755 0 0
+dir /sys 755 0 0
+dir /mnt 755 0 0

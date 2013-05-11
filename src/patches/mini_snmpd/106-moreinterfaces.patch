@@ -1,0 +1,16 @@
+Monitor up to 8 network interfaces (was 4)
+
+Author: Henrik Nordstrom <henrik.nordstrom@orsoc.se>
+
+diff -u mini_snmpd-siginterrupt/mini_snmpd.h mini_snmpd/mini_snmpd.h
+--- mini_snmpd-siginterrupt/mini_snmpd.h	2013-02-28 13:24:28.605433253 +0100
++++ mini_snmpd/mini_snmpd.h	2013-02-28 13:46:59.049074374 +0100
+@@ -40,7 +40,7 @@
+ #define MAX_NR_OIDS							16
+ #define MAX_NR_SUBIDS						16
+ #define MAX_NR_DISKS						4
+-#define MAX_NR_INTERFACES					4
++#define MAX_NR_INTERFACES					8
+ #define MAX_NR_VALUES						128
+ 
+ #define MAX_PACKET_SIZE						2048

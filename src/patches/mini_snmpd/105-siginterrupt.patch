@@ -1,0 +1,26 @@
+Use sigaction instead of signal+siginterrupt
+
+Author: Henrik Nordstrom <henrik.nordstrom@orsoc.se>
+
+diff -u mini_snmpd-siginterrupt/mini_snmpd.c mini_snmpd/mini_snmpd.c
+--- mini_snmpd-siginterrupt/mini_snmpd.c	2013-02-28 13:24:28.605433253 +0100
++++ mini_snmpd/mini_snmpd.c	2013-02-28 13:44:15.320740202 +0100
+@@ -355,12 +355,14 @@
+ 	fd_set wfds;
+ 	int nfds;
+ 	int i;
++	struct sigaction sig;
+ 
+ 	/* Prevent TERM and HUP signals from interrupting system calls */
+-	signal(SIGTERM, handle_signal);
+-	signal(SIGHUP, handle_signal);
+-	siginterrupt(SIGTERM, 0);
+-	siginterrupt(SIGHUP, 0);
++	sig.sa_handler = handle_signal;
++	sigemptyset (&sig.sa_mask);
++	sig.sa_flags = SA_RESTART;
++	sigaction(SIGTERM, &sig, NULL);
++	sigaction(SIGHUP, &sig, NULL);
+ 
+ 	/* Open the syslog connection if needed */
+ #ifdef SYSLOG

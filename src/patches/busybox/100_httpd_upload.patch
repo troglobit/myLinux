@@ -1,0 +1,24 @@
+diff -ru busybox-1.21.0/networking/httpd.c busybox-1.21.0-httpd_upload_auth/networking/httpd.c
+--- busybox-1.21.0/networking/httpd.c	2013-01-14 01:22:06.000000000 +0100
++++ busybox-1.21.0-httpd_upload_auth/networking/httpd.c	2013-03-05 11:04:34.096713816 +0100
+@@ -900,13 +900,14 @@
+ {
+ 	/* Paranoia. IE said to be buggy. It may send some extra data
+ 	 * or be confused by us just exiting without SHUT_WR. Oh well. */
+-	shutdown(1, SHUT_WR);
+-	/* Why??
+-	(this also messes up stdin when user runs httpd -i from terminal)
+-	ndelay_on(0);
+-	while (read(STDIN_FILENO, iobuf, IOBUF_SIZE) > 0)
++	int t;
++	socklen_t tl = sizeof(t);
++	if (getsockopt(STDIN_FILENO, SOL_SOCKET, SO_TYPE, &t, &tl) == 0)
++		shutdown(STDIN_FILENO, SHUT_WR);
++	/* Eat any remaining data for a while to allow response to be seen */
++	alarm(30);
++	while (recv(STDIN_FILENO, iobuf, IOBUF_SIZE, MSG_DONTWAIT) > 0)
+ 		continue;
+-	*/
+ 
+ 	if (verbose > 2)
+ 		bb_error_msg("closed");
