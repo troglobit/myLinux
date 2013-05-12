@@ -31,4 +31,6 @@ I:index.html
 /cgi-bin:root:$passwd
 EOF
 
+modprobe g_serial
+
 echo "Started!"

@@ -15,3 +15,5 @@
 ::respawn:/sbin/ifplugd -n -a -i eth0 -I -l
 
 ::respawn:/sbin/httpd -r "Administrator Login" -f
+
+::respawn:/sbin/getty 115200 ttyGS0 vt100
