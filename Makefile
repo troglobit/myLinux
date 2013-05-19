@@ -2,8 +2,9 @@ CROSS_COMPILE=/home/henrik/toolchains/arm-linux-gnueabihf/bin/arm-linux-gnueabih
 ARCH=arm
 export CROSS_COMPILE ARCH
 
-all install:
-	$(MAKE) -C src $@
+all: initramfs.img
+
+mrproper: src/mrproper clean
 
 .PHONY: modules
 
@@ -26,10 +27,15 @@ initramfs.lzo: initramfs.cpio
 initramfs.img: initramfs.gz
 	mkimage -T ramdisk -A arm -C none -d $< initramfs.img
 
-initramfs.cpio: modules install
+initramfs.cpio: modules src/install
 	( cat initramfs.devnodes ; sh $(KERNEL_MODULES)/build/source/scripts/gen_initramfs_list.sh -u squash -g squash initramfs-bin/ initramfs/ modules/ ) | \
 	$(KERNEL_MODULES)/build/usr/gen_init_cpio - >initramfs.cpio
 
 clean:
-	rm -rf modules initramfs.cpio initramfs.gz
-	$(MAKE) -C src $@
+	rm -rf modules initramfs-bin initramfs.cpio initramfs.gz initramfs.lzo initramfs.img
+
+clean: src/clean
+
+src/%:
+	$(MAKE) -C src $*
+

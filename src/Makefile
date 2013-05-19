@@ -87,7 +87,7 @@ INITRAMFS_DIRS=../$(FSNAME)/mnt ../$(FSNAME)/proc ../$(FSNAME)/sys ../$(FSNAME)/
 ../$(FSNAME): $(INITRAMFS_DIRS) ../$(FSNAME)/usr
 
 $(INITRAMFS_DIRS):
-	mkdir $@
+	mkdir -p $@
 
 ../$(FSNAME)/usr:
 	ln -s . $@
@@ -103,5 +103,5 @@ cleaninitramfs:
 	rmdir ../$(FSNAME)/* 2>/dev/null || true
 
 
-realclean: cleaninitramfs cleaninstallfs clean
+realclean mrproper: cleaninitramfs cleaninstallfs clean
 	rm -f *.tar.*
