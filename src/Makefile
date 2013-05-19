@@ -1,11 +1,9 @@
-CROSS_COMPILE=/home/henrik/toolchains/arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
 CC=$(CROSS_COMPILE)gcc
-export CROSS_COMPILE
 CFLAGS=-g -Wall -W -Werror -std=gnu99 $(DEFINES)
 BUSYBOX_VERSION=1.21.0
 MINISNMP_VERSION=1.2b
 DROPBEAR_VERSION=2013.58
-FSNAME=initramfs
+FSNAME=initramfs-bin
 RELEASEDIR=../../images/
 BOARD=EOMA68
 
@@ -44,7 +42,7 @@ busybox-$(BUSYBOX_VERSION).tar.bz2:
 	wget http://www.busybox.net/downloads/busybox-$(BUSYBOX_VERSION).tar.bz2
 
 busybox_install: busybox-$(BUSYBOX_VERSION)/busybox
-	$(MAKE) -C busybox-$(BUSYBOX_VERSION)  CONFIG_PREFIX=$(PWD)/../$(FSNAME)/ install
+	$(MAKE) -C busybox-$(BUSYBOX_VERSION)  CONFIG_PREFIX=$(shell pwd)/../$(FSNAME)/ install
 
 .PHONY: mini_snmpd
 
@@ -107,4 +105,3 @@ cleaninitramfs:
 
 realclean: cleaninitramfs cleaninstallfs clean
 	rm -f *.tar.*
-	
