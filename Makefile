@@ -1,4 +1,4 @@
-CROSS_COMPILE=/home/henrik/toolchains/arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
+CROSS_COMPILE=arm-linux-gnueabi-
 ARCH=arm
 export CROSS_COMPILE ARCH
 
