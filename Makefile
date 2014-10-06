@@ -2,6 +2,7 @@ CROSS_COMPILE=/home/henrik/toolchains/arm-linux-gnueabihf/bin/arm-linux-gnueabih
 ARCH=arm
 export CROSS_COMPILE ARCH
 
+
 all: initramfs.img
 
 mrproper: src/mrproper clean
@@ -18,21 +19,21 @@ endif
 	sh -ec "cd $(KERNEL_MODULES);find * -depth -print0 | cpio -0pdm $(PWD)/modules/lib/modules/$(KERNELRELEASE)"
 	find modules/lib/modules/$(KERNELRELEASE) -name '*.ko' | xargs $(CROSS_COMPILE)strip -g
 
-initramfs.gz: initramfs.cpio
-	gzip -9 <initramfs.cpio >initramfs.gz
+initramfs-$(KERNELRELEASE).gz: initramfs-$(KERNELRELESAE).cpio
+	gzip -9 <initramfs-$(KERNELRELEASE).cpio >initramfs-$(KERNELRELEASE).gz
 
-initramfs.lzo: initramfs.cpio
-	lzop -9 -o initramfs.lzo initramfs.cpio
+initramfs-$(KERNELRELEASE).lzo: initramfs-$(KERNELRELEASE).cpio
+	lzop -9 -o initramfs-$(KERNELRELEASE).lzo initramfs-$(KERNELRELEASE).cpio
 
-initramfs.img: initramfs.gz
-	mkimage -T ramdisk -A arm -C none -d $< initramfs.img
+initramfs-$(KERNELRELEASE).img: initramfs-$(KERNELRELEASE).gz
+	mkimage -T ramdisk -A arm -C none -d $< initramfs-$(KERNELRELEASE).img
 
-initramfs.cpio: modules src/install
-	( cat initramfs.devnodes ; sh $(KERNEL_MODULES)/build/source/scripts/gen_initramfs_list.sh -u squash -g squash initramfs-bin/ initramfs/ modules/ ) | \
-	$(KERNEL_MODULES)/build/usr/gen_init_cpio - >initramfs.cpio
+initramfs-$(KERNELRELEASE).cpio: modules src/install
+	( cat initramfs.devnodes ; sh $(KERNEL_MODULES)/build/source/scripts/gen_initramfs-$(KERNELRELEASE)_list.sh -u squash -g squash initramfs-bin/ initramfs/ modules/ ) | \
+	$(KERNEL_MODULES)/build/usr/gen_init_cpio - >initramfs-$(KERNELRELEASE).cpio
 
 clean:
-	rm -rf modules initramfs-bin initramfs.cpio initramfs.gz initramfs.lzo initramfs.img
+	rm -rf modules initramfs-bin initramfs*.cpio initramfs*.gz initramfs*.lzo initramfs*.img
 
 clean: src/clean
 
