@@ -1,6 +1,5 @@
-Copyright (C) 2013 Henrik Nordström <henrik@henriknordstrom.net>
-Copyright (C) 2014 Henrik Nordström <henrik@henriknordstrom.net>
-All rights reserved
+Copyright (c) 2013-2014  Henrik Nordström <henrik@henriknordstrom.net>
+Copyright (c) 2014-2015  Joachim Nilsson <troglobit@gmail.com
 
 Permission to use, copy, modify, and/or distribute this software for
 any purpose with or without fee is hereby granted, provided that the
@@ -14,11 +13,8 @@ WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
 IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+==========================================================================
+All Free/Libre Open-Source Software used in this project is subject to
+their own respective licenses.  The ISC license above only pertains to
+the build system and patches.
 
-src/patches/* is licensed by the license of respective project the
-patches targets.
-
-busybox 1.21.0: GNU Public License version 2
-mini_snmpd-1.2b: GNU Public License version 2
-
-See respective project for their full license texts.

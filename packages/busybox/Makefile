@@ -1,10 +1,27 @@
 # Glue for cross compiling BusyBox
+#
+# Copyright (c) 2013-2014  Henrik Nordström <henrik@henriknordstrom.net>
+# Copyright (c) 2014-2015  Joachim Nilsson <troglobit@gmail.com
+#
+# Permission to use, copy, modify, and/or distribute this software for
+# any purpose with or without fee is hereby granted, provided that the
+# above copyright notice and this permission notice appear in all copies.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+# IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.PHONY: all install clean distclean
+
 VER            ?= 1.21.0
 PKG		= busybox-$(VER)
 PKGSUFFIX	= tar.bz2
 PATCHES 	= patches/*.patch
 URL             = http://busybox.net/downloads/$(PKG).$(PKGSUFFIX)
-CONFIG		= $(PKG).config
+CONFIG		= config-$(VER)
 CFLAGS         := $(filter-out -W -Wall, $(CFLAGS))
 CFLAGS         := $(filter-out -Werror, $(CFLAGS))
 CFLAGS         := $(filter-out -Wcast-align, $(CFLAGS))
@@ -36,6 +53,7 @@ $(PKG)/.config: $(PKG)/Makefile
 oldconfig: $(PKG)/.config
 
 saveconfig:
+	@echo -n "  SAVING  "
 	@cp -v $(PKG)/.config $(CONFIG)
 
 menuconfig: oldconfig
@@ -49,12 +67,12 @@ build: $(PKG)/.stamp
 
 install:
 	+@$(MAKE) -C $(PKG) CONFIG_PREFIX=$(STAGING) install
-	@$(CP) $(PKG)/examples/udhcp/udhcpd.conf $(STAGING)/etc/
+	@cp -v $(PKG)/examples/udhcp/udhcpd.conf $(STAGING)/etc/
 
 clean:
 	-@$(MAKE) -C $(PKG) clean
 	-@$(RM) $(PKG)/.stamp
 
 distclean:
-	-@$(RM) busybox-*
+	-@$(RM) -rf busybox-*
 

@@ -1,13 +1,18 @@
-#! /bin/sh
+#!/bin/sh
 
 mount -a
-
 mount -o remount,rw /
 
 # create some dirs to avoid warning messages
 mkdir -p /var/run
+mkdir -p /var/log
+mkdir -p /var/lib
 mkdir -p /etc/network/if-up.d
 mkdir -p /etc/network/if-pre-up.d
+
+# Logs to /var/log/messages
+hostname `cat /etc/hostname`
+syslogd
 
 # make home directory for root user
 mkdir -p /root
@@ -16,14 +21,12 @@ mkdir -p /root
 mkdir -p /dev/pts && \
  mount -t devpts none /dev/pts &
 
-echo "Configuring loopback device"
+# Start kernel logger now that syslogd likely is up
+klogd
+
+# Setup loopback device, no networking without it
 ip addr add 127.0.0.1/8 dev lo
 ip link set lo up
-
-# Fixup root password
-passwd="root"
-echo "Root password is $passwd"
-echo "root:`cryptpw "$passwd"`:0:0::/root:/bin/sh" >/etc/passwd
 
 cat <<EOF >/etc/httpd.conf
 H:/http
@@ -31,6 +34,3 @@ I:index.html
 /cgi-bin:root:$passwd
 EOF
 
-modprobe g_serial
-
-echo "Started!"
