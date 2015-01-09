@@ -1,0 +1,174 @@
+Patch for NOMMU systems, adapted from dropbear-0.51.patch
+
+		Joachim Nilsson <joachim.nilsson@westermo.se>
+
+Index: dropbear-2014.63/cli-authpasswd.c
+===================================================================
+--- dropbear-2014.63.orig/cli-authpasswd.c	2014-04-12 17:57:24.706954069 +0200
++++ dropbear-2014.63/cli-authpasswd.c	2014-04-12 17:57:24.698954031 +0200
+@@ -66,7 +66,11 @@
+ 		return NULL;
+ 	}
+ 
++#ifdef __uClinux__
++	pid = vfork();
++#else
+ 	pid = fork();
++#endif
+ 
+ 	if (pid < 0) {
+ 		TRACE(("fork error"))
+Index: dropbear-2014.63/Makefile.in
+===================================================================
+--- dropbear-2014.63.orig/Makefile.in	2014-04-12 17:57:24.706954069 +0200
++++ dropbear-2014.63/Makefile.in	2014-04-12 17:57:24.698954031 +0200
+@@ -85,6 +85,7 @@
+ CFLAGS+=-I. -I$(srcdir) $(CPPFLAGS) @CFLAGS@
+ LIBS+=@LIBS@
+ LDFLAGS=@LDFLAGS@
++FLTFLAGS += -s 16384
+ 
+ EXEEXT=@EXEEXT@
+ 
+Index: dropbear-2014.63/options.h
+===================================================================
+--- dropbear-2014.63.orig/options.h	2014-04-12 17:57:24.706954069 +0200
++++ dropbear-2014.63/options.h	2014-04-12 18:03:29.020651690 +0200
+@@ -55,20 +55,20 @@
+ #define DROPBEAR_SMALL_CODE
+ 
+ /* Enable X11 Forwarding - server only */
+-#define ENABLE_X11FWD
++/* #define ENABLE_X11FWD */
+ 
+ /* Enable TCP Fowarding */
+ /* 'Local' is "-L" style (client listening port forwarded via server)
+  * 'Remote' is "-R" style (server listening port forwarded via client) */
+-
++/*
+ #define ENABLE_CLI_LOCALTCPFWD
+ #define ENABLE_CLI_REMOTETCPFWD
+ 
+ #define ENABLE_SVR_LOCALTCPFWD
+ #define ENABLE_SVR_REMOTETCPFWD
+-
++*/
+ /* Enable Authentication Agent Forwarding */
+-#define ENABLE_SVR_AGENTFWD
++/* #define ENABLE_SVR_AGENTFWD */
+ #define ENABLE_CLI_AGENTFWD
+ 
+ 
+@@ -95,8 +95,8 @@
+ #define DROPBEAR_AES256
+ /* Compiling in Blowfish will add ~6kB to runtime heap memory usage */
+ /*#define DROPBEAR_BLOWFISH*/
+-#define DROPBEAR_TWOFISH256
+-#define DROPBEAR_TWOFISH128
++/*#define DROPBEAR_TWOFISH256*/
++/*#define DROPBEAR_TWOFISH128*/
+ 
+ /* Enable "Counter Mode" for ciphers. This is more secure than normal
+  * CBC mode against certain attacks. This adds around 1kB to binary 
+@@ -192,9 +192,9 @@
+  * PAM challenge/response.
+  * You can't enable both PASSWORD and PAM. */
+ 
+-#define ENABLE_SVR_PASSWORD_AUTH
++/* #define ENABLE_SVR_PASSWORD_AUTH */
+ /* PAM requires ./configure --enable-pam */
+-/*#define ENABLE_SVR_PAM_AUTH */
++#define ENABLE_SVR_PAM_AUTH
+ #define ENABLE_SVR_PUBKEY_AUTH
+ 
+ /* Whether to take public key options in 
+@@ -241,18 +241,18 @@
+  * not yet authenticated. After this limit, connections are rejected */
+ /* The first setting is per-IP, to avoid denial of service */
+ #ifndef MAX_UNAUTH_PER_IP
+-#define MAX_UNAUTH_PER_IP 5
++#define MAX_UNAUTH_PER_IP 2
+ #endif
+ 
+ /* And then a global limit to avoid chewing memory if connections 
+  * come from many IPs */
+ #ifndef MAX_UNAUTH_CLIENTS
+-#define MAX_UNAUTH_CLIENTS 30
++#define MAX_UNAUTH_CLIENTS 2
+ #endif
+ 
+ /* Maximum number of failed authentication tries (server option) */
+ #ifndef MAX_AUTH_TRIES
+-#define MAX_AUTH_TRIES 10
++#define MAX_AUTH_TRIES 3
+ #endif
+ 
+ /* The default file to store the daemon's process ID, for shutdown
+Index: dropbear-2014.63/sshpty.c
+===================================================================
+--- dropbear-2014.63.orig/sshpty.c	2014-04-12 17:57:24.706954069 +0200
++++ dropbear-2014.63/sshpty.c	2014-04-12 17:57:24.702954050 +0200
+@@ -247,6 +247,8 @@
+ void
+ pty_release(const char *tty_name)
+ {
++#if 0
++/* Kill this section because we have a read only fs.. */
+ 	if (chown(tty_name, (uid_t) 0, (gid_t) 0) < 0
+ 			&& (errno != ENOENT)) {
+ 		dropbear_log(LOG_ERR,
+@@ -257,6 +259,7 @@
+ 		dropbear_log(LOG_ERR,
+ 			"chmod %.100s 0666 failed: %.100s", tty_name, strerror(errno));
+ 	}
++#endif
+ }
+ 
+ /* Makes the tty the processes controlling tty and sets it to sane modes. */
+@@ -379,7 +382,8 @@
+ 		dropbear_exit("pty_setowner: stat(%.101s) failed: %.100s",
+ 				tty_name, strerror(errno));
+ 	}
+-
++#if 0
++	/* Kill this section, because we have a read only fs. */
+ 	if (st.st_uid != pw->pw_uid || st.st_gid != gid) {
+ 		if (chown(tty_name, pw->pw_uid, gid) < 0) {
+ 			if (errno == EROFS &&
+@@ -409,4 +413,5 @@
+ 			}
+ 		}
+ 	}
++#endif
+ }
+Index: dropbear-2014.63/svr-main.c
+===================================================================
+--- dropbear-2014.63.orig/svr-main.c	2014-04-12 17:57:24.706954069 +0200
++++ dropbear-2014.63/svr-main.c	2014-04-12 17:57:24.702954050 +0200
+@@ -155,13 +155,6 @@
+ 		}
+ 	}
+ 
+-	/* should be done after syslog is working */
+-	if (svr_opts.forkbg) {
+-		dropbear_log(LOG_INFO, "Running in background");
+-	} else {
+-		dropbear_log(LOG_INFO, "Not backgrounding");
+-	}
+-
+ 	/* create a PID file so that we can be killed easily */
+ 	pidfile = fopen(svr_opts.pidfile, "w");
+ 	if (pidfile) {
+@@ -270,8 +263,12 @@
+ #ifdef DEBUG_NOFORK
+ 			fork_ret = 0;
+ #else
++#ifdef __uClinux__
++			fork_ret = vfork();
++#else
+ 			fork_ret = fork();
+ #endif
++#endif
+ 			if (fork_ret < 0) {
+ 				dropbear_log(LOG_WARNING, "Error forking: %s", strerror(errno));
+ 				goto out;

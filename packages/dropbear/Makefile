@@ -1,0 +1,55 @@
+# Glue for cross compiling Dropbear SSH
+VER            ?= 2014.66
+PKG             = dropbear-$(VER)
+PKGSUFFIX       = tar.bz2
+PATCHES         = patches/*.patch
+URL             = http://matt.ucc.asn.au/dropbear/releases/$(PKG).$(PKGSUFFIX)
+EXEC            = $(PKG)/dropbearmulti
+CFLAGS         := $(filter-out -W -Wall -Werror, $(CFLAGS))
+
+CFG_HOST        = --host=$(CROSS_COMPILE:-=) --prefix= --sysconfdir=/mnt
+CFG_OPTS        = --disable-wtmp
+CFG_OPTS       += --disable-shadow --enable-pam --disable-lastlog
+
+ENV_OPTS        = PROGRAMS="dropbear dropbearkey dbclient scp" MULTI=1 SCPPROGRESS=1
+
+all: build
+
+include $(ROOTDIR)/package.mk
+
+$(PKG)/.prepared: Makefile $(ARCHIVE) $(PATCHES) patches/series
+	-@$(RM) -r $(PKG)
+	@tar xfj $(ARCHIVE)
+	@echo "  PATCH   $(PKG)/"
+	@(cd $(PKG); ln -sf ../patches .)
+	@(cd $(PKG); quilt push -qa)
+	@touch $@
+
+unpack: $(PKG)/.prepared
+
+$(PKG)/.stamp: $(PKG)/.prepared
+	@(cd $(PKG) && export ac_cv_member_struct_utmp_ut_host=yes; export ac_cv_member_struct_utmp_ut_pid=yes; export ac_cv_member_struct_utmp_ut_type=yes; ./configure $(CFG_HOST) $(CFG_OPTS))
+	@touch $@
+
+$(EXEC): $(PKG)/.stamp
+	@$(MAKE) -C $(PKG) $(ENV_OPTS)
+	@echo "Built $(EXEC) OK."
+
+build: $(EXEC)
+
+# The paths are hard wired in the dropbear ssh deamon, so please don't
+# try to move these binaries around.
+install:
+	@mkdir -p $(STAGING)/bin
+	@$(CP) $(EXEC) $(STAGING)/sbin/dropbear
+	@ln -s ../sbin/dropbear /bin/dropbearkey
+	@ln -s ../../sbin/dropbear /usr/bin/dbclient
+	@ln -s ../../sbin/dropbear /usr/bin/ssh
+	@ln -s ../../sbin/dropbear /usr/bin/scp
+
+clean:
+	-@$(MAKE) -C $(PKG) clean
+
+distclean:
+	-@$(RM) -r dropbear-*
+

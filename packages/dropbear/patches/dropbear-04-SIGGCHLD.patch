@@ -1,0 +1,22 @@
+Index: dropbear-2014.63/svr-main.c
+===================================================================
+--- dropbear-2014.63.orig/svr-main.c	2014-04-12 18:09:31.646343226 +0200
++++ dropbear-2014.63/svr-main.c	2014-04-12 18:09:31.642343207 +0200
+@@ -50,9 +50,17 @@
+ int main(int argc, char ** argv)
+ #endif
+ {
++        sigset_t nmask;   /* signal mask */
++
++
+ 	_dropbear_exit = svr_dropbear_exit;
+ 	_dropbear_log = svr_dropbear_log;
+ 
++        /* remove SIGCHLD from signal mask */
++        sigprocmask(SIG_SETMASK, NULL, &nmask);
++        sigdelset(&nmask, SIGCHLD);
++        sigprocmask(SIG_SETMASK, &nmask, NULL);
++
+ 	disallow_core();
+ 
+ 	/* get commandline options */

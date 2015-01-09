@@ -1,0 +1,54 @@
+Index: dropbear-2014.63/cli-kex.c
+===================================================================
+--- dropbear-2014.63.orig/cli-kex.c	2014-04-12 18:05:21.137167038 +0200
++++ dropbear-2014.63/cli-kex.c	2014-04-12 18:09:02.054203174 +0200
+@@ -288,6 +288,8 @@
+ 	char * fingerprint = NULL;
+ 	buffer * line = NULL;
+ 	int ret;
++	FILE *tty = NULL;
++	char response = 'z';
+ 
+ 	if (cli_opts.no_hostkey_check) {
+ 		fprintf(stderr, "Caution, skipping hostkey check for %s\n", cli_opts.remotehost);
+@@ -346,9 +348,7 @@
+ 		}
+ 
+ 		/* Now we're at the interesting hostkey */
+-		ret = cmp_base64_key(keyblob, keybloblen, algoname, algolen,
+-						line, &fingerprint);
+-
++		ret = cmp_base64_key(keyblob, keybloblen, algoname, algolen, line, &fingerprint);
+ 		if (ret == DROPBEAR_SUCCESS) {
+ 			/* Good matching key */
+ 			TRACE(("good matching key"))
+@@ -357,14 +357,21 @@
+ 
+ 		/* The keys didn't match. eep. Note that we're "leaking"
+ 		   the fingerprint strings here, but we're exiting anyway */
+-		dropbear_exit("\n\n%s host key mismatch for %s !\n"
+-					"Fingerprint is %s\n"
+-					"Expected %s\n"
+-					"If you know that the host key is correct you can\nremove the bad entry from ~/.ssh/known_hosts", 
+-					algoname,
+-					cli_opts.remotehost,
+-					sign_key_fingerprint(keyblob, keybloblen),
+-					fingerprint ? fingerprint : "UNKNOWN");
++		fprintf(stderr, "WARNING: Host key mismatch for %s!\n", cli_opts.remotehost);
++		fprintf(stderr, "Fingerprint is %s\n", sign_key_fingerprint(keyblob, keybloblen));
++		fprintf(stderr, "Expected       %s\n", fingerprint ? fingerprint : "UNKNOWN");
++		fprintf(stderr, "Continue anyway (y/N)?");
++		tty = fopen(_PATH_TTY, "r");
++		if (tty) {
++			response = getc(tty);
++			fclose(tty);
++		} else {
++			response = getc(stdin);
++		}
++		if (response == 'y')
++			return;
++
++		dropbear_exit("See you later.");
+ 	} while (1); /* keep going 'til something happens */
+ 
+ 	/* Key doesn't exist yet */

@@ -1,0 +1,17 @@
+Index: dropbear-2014.63/svr-main.c
+===================================================================
+--- dropbear-2014.63.orig/svr-main.c	2014-04-12 18:09:22.678300811 +0200
++++ dropbear-2014.63/svr-main.c	2014-04-12 18:09:22.670300773 +0200
+@@ -260,6 +260,12 @@
+ 				goto out;
+ 			}
+ 
++			/* check if /etc/nologin is set to prevent user login */
++			if (access("/etc/nologin", F_OK) == 0) {
++				dropbear_log(LOG_WARNING, "User login not allowed at this time.");
++				goto out;
++			}
++
+ #ifdef DEBUG_NOFORK
+ 			fork_ret = 0;
+ #else

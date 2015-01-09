@@ -1,5 +1,10 @@
-dir /dev 755 0 0
-nod /dev/console 644 0 0 c 5 1
-dir /proc 755 0 0
-dir /sys 755 0 0
-dir /mnt 755 0 0
+dir   /dev 755 0 0
+nod   /dev/console 644 0 0 c 5 1
+nod   /dev/rom0 644 0 0 c 31 0
+nod   /dev/rom1 644 0 0 c 31 1
+nod   /dev/rom2 644 0 0 c 31 2
+nod   /dev/rom3 644 0 0 c 31 3
+dir   /proc 755 0 0
+dir   /sys 755 0 0
+dir   /mnt 755 0 0
+slink /init sbin/init 755 0 0
