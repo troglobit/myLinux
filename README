@@ -1,6 +1,6 @@
+miniroot is a small busybox based root filesystem
 
-This makes use of Ubuntu 14.04 standard ARM toolchain
+It makes use of Ubuntu 14.04 standard ARM toolchain
 
    gcc-arm-linux-gnueabi
-
 
