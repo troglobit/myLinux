@@ -19,7 +19,7 @@
 ARCH            = arm
 CROSS          ?= arm-linux-gnueabi-
 CROSS_COMPILE  ?= $(CROSS)
-KERNEL_VERSION  = 3.18.2
+KERNEL_VERSION  = 3.14.28
 
 NAME           := "TroglOS Linux"
 RELEASE_ID     := "chaos"
