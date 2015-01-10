@@ -46,6 +46,7 @@ $(PKG)/.config: $(PKG)/Makefile
 	@echo "  INSTALL $@ from $(CONFIG)"
 	@if [ -f $(CONFIG) ]; then			\
 		cp $(CONFIG) $@;			\
+		$(MAKE) -C $(PKG) oldconfig;		\
 	else						\
 		$(MAKE) -C $(PKG) versatile_defconfig;	\
 	fi
@@ -58,7 +59,7 @@ defconfig:
 	$(MAKE) -C $(PKG) versatile_defconfig
 
 oldconfig: $(PKG)/.config
-	@$(MAKE) -C $(PKG) oldconfig 2>/dev/null
+	@$(MAKE) -C $(PKG) oldconfig
 
 saveconfig:
 	@echo -n "  SAVING  "
@@ -102,6 +103,6 @@ clean:
 	-@$(MAKE) -C $(PKG) $@
 
 distclean:
-	@echo "  REMOVE  kernel/$(PKG)"
-	-@$(RM) -rf $(PKG)
+	@echo "  REMOVE  kernel/linux-*"
+	-@$(RM) -rf linux-*
 
