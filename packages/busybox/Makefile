@@ -16,7 +16,7 @@
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .PHONY: all install clean distclean
 
-VER            ?= 1.21.1
+VER            ?= 1.22.1
 BASE_VER       := $(shell echo $(VER) | sed 's/\([0-9]*\.[0-9]*\)\.[0-9]*/\1/')
 PKG		= busybox-$(VER)
 PKGSUFFIX	= tar.bz2
