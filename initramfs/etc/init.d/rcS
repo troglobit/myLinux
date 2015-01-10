@@ -11,7 +11,7 @@ mkdir -p /etc/network/if-up.d
 mkdir -p /etc/network/if-pre-up.d
 
 # Logs to /var/log/messages
-hostname `cat /etc/hostname`
+hostname -F /etc/hostname
 syslogd
 
 # make home directory for root user
@@ -24,13 +24,12 @@ mkdir -p /dev/pts && \
 # Start kernel logger now that syslogd likely is up
 klogd
 
-# Setup loopback device, no networking without it
-ip addr add 127.0.0.1/8 dev lo
-ip link set lo up
-
 cat <<EOF >/etc/httpd.conf
 H:/http
 I:index.html
 /cgi-bin:root:$passwd
 EOF
+
+# Bring up all /etc/network/interfaces
+ifup -a 2>&1 >/dev/null &
 

@@ -12,7 +12,7 @@
 
 ::respawn:/sbin/inetd -f
 #::respawn:sh -c "sleep 3; exec /sbin/udhcpc -i eth0 -p /var/run/udhcpc.pid -f"
-::respawn:/sbin/ifplugd -n -a -i eth0 -I -l 2>/dev/null
+#::respawn:/sbin/ifplugd -n -a -i eth0 -I -l 2>/dev/null
 
 ::respawn:/sbin/httpd -r "Administrator Login" -f
 

@@ -50,9 +50,11 @@ all: staging kernel packages ramdisk
 # +=> -hda hda.img
 run:
 	@echo "  QEMU    Starting $(NAME) ... (Use Ctrl-a c quit to exit Qemu)"
-	@qemu-system-arm -nographic -m 128M -M versatilepb \
-			 -kernel $(IMAGEDIR)/zImage        \
-			 -initrd $(IMAGEDIR)/initramfs.gz  \
+	@qemu-system-arm -nographic -m 128M -M versatilepb -usb					\
+			 -device rtl8139,netdev=nic0						\
+			 -netdev bridge,id=nic0,br=virbr0,helper=/usr/lib/qemu-bridge-helper	\
+			 -kernel $(IMAGEDIR)/zImage        					\
+			 -initrd $(IMAGEDIR)/initramfs.gz  					\
 			 -append "root=/dev/ram console=ttyAMA0,115200 quiet"
 
 staging:
