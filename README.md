@@ -12,6 +12,9 @@ embedded applications before the actual hardware arrives.  It is also
 useful for reference when said hardware starts acting up -- you know it
 always does, right?
 
+Requirements
+------------
+
 The build environment requires at least the following tools, tested on
 Ubuntu 14.04:
 
@@ -23,22 +26,18 @@ Ubuntu 14.04:
 * probably more, gzip?, mkimge?
 
 Clone this repository, then type `make`.  When the build has completed,
-start Qemu with `make run`
+start Qemu with `make run` -- Have fun!
 
-Have fun!  :-)
+Upgrading Linux
+---------------
 
-TODO
-----
+Change the `KERNEL_VERSION` in the top-level `Makefile`.  If the kernel
+is just a minor patch release, you're done.
 
-* Linux Kbuild support for configuration management, more
-* Targets than ARM and Versatile, with different packages and flavours
-* More packages (add Finit and uftpd as a GitHub submodules!)
-* U-Boot and Bareboot images, incl. Westermo squasfs `/boot` extension
-* Add support for [Rocker](https://github.com/scottfeldman/qemu-rocker)
-* Upgrade kernel to support both Rocker and swdev ...
-* Add Quagga support
-* Integrate the cool little CLI idea ...
-* Little bit more documentation so people can get about easier
+If it's a major kernel upgrade, copy the latest `kernel/config-X.YY` to
+`kernel/config-X.ZZ` and call `make kernel_oldconfig`.  This will unpack
+the kernel and give you a set of questions for all new features.
 
-  -- Joachim 
+Make sure to do a `make kernel_saveconfig`, and possibly add the new
+`kernel/config-X.ZZ` to GIT.
 

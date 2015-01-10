@@ -19,7 +19,7 @@
 ARCH            = arm
 CROSS          ?= arm-linux-gnueabi-
 CROSS_COMPILE  ?= $(CROSS)
-KERNEL_VERSION  = 3.14.28
+KERNEL_VERSION  = 3.18.2
 
 NAME           := "TroglOS Linux"
 RELEASE_ID     := "chaos"
@@ -79,7 +79,6 @@ staging:
 	@sed -i 's/HOSTNAME/$(RELEASE_ID)/' $(STAGING)/etc/hosts
 
 kernel:
-	@echo "  KERNEL  $(KERNEL_VERSION)"
 	@$(MAKE) -j5 -C kernel all
 
 kernel_menuconfig:
@@ -92,7 +91,6 @@ kernel_saveconfig:
 	@$(MAKE) -C kernel saveconfig
 
 packages:
-	@echo "  BUILD   Free/Libre Open-Source Software Packages ..."
 	@$(MAKE) -j5 -C packages all
 	@$(MAKE) -j5 -C packages install
 
