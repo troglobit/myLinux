@@ -9,7 +9,6 @@ ARCHIVE		?= $(DOWNLOADS)/$(PKGNAME)/$(TARBALL)
 PRIMARY_URL	?= $(BIN_REPO)/$(PKGNAME)/$(TARBALL)
 
 $(ARCHIVE):
-	@echo "Fetching $(ARCHIVE) for $(PKG) to $(PKGNAME)"
 	@echo "  FETCH   $(PKG) ..." 1>&2
 	@mkdir -p $(dir $@)
 	@mkdir -p $(ROOTDIR)/tmp

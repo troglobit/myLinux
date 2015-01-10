@@ -18,7 +18,7 @@
 
 ARCH            = arm
 CROSS_COMPILE  ?= arm-linux-gnueabi-
-KERNEL_VERSION  = 3.14.4
+KERNEL_VERSION  = 3.18.2
 
 NAME           := "TroglOS Linux"
 RELEASE_ID     := "chaos"
@@ -83,6 +83,9 @@ kernel:
 
 kernel_menuconfig:
 	@$(MAKE) -C kernel menuconfig
+
+kernel_oldconfig:
+	@$(MAKE) -C kernel oldconfig
 
 kernel_saveconfig:
 	@$(MAKE) -C kernel saveconfig
