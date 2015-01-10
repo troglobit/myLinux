@@ -16,12 +16,13 @@
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .PHONY: all install clean distclean
 
-VER            ?= 1.21.0
+VER            ?= 1.21.1
+BASE_VER       := $(shell echo $(VER) | sed 's/\([0-9]*\.[0-9]*\)\.[0-9]*/\1/')
 PKG		= busybox-$(VER)
 PKGSUFFIX	= tar.bz2
 PATCHES 	= patches/*.patch
 URL             = http://busybox.net/downloads/$(PKG).$(PKGSUFFIX)
-CONFIG		= config-$(VER)
+CONFIG		= config-$(BASE_VER)
 CFLAGS         := $(filter-out -W -Wall, $(CFLAGS))
 CFLAGS         := $(filter-out -Werror, $(CFLAGS))
 CFLAGS         := $(filter-out -Wcast-align, $(CFLAGS))

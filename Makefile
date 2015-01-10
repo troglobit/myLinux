@@ -17,7 +17,8 @@
 .PHONY: run staging kernel packages clean distclean
 
 ARCH            = arm
-CROSS_COMPILE  ?= arm-linux-gnueabi-
+CROSS          ?= arm-linux-gnueabi-
+CROSS_COMPILE  ?= $(CROSS)
 KERNEL_VERSION  = 3.18.2
 
 NAME           := "TroglOS Linux"
@@ -38,7 +39,7 @@ IMAGEDIR        = $(ROOTDIR)/images
 MAKEFLAGS       = --silent --no-print-directory
 DOWNLOADS      ?= $(shell xdg-user-dir DOWNLOAD 2>/dev/null || echo "$(ROOTDIR)/downloads")
 
-export ARCH CROSS_COMPILE
+export ARCH CROSS CROSS_COMPILE
 export KERNEL_VERSION
 export NAME VERSION_ID VERSION ID PRETTY_NAME HOME_URL
 export ROOTDIR STAGING IMAGEDIR DOWNLOADS
