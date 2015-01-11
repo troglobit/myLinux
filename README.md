@@ -13,7 +13,7 @@ Table of Contents
 * [Using Telnet](#using-telnet)
 * [Bugs & Feature Requests](#bugs--feature-requests)
 
-![TroglOS Virtual Devboard](example.png)
+![](example.png)
 
 
 Introduction
