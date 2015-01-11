@@ -2,10 +2,10 @@ Patch for NOMMU systems, adapted from dropbear-0.51.patch
 
 		Joachim Nilsson <joachim.nilsson@westermo.se>
 
-Index: dropbear-2014.63/cli-authpasswd.c
+Index: dropbear-2014.66/cli-authpasswd.c
 ===================================================================
---- dropbear-2014.63.orig/cli-authpasswd.c	2014-04-12 17:57:24.706954069 +0200
-+++ dropbear-2014.63/cli-authpasswd.c	2014-04-12 17:57:24.698954031 +0200
+--- dropbear-2014.66.orig/cli-authpasswd.c	2015-01-11 04:13:15.799285083 +0100
++++ dropbear-2014.66/cli-authpasswd.c	2015-01-11 04:13:15.795285061 +0100
 @@ -66,7 +66,11 @@
  		return NULL;
  	}
@@ -18,10 +18,10 @@ Index: dropbear-2014.63/cli-authpasswd.c
  
  	if (pid < 0) {
  		TRACE(("fork error"))
-Index: dropbear-2014.63/Makefile.in
+Index: dropbear-2014.66/Makefile.in
 ===================================================================
---- dropbear-2014.63.orig/Makefile.in	2014-04-12 17:57:24.706954069 +0200
-+++ dropbear-2014.63/Makefile.in	2014-04-12 17:57:24.698954031 +0200
+--- dropbear-2014.66.orig/Makefile.in	2015-01-11 04:13:15.799285083 +0100
++++ dropbear-2014.66/Makefile.in	2015-01-11 04:13:15.795285061 +0100
 @@ -85,6 +85,7 @@
  CFLAGS+=-I. -I$(srcdir) $(CPPFLAGS) @CFLAGS@
  LIBS+=@LIBS@
@@ -30,10 +30,10 @@ Index: dropbear-2014.63/Makefile.in
  
  EXEEXT=@EXEEXT@
  
-Index: dropbear-2014.63/options.h
+Index: dropbear-2014.66/options.h
 ===================================================================
---- dropbear-2014.63.orig/options.h	2014-04-12 17:57:24.706954069 +0200
-+++ dropbear-2014.63/options.h	2014-04-12 18:03:29.020651690 +0200
+--- dropbear-2014.66.orig/options.h	2015-01-11 04:13:15.799285083 +0100
++++ dropbear-2014.66/options.h	2015-01-11 04:15:03.535867447 +0100
 @@ -55,20 +55,20 @@
  #define DROPBEAR_SMALL_CODE
  
@@ -70,18 +70,15 @@ Index: dropbear-2014.63/options.h
  
  /* Enable "Counter Mode" for ciphers. This is more secure than normal
   * CBC mode against certain attacks. This adds around 1kB to binary 
-@@ -192,9 +192,9 @@
+@@ -192,7 +192,7 @@
   * PAM challenge/response.
   * You can't enable both PASSWORD and PAM. */
  
 -#define ENABLE_SVR_PASSWORD_AUTH
 +/* #define ENABLE_SVR_PASSWORD_AUTH */
  /* PAM requires ./configure --enable-pam */
--/*#define ENABLE_SVR_PAM_AUTH */
-+#define ENABLE_SVR_PAM_AUTH
+ /*#define ENABLE_SVR_PAM_AUTH */
  #define ENABLE_SVR_PUBKEY_AUTH
- 
- /* Whether to take public key options in 
 @@ -241,18 +241,18 @@
   * not yet authenticated. After this limit, connections are rejected */
  /* The first setting is per-IP, to avoid denial of service */
@@ -104,10 +101,10 @@ Index: dropbear-2014.63/options.h
  #endif
  
  /* The default file to store the daemon's process ID, for shutdown
-Index: dropbear-2014.63/sshpty.c
+Index: dropbear-2014.66/sshpty.c
 ===================================================================
---- dropbear-2014.63.orig/sshpty.c	2014-04-12 17:57:24.706954069 +0200
-+++ dropbear-2014.63/sshpty.c	2014-04-12 17:57:24.702954050 +0200
+--- dropbear-2014.66.orig/sshpty.c	2015-01-11 04:13:15.799285083 +0100
++++ dropbear-2014.66/sshpty.c	2015-01-11 04:13:15.795285061 +0100
 @@ -247,6 +247,8 @@
  void
  pty_release(const char *tty_name)
@@ -141,10 +138,10 @@ Index: dropbear-2014.63/sshpty.c
  	}
 +#endif
  }
-Index: dropbear-2014.63/svr-main.c
+Index: dropbear-2014.66/svr-main.c
 ===================================================================
---- dropbear-2014.63.orig/svr-main.c	2014-04-12 17:57:24.706954069 +0200
-+++ dropbear-2014.63/svr-main.c	2014-04-12 17:57:24.702954050 +0200
+--- dropbear-2014.66.orig/svr-main.c	2015-01-11 04:13:15.799285083 +0100
++++ dropbear-2014.66/svr-main.c	2015-01-11 04:13:15.795285061 +0100
 @@ -155,13 +155,6 @@
  		}
  	}

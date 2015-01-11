@@ -25,7 +25,7 @@ CFLAGS         := $(filter-out -W -Wall -Werror, $(CFLAGS))
 
 CFG_HOST        = --host=$(CROSS_COMPILE:-=) --prefix= --sysconfdir=/mnt
 CFG_OPTS        = --disable-wtmp
-CFG_OPTS       += --disable-shadow --enable-pam --disable-lastlog
+CFG_OPTS       += --disable-shadow --disable-lastlog
 
 ENV_OPTS        = PROGRAMS="dropbear dropbearkey dbclient scp" MULTI=1 SCPPROGRESS=1
 
@@ -58,10 +58,12 @@ build: $(EXEC)
 install:
 	@mkdir -p $(STAGING)/bin
 	@cp -v $(EXEC) $(STAGING)/sbin/dropbear
-	@ln -s ../sbin/dropbear /bin/dropbearkey
-	@ln -s ../../sbin/dropbear /usr/bin/dbclient
-	@ln -s ../../sbin/dropbear /usr/bin/ssh
-	@ln -s ../../sbin/dropbear /usr/bin/scp
+	@echo "STAGING: $(STAGING) ..."
+	@(cd $(STAGING);					\
+		ln -s    ../sbin/dropbear bin/dropbearkey;	\
+		ln -s ../../sbin/dropbear usr/bin/dbclient;	\
+		ln -s ../../sbin/dropbear usr/bin/ssh;		\
+		ln -s ../../sbin/dropbear usr/bin/scp)
 
 clean:
 	-@$(MAKE) -C $(PKG) clean
