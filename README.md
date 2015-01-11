@@ -6,11 +6,28 @@ virtual devboard:
 
 ![TroglOS Virtual Devboard](example.png)
 
+
+Table of Contents
+-----------------
+
+* [Introduction](#introduction)
+* [Requirements](#requirements)
+* [Running](#running)
+* [Upgrading Linux](#upgrading-linux)
+* [Testing SNMP](#testing-snmp)
+* [Dropbear SSH](#dropbear-ssh)
+* [Using Telnet](#using-telnet)
+* [Bugs & Feature Requests](#bugs--feature-requests)
+
+
+Introduction
+------------
 TroglOS is a playful, but working, example of how to create a virtual
 devboard, based on Linux and BusyBox.  You can use it for testing your
 embedded applications before the actual hardware arrives.  It is also
 useful for reference when said hardware starts acting up -- you know it
 always does, right?
+
 
 Requirements
 ------------
@@ -73,13 +90,21 @@ Make sure to do a `make kernel_saveconfig`, and possibly add the new
 `kernel/config-X.ZZ` to GIT.
 
 
-Testing the SNMP Daemon
------------------------
+Testing SNMP
+------------
 
-The following command installs snmpset/get/walk, base MIBs and all
-standard MIBs needed.
+TroglOS uses [Robert Ernst's](http://members.aon.at/linuxfreak)
+[mini_snmpd](http://members.aon.at/linuxfreak/linux/mini_snmpd.html) as
+its SNMP daemon currently.  It's extremely small and therefore very
+limited in its functionality, but it's enough to monitor TroglOS by
+remote if needed.
 
-    $ sudo apt-get install snmp libsnmp-base snmp-mibs-downloader
+To test it you need an SNMP client.  The following command installs
+`snmpset`, `snmpget`, `snmpwalk`, base MIBs and all standard MIBs
+needed.  You may also be interested in a more graphical alternative,
+[snmpB](http://sourceforge.net/projects/snmpb/)
+
+<kbd>$ sudo apt-get install snmp libsnmp-base snmp-mibs-downloader</kbd>
 
 When done you should be able to do the following:
 
@@ -107,3 +132,36 @@ When done you should be able to do the following:
     $ snmpget -c public -v 2c 192.0.2.42 system.sysUpTime.0
     SNMPv2-MIB::sysUpTime.0 = Timeticks: (2344) 0:00:23.44
 
+
+Dropbear SSH
+------------
+
+The most common embedded SSH daemon in use on embedded Linux systems
+today is [Dropbear](https://matt.ucc.asn.au/dropbear/dropbear.html) by
+the incredibly humble [Matt Johnston](https://matt.ucc.asn.au/).
+
+Dropbear is started by default in TroglOS.  It currently allows `root`
+access, but we recommend disabling this and instead setting up another
+user: <kbd>adduser example</kbd>
+
+Test SSH from your host simply by: <kbd>ssh example@192.0.2.42</kbd>
+
+
+Using Telnet
+------------
+
+Currently `telnetd` is started by default in TroglOS, this will change
+in the future, but it will still be available.
+
+Test it from your host by simply calling <kbd>telnet 192.0.2.42</kbd>
+
+
+Bugs & Feature Requests
+-----------------------
+
+Feel free to report bugs and request features, or even submit your own
+[pull requests](https://help.github.com/articles/using-pull-requests/)
+using [GitHub](https://github.com/troglobit/troglos)
+
+Cheers!  
+-- Joachim
