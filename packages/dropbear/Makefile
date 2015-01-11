@@ -56,14 +56,13 @@ build: $(EXEC)
 # The paths are hard wired in the dropbear ssh deamon, so please don't
 # try to move these binaries around.
 install:
-	@mkdir -p $(STAGING)/bin
+	@mkdir -p $(STAGING)/etc/dropbear
 	@cp -v $(EXEC) $(STAGING)/sbin/dropbear
-	@echo "STAGING: $(STAGING) ..."
 	@(cd $(STAGING);					\
-		ln -s    ../sbin/dropbear bin/dropbearkey;	\
-		ln -s ../../sbin/dropbear usr/bin/dbclient;	\
-		ln -s ../../sbin/dropbear usr/bin/ssh;		\
-		ln -s ../../sbin/dropbear usr/bin/scp)
+		ln -sfv    ../sbin/dropbear bin/dropbearkey;	\
+		ln -sfv ../../sbin/dropbear usr/bin/dbclient;	\
+		ln -sfv ../../sbin/dropbear usr/bin/ssh;	\
+		ln -sfv ../../sbin/dropbear usr/bin/scp)
 
 clean:
 	-@$(MAKE) -C $(PKG) clean
