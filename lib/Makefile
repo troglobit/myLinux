@@ -1,6 +1,5 @@
-# Free/Libre Open-Source Software Packages
+# Free/Libre Open-Source Software Libraries
 #
-# Copyright (c) 2013-2014  Henrik Nordström <henrik@henriknordstrom.net>
 # Copyright (c) 2014-2015  Joachim Nilsson <troglobit@gmail.com
 #
 # Permission to use, copy, modify, and/or distribute this software for
@@ -17,7 +16,7 @@
 .PHONY: all install clean distclean
 
 exclude          = Makefile
-dir_y            = busybox mini-snmpd
+dir_y            = zlib
 dir_n            =
 dir_             =
 dir_all          = $(filter-out $(exclude), $(notdir $(wildcard *)))

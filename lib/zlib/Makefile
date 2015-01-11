@@ -1,6 +1,5 @@
-# Free/Libre Open-Source Software Packages
+# Glue for cross compiling zlib
 #
-# Copyright (c) 2013-2014  Henrik Nordström <henrik@henriknordstrom.net>
 # Copyright (c) 2014-2015  Joachim Nilsson <troglobit@gmail.com
 #
 # Permission to use, copy, modify, and/or distribute this software for
@@ -16,11 +15,40 @@
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .PHONY: all install clean distclean
 
-exclude          = Makefile
-dir_y            = busybox mini-snmpd
-dir_n            =
-dir_             =
-dir_all          = $(filter-out $(exclude), $(notdir $(wildcard *)))
+VER            ?= 1.2.8
+PKG		= zlib-$(VER)
+PKGSUFFIX	= tar.gz
+PATCHES 	= patches/*.patch
+URL             = http://zlib.net/$(PKG).$(PKGSUFFIX)
+CFLAGS         := 
 
-include ../rules.mk
+all: build
+
+include $(ROOTDIR)/pkg.mk
+
+$(PKG)/Makefile: $(ARCHIVE) $(PATCHES) patches/series
+	-@$(RM) -r $(PKG)
+	@tar xfz $(ARCHIVE) && mv $(NAME) $(PKG)
+	@echo "  PATCH   $(PKG)/"
+	@(cd $(PKG); ln -sf ../patches .)
+	@(cd $(PKG); quilt push -qa)
+	@(cd $(PKG) && ./configure --prefix=$(STAGING))
+
+unpack: $(PKG)/Makefile
+
+$(PKG)/.stamp: $(PKG)/Makefile
+	+$(MAKE) -C $(PKG) all
+	@touch $@
+
+build: $(PKG)/.stamp
+
+install: $(PKG)/.stamp
+	+$(MAKE) -C $(PKG) install
+
+clean:
+	-@$(MAKE) -C $(PKG) clean
+	-@$(RM) $(PKG)/.stamp
+
+distclean:
+	-@$(RM) -rf zlib-*
 

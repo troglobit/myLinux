@@ -21,6 +21,10 @@ CROSS          ?= arm-linux-gnueabi-
 CROSS_COMPILE  ?= $(CROSS)
 KERNEL_VERSION  = 3.18.2
 
+CC              = $(CROSS_COMPILE)gcc
+CFLAGS          =
+CPPFLAGS        = -I$(STAGING)/include
+
 NAME           := "TroglOS Linux"
 RELEASE_ID     := "chaos"
 RELEASE        := "Chaos Devel `date --iso-8601`"
@@ -41,10 +45,11 @@ DOWNLOADS      ?= $(shell xdg-user-dir DOWNLOAD 2>/dev/null || echo "$(ROOTDIR)/
 
 export ARCH CROSS CROSS_COMPILE
 export KERNEL_VERSION
+export CC CFLAGS CPPFLAGS
 export NAME VERSION_ID VERSION ID PRETTY_NAME HOME_URL
 export ROOTDIR STAGING IMAGEDIR DOWNLOADS
 
-all: staging kernel packages ramdisk
+all: staging kernel lib packages ramdisk
 
 # qemu-img create -f qcow hda.img 2G
 # +=> -hda hda.img
@@ -80,6 +85,10 @@ staging:
 	@echo "$(RELEASE_ID)"                          > $(STAGING)/etc/hostname
 	@sed -i 's/HOSTNAME/$(RELEASE_ID)/' $(STAGING)/etc/hosts
 
+ramdisk:
+	@echo "  INITRD  $(KERNEL_VERSION)"
+	@$(MAKE) -f ramdisk.mk $@
+
 kernel:
 	@$(MAKE) -j5 -C kernel all
 
@@ -92,45 +101,30 @@ kernel_oldconfig:
 kernel_saveconfig:
 	@$(MAKE) -C kernel saveconfig
 
-packages:
-	@$(MAKE) -j5 -C packages all
-	@$(MAKE) -j5 -C packages install
+# Packages may depend on libraries, so we build libs first
+packages: lib
 
-ramdisk:
-	@echo "  INITRD  $(KERNEL_VERSION)"
-	@$(MAKE) -f ramdisk.mk $@
+packages lib:
+	@$(MAKE) -j5 -C $@ all
+	@$(MAKE) -j5 -C $@ install
 
-PACK_EXCLUDES=Makefile
-PACKLIST=$(filter-out $(PACK_EXCLUDES), $(notdir $(wildcard $(ROOTDIR)/packages/*)))
-$(addsuffix -build,$(PACKLIST)): staging
-	@$(MAKE) $(MFLAGS) -C $(ROOTDIR)/packages/ $@
+TARGETS=$(shell find packages -maxdepth 1 -mindepth 1 -type d)
+include quick.mk
 
-$(addsuffix -install,$(PACKLIST)):
-	@$(MAKE) $(MFLAGS) -C $(ROOTDIR)/packages/ $@
-
-$(addsuffix -clean,$(PACKLIST)):
-	@$(MAKE) $(MFLAGS) -C $(ROOTDIR)/packages/ $@
-
-$(addsuffix -distclean,$(PACKLIST)):
-	@$(MAKE) $(MFLAGS) -C $(ROOTDIR)/packages/ $@
-
-$(addsuffix -menuconfig,$(PACKLIST)):
-	@$(MAKE) -C $(ROOTDIR)/packages/ $@
-
-$(addsuffix -saveconfig,$(PACKLIST)):
-	@$(MAKE) -C $(ROOTDIR)/packages/ $@
+TARGETS=$(shell find lib -maxdepth 1 -mindepth 1 -type d)
+include quick.mk
 
 clean:
-	@for dir in kernel packages; do	\
-		echo "  CLEAN   $$dir"; \
-		/bin/echo -ne "\033]0;$(PWD) $$dir\007"; \
-		$(MAKE) -C $$dir $@;	\
+	@for dir in kernel lib packages; do			\
+		echo "  CLEAN   $$dir";				\
+		/bin/echo -ne "\033]0;$(PWD) $$dir\007";	\
+		$(MAKE) -C $$dir $@;				\
 	done
 
 distclean:
-	@for dir in kernel packages; do	\
-		echo "  REMOVE  $$dir"; \
-		/bin/echo -ne "\033]0;$(PWD) $$dir\007"; \
-		$(MAKE) -C $$dir $@;	\
+	@for dir in kernel lib packages; do			\
+		echo "  REMOVE  $$dir";				\
+		/bin/echo -ne "\033]0;$(PWD) $$dir\007";	\
+		$(MAKE) -C $$dir $@;				\
 	done
 	-@$(RM) -rf $(STAGING) $(IMAGEDIR)
