@@ -15,5 +15,5 @@
 #::respawn:/sbin/ifplugd -n -a -i eth0 -I -l 2>/dev/null
 
 ::respawn:/sbin/httpd -r "Administrator Login" -f
-#::respawn:/sbin/dropbear -R -F
+::respawn:/sbin/dropbear -R -F
 ::respawn:/sbin/getty 115200 ttyAMA0
