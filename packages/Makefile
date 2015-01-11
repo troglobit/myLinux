@@ -23,7 +23,7 @@ CPPFLAGS         = -I$(STAGING)/include
 export CC CFLAGS CPPFLAGS
 
 exclude          = Makefile
-dir_y            = busybox
+dir_y            = busybox mini-snmpd
 dir_n            =
 dir_             =
 dir_all          = $(filter-out $(exclude), $(notdir $(wildcard *)))

@@ -31,5 +31,9 @@ I:index.html
 EOF
 
 # Bring up all /etc/network/interfaces
-ifup -a 2>&1 >/dev/null &
+ifup -a 2>&1 >/dev/null
+
+# Start SNMP daemon
+mini_snmpd -c public -D "TroglOS Linux Virtual Devboard" \
+        -L GitHub -C troglobit@gmail.com -i eth0 -v -t 10 1>/dev/null 2>&1 &
 
