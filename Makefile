@@ -1,6 +1,5 @@
 # Top level Makefile
 #
-# Copyright (c) 2013-2014  Henrik Nordström <henrik@henriknordstrom.net>
 # Copyright (c) 2014-2015  Joachim Nilsson <troglobit@gmail.com
 #
 # Permission to use, copy, modify, and/or distribute this software for
