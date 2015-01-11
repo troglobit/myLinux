@@ -1,9 +1,5 @@
-TroglOS Linux -- Your Virtual Devboard
-======================================
-
-Build your virtual devboard using the most basic components with TroglOS
-![TroglOS Virtual Devboard](example.png)
-
+TroglOS Linux | Your Virtual Devboard
+=====================================
 
 Table of Contents
 -----------------
@@ -16,6 +12,8 @@ Table of Contents
 * [Dropbear SSH](#dropbear-ssh)
 * [Using Telnet](#using-telnet)
 * [Bugs & Feature Requests](#bugs--feature-requests)
+
+![TroglOS Virtual Devboard](example.png)
 
 
 Introduction
