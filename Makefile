@@ -23,6 +23,8 @@ KERNEL_VERSION  = 3.18.2
 CC              = $(CROSS_COMPILE)gcc
 CFLAGS          =
 CPPFLAGS        = -I$(STAGING)/include
+LDLIBS          =
+LDFLAGS         = -L$(STAGING)/lib
 
 NAME           := "TroglOS Linux"
 RELEASE_ID     := "chaos"
@@ -37,14 +39,14 @@ BUG_REPORT_URL := "https://github.com/troglobit/troglos/issues"
 
 ROOTDIR        := $(shell pwd)
 STAGING         = $(ROOTDIR)/staging
-STAGING_DIRS    = mnt proc sys bin sbin tmp
+STAGING_DIRS    = mnt proc sys lib share bin sbin usr/lib usr/share usr/bin usr/sbin tmp var
 IMAGEDIR        = $(ROOTDIR)/images
 MAKEFLAGS       = --silent --no-print-directory
 DOWNLOADS      ?= $(shell xdg-user-dir DOWNLOAD 2>/dev/null || echo "$(ROOTDIR)/downloads")
 
 export ARCH CROSS CROSS_COMPILE
 export KERNEL_VERSION
-export CC CFLAGS CPPFLAGS
+export CC CFLAGS CPPFLAGS LDLIBS LDFLAGS
 export NAME VERSION_ID VERSION ID PRETTY_NAME HOME_URL
 export ROOTDIR STAGING IMAGEDIR DOWNLOADS
 
@@ -83,9 +85,17 @@ staging:
 	@echo "$(NAME) $(VERSION_ID)"                  > $(STAGING)/etc/issue.net
 	@echo "$(RELEASE_ID)"                          > $(STAGING)/etc/hostname
 	@sed -i 's/HOSTNAME/$(RELEASE_ID)/' $(STAGING)/etc/hosts
+	@echo "  INSTALL Toolchain shared libraries ..."
+	# XXX: UGLY FIXME!!
+	@cp -a /usr/arm-linux-gnueabi/lib/* $(STAGING)/lib/
 
+# Cleanup staging (may need to separate into a staging + romfs dir, like uClinux-dist)
 ramdisk:
 	@echo "  INITRD  $(KERNEL_VERSION)"
+	@rm -rf $(STAGING)/lib/pkgconfig
+	@rm -rf $(STAGING)/lib/*.a
+	@rm -rf $(STAGING)/share/man
+	@touch $(STAGING)/etc/version
 	@$(MAKE) -f ramdisk.mk $@
 
 kernel:
