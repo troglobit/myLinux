@@ -28,7 +28,7 @@ include $(ROOTDIR)/pkg.mk
 
 $(PKG)/Makefile: $(ARCHIVE) $(PATCHES) patches/series
 	-@$(RM) -r $(PKG)
-	@tar xfz $(ARCHIVE) && mv $(NAME) $(PKG)
+	@tar xfz $(ARCHIVE)
 	@echo "  PATCH   $(PKG)/"
 	@(cd $(PKG); ln -sf ../patches .)
 	@(cd $(PKG); quilt push -qa)

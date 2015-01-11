@@ -1,6 +1,7 @@
 images/*
 staging/*
 kernel/linux-*
+lib/zlib/zlib-*
 packages/busybox/busybox-*
 packages/dropbear/dropbear-*
 packages/mini-snmpd/mini_snmpd-*
