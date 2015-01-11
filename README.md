@@ -1,9 +1,7 @@
-TroglOS a Virtual Devboard
-==========================
+TroglOS Linux -- Your Virtual Devboard
+======================================
 
-Build your own Linux from scratch with TroglOS *ARM Versatile* based
-virtual devboard:
-
+Build your virtual devboard using the most basic components with TroglOS
 ![TroglOS Virtual Devboard](example.png)
 
 
@@ -22,11 +20,11 @@ Table of Contents
 
 Introduction
 ------------
+
 TroglOS is a playful, but working, example of how to create a virtual
-devboard, based on Linux and BusyBox.  You can use it for testing your
-embedded applications before the actual hardware arrives.  It is also
-useful for reference when said hardware starts acting up -- you know it
-always does, right?
+devboard, based on Linux and BusyBox.  Use it to test your embedded
+applications before the actual hardware arrives.  Or as a reference when
+said hardware starts acting up -- as it invariably does ...
 
 
 Requirements
