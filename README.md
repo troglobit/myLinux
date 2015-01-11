@@ -1,6 +1,8 @@
 TroglOS Linux | A Virtual Devboard
 ==================================
 
+![Image of TroglOS Example Run](example.png "Virtual devboard in action!")
+
 Table of Contents
 -----------------
 
@@ -12,8 +14,6 @@ Table of Contents
 * [Dropbear SSH](#dropbear-ssh)
 * [Using Telnet](#using-telnet)
 * [Bugs & Feature Requests](#bugs--feature-requests)
-
-![](example.png)
 
 
 Introduction
