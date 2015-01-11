@@ -30,7 +30,7 @@ CFLAGS         := $(filter-out -Wformat, $(CFLAGS))
 
 all: build
 
-include $(ROOTDIR)/package.mk
+include $(ROOTDIR)/pkg.mk
 
 $(PKG)/Makefile: $(ARCHIVE) $(PATCHES) patches/series
 	-@$(RM) -r $(PKG)

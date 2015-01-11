@@ -32,7 +32,7 @@ ENV_OPTS        = PROGRAMS="dropbear dropbearkey dbclient scp" MULTI=1 SCPPROGRE
 
 all: build
 
-include $(ROOTDIR)/package.mk
+include $(ROOTDIR)/pkg.mk
 
 $(PKG)/.prepared: Makefile $(ARCHIVE) $(PATCHES) patches/series
 	-@$(RM) -r $(PKG)

@@ -28,7 +28,7 @@ ZIMAGE          = $(PKG)/arch/$(ARCH)/boot/zImage
 
 all: kernel headers_install modules modules_install
 
-include ../package.mk
+include $(ROOTDIR)/pkg.mk
 
 $(PKG)/Makefile: $(ARCHIVE)
 	@echo "  UNPACK  $(PKG)"
