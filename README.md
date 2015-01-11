@@ -19,6 +19,10 @@ The build environment requires at least the following tools, tested on
 Ubuntu 14.04:
 
 * gcc-arm-linux-gnueabi
+* cpp-arm-linux-gnueabi
+* binutils-arm-linux-gnueabi
+* libc6-armel-cross
+* libc6-dev-armel-cross
 * curl
 * make
 * gcc (or clang, for the menuconfig interface)
