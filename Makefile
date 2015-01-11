@@ -39,7 +39,8 @@ BUG_REPORT_URL := "https://github.com/troglobit/troglos/issues"
 
 ROOTDIR        := $(shell pwd)
 STAGING         = $(ROOTDIR)/staging
-STAGING_DIRS    = mnt proc sys lib share bin sbin usr/lib usr/share usr/bin usr/sbin tmp var
+# usr/lib usr/share usr/bin usr/sbin 
+STAGING_DIRS    = mnt proc sys lib share bin sbin tmp var
 IMAGEDIR        = $(ROOTDIR)/images
 MAKEFLAGS       = --silent --no-print-directory
 DOWNLOADS      ?= $(shell xdg-user-dir DOWNLOAD 2>/dev/null || echo "$(ROOTDIR)/downloads")
