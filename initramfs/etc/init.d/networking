@@ -1,0 +1,5 @@
+#!/bin/sh
+
+/sbin/ifup -a 2>/dev/null &
+/bin/true
+

@@ -20,6 +20,7 @@ CROSS          ?= arm-linux-gnueabi-
 CROSS_COMPILE  ?= $(CROSS)
 KERNEL_RC       = -rc4
 KERNEL_VERSION  = 3.19
+KERNEL_CMDLINE  = root=/dev/ram console=ttyAMA0,115200 quiet init=/sbin/finit
 
 CC              = $(CROSS_COMPILE)gcc
 CFLAGS          =
@@ -30,7 +31,7 @@ LDFLAGS         = -L$(STAGING)/lib
 NAME           := "TroglOS Linux"
 RELEASE_ID     := "chaos"
 RELEASE        := "Chaos Devel `date --iso-8601`"
-VERSION_ID     := "1.0-beta3"
+VERSION_ID     := "1.0-beta4"
 VERSION        := "$(VERSION_ID), $(RELEASE)"
 ID             := "troglos"
 PRETTY_NAME    := "$(NAME) $(VERSION_ID)"
@@ -57,13 +58,13 @@ all: staging kernel lib packages ramdisk
 # qemu-img create -f qcow hda.img 2G
 # +=> -hda hda.img
 run:
-	@echo "  QEMU    Starting $(NAME) ... (Use Ctrl-a c quit to exit Qemu)"
+	@echo "  QEMU    Use 'Ctrl-a x' to exit, and 'Ctrl-a c' to switch console/monitor"
 	@qemu-system-arm -nographic -m 128M -M versatilepb -usb					\
 			 -device rtl8139,netdev=nic0						\
 			 -netdev bridge,id=nic0,br=virbr0,helper=/usr/lib/qemu-bridge-helper	\
 			 -kernel $(IMAGEDIR)/zImage        					\
 			 -initrd $(IMAGEDIR)/initramfs.gz  					\
-			 -append "root=/dev/ram console=ttyAMA0,115200 quiet"
+			 -append "$(KERNEL_CMDLINE)"
 
 staging:
 	@echo "  STAGING Root file system ..."
@@ -93,7 +94,7 @@ staging:
 
 # Cleanup staging (may need to separate into a staging + romfs dir, like uClinux-dist)
 ramdisk:
-	@echo "  INITRD  $(KERNEL_VERSION)"
+	@echo "  INITRD  $(NAME) $(KERNEL_VERSION)"
 	@rm -rf $(STAGING)/lib/pkgconfig
 	@rm -rf $(STAGING)/lib/*.a
 	@rm -rf $(STAGING)/share/man
