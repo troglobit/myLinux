@@ -15,13 +15,16 @@
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .PHONY: all defconfig oldconfig saveconfig headers_install modules_install clean distclean
 
-VER            ?= $(KERNEL_VERSION)
-BASE_VER       := $(shell echo $(VER) | sed 's/\([0-9]*\.[0-9]*\)\.[0-9]*/\1/')
+VER            ?= $(KERNEL_VERSION)$(KERNEL_RC)
+BASE_VER       := $(shell echo $(VER) | sed 's/\([0-9]*\.[0-9]*\).*/\1/')
 PKG             = linux-$(VER)
 PKGNAME	        = kernel
 PKGSUFFIX       = tar.xz
 TARBALL         = $(PKG).$(PKGSUFFIX)
-URL             = ftp://ftp.kernel.org/pub/linux/kernel/v3.x/$(TARBALL)
+ifdef KERNEL_RC
+RC_PATH         = testing/
+endif
+URL             = ftp://ftp.kernel.org/pub/linux/kernel/v3.x/$(RC_PATH)$(TARBALL)
 CONFIG          = config-$(BASE_VER)
 ZIMAGE          = $(PKG)/arch/$(ARCH)/boot/zImage
 

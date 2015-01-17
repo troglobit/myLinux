@@ -1,10 +1,13 @@
 .PHONY: ramdisk
 
-KERNEL_MODULES  = $(STAGING)/lib/modules/$(KERNEL_VERSION)
-KERNELRELEASE   = $(shell test -d $(KERNEL_MODULES)/build && $(MAKE) -s -C $(KERNEL_MODULES)/build CROSS_COMPILE=$(CROSS_COMPILE) ARCH=$(ARCH) kernelrelease)
+ifdef KERNEL_RC
+KERNEL_VERSION := $(KERNEL_VERSION).0$(KERNEL_RC)
+endif
+KERNEL_MODULES := $(STAGING)/lib/modules/$(KERNEL_VERSION)
+KERNELRELEASE  := $(shell test -d $(KERNEL_MODULES)/build && $(MAKE) -s -C $(KERNEL_MODULES)/build CROSS_COMPILE=$(CROSS_COMPILE) ARCH=$(ARCH) kernelrelease)
 
 # images/initramfs-$(KERNELRELEASE).img images/initramfs-$(KERNELRELEASE).uImage
-RAMDISK         = images/initramfs-$(KERNELRELEASE).gz
+RAMDISK        := images/initramfs-$(KERNELRELEASE).gz
 
 ramdisk: $(RAMDISK)
 	@ln -sf `basename $(RAMDISK)` images/initramfs.gz

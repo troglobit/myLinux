@@ -18,7 +18,8 @@
 ARCH            = arm
 CROSS          ?= arm-linux-gnueabi-
 CROSS_COMPILE  ?= $(CROSS)
-KERNEL_VERSION  = 3.18.2
+KERNEL_RC       = -rc4
+KERNEL_VERSION  = 3.19
 
 CC              = $(CROSS_COMPILE)gcc
 CFLAGS          =
@@ -46,7 +47,7 @@ MAKEFLAGS       = --silent --no-print-directory
 DOWNLOADS      ?= $(shell xdg-user-dir DOWNLOAD 2>/dev/null || echo "$(ROOTDIR)/downloads")
 
 export ARCH CROSS CROSS_COMPILE
-export KERNEL_VERSION
+export KERNEL_VERSION KERNEL_RC
 export CC CFLAGS CPPFLAGS LDLIBS LDFLAGS
 export NAME VERSION_ID VERSION ID PRETTY_NAME HOME_URL
 export ROOTDIR STAGING IMAGEDIR DOWNLOADS
