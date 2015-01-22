@@ -20,6 +20,7 @@ CROSS          ?= arm-linux-gnueabi-
 CROSS_COMPILE  ?= $(CROSS)
 KERNEL_RC       = -rc4
 KERNEL_VERSION  = 3.19
+# Add --debug to cmdline to debug finit
 KERNEL_CMDLINE  = root=/dev/ram console=ttyAMA0,115200 quiet init=/sbin/finit
 
 CC              = $(CROSS_COMPILE)gcc
@@ -58,7 +59,7 @@ all: staging kernel lib packages ramdisk
 # qemu-img create -f qcow hda.img 2G
 # +=> -hda hda.img
 run:
-	@echo "  QEMU    Use 'Ctrl-a x' to exit, and 'Ctrl-a c' to switch console/monitor"
+	@echo "  QEMU    Ctrl-a x -- exit | Ctrl-a c -- switch console/monitor"
 	@qemu-system-arm -nographic -m 128M -M versatilepb -usb					\
 			 -device rtl8139,netdev=nic0						\
 			 -netdev bridge,id=nic0,br=virbr0,helper=/usr/lib/qemu-bridge-helper	\
