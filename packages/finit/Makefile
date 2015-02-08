@@ -15,8 +15,8 @@
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .PHONY: all install clean distclean
 
-VER            ?= 1.10
-#VER             = dev
+#VER            ?= 1.10
+VER             = dev
 VERSION         = $(VER)
 NAME            = finit
 PKG		= $(NAME)-$(VER)
