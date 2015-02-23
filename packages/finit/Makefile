@@ -25,7 +25,7 @@ PATCHES 	= patches/*.patch
 URL             = https://github.com/troglobit/$(NAME)/releases/download/$(VER)/$(PKG).$(PKGSUFFIX)
 
 CPPFLAGS        = -DEMBEDDED_SYSTEM
-PLUGINS         = bootmisc.so initctl.so hwclock.so
+PLUGINS         = bootmisc.so initctl.so hwclock.so time.so
 DESTDIR         = $(STAGING)
 
 export CPPFLAGS PLUGINS DESTDIR
