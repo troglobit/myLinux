@@ -58,12 +58,14 @@ all: staging kernel lib packages ramdisk
 
 # qemu-img create -f qcow hda.img 2G
 # +=> -hda hda.img
+#			 -drive file=kalle.img,if=virtio
+#			 -dtb $(IMAGEDIR)/versatile-ab.dtb
+#			 -dtb $(IMAGEDIR)/versatile-pb.dtb
 run:
 	@echo "  QEMU    Ctrl-a x -- exit | Ctrl-a c -- switch console/monitor"
 	@qemu-system-arm -nographic -m 128M -M versatilepb -usb					\
 			 -device rtl8139,netdev=nic0						\
 			 -netdev bridge,id=nic0,br=virbr0,helper=/usr/lib/qemu-bridge-helper	\
-			 -drive file=kalle.img,if=virtio					\
 			 -kernel $(IMAGEDIR)/zImage        					\
 			 -initrd $(IMAGEDIR)/initramfs.gz  					\
 			 -append "$(KERNEL_CMDLINE)"
@@ -114,6 +116,9 @@ kernel_oldconfig:
 
 kernel_saveconfig:
 	@$(MAKE) -C kernel saveconfig
+
+kernel_install:
+	@$(MAKE) -C kernel dtbinst
 
 # Packages may depend on libraries, so we build libs first
 packages: lib

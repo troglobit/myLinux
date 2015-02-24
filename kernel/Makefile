@@ -75,6 +75,9 @@ menuconfig:
 	@echo "  CONFIG  $(PKG)";
 	@$(MAKE) -C $(PKG) menuconfig
 
+dtbinst:
+	INSTALL_DTBS_PATH=$(IMAGEDIR) $(MAKE) -C $(PKG) dtbs dtbs_install
+
 kernel: $(ZIMAGE)
 	@cp $(ZIMAGE) $(IMAGEDIR)
 
