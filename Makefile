@@ -19,7 +19,7 @@ ARCH            = arm
 CROSS          ?= arm-linux-gnueabi-
 CROSS_COMPILE  ?= $(CROSS)
 #KERNEL_RC       = -rc7
-KERNEL_VERSION  = 3.19
+KERNEL_VERSION  = 3.19.5
 # Add --debug to cmdline to debug finit
 KERNEL_CMDLINE  = root=/dev/ram console=ttyAMA0,115200 quiet init=/sbin/finit
 
