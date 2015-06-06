@@ -54,10 +54,15 @@ Running
 -------
 
 TroglOS uses Qemu to run the resulting kernel + image.  For networking
-you may need to do the following to your host system:
+you may need to do the following to your host system, here Ubuntu 14.04:
 
     sudo chmod 4755 /usr/lib/qemu-bridge-helper
     sudo dpkg-statoverride --add root root 4755 /usr/lib/qemu-bridge-helper
+
+In Ubuntu 15.04 the helper script has moved to a qemu sub-directory:
+
+    sudo chmod 4755 /usr/lib/qemu/qemu-bridge-helper
+    sudo dpkg-statoverride --add root root 4755 /usr/lib/qemu/qemu-bridge-helper
 
 The first command makes the Qemu helper "suid root", which means we're
 allowed to manipulate the network to gain external network access.  The
@@ -168,3 +173,9 @@ using [GitHub](https://github.com/troglobit/troglos)
 
 Cheers!  
 -- Joachim
+
+<!--
+  -- Local Variables:
+  -- mode: markdown
+  -- End:
+  -->
