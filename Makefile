@@ -63,11 +63,11 @@ all: staging kernel lib packages ramdisk
 #			 -dtb $(IMAGEDIR)/versatile-pb.dtb
 run:
 	@echo "  QEMU    Ctrl-a x -- exit | Ctrl-a c -- switch console/monitor"
-	@qemu-system-arm -nographic -m 128M -M versatilepb -usb					\
-			 -device rtl8139,netdev=nic0						\
-			 -netdev bridge,id=nic0,br=virbr0,helper=/usr/lib/qemu-bridge-helper	\
-			 -kernel $(IMAGEDIR)/zImage        					\
-			 -initrd $(IMAGEDIR)/initramfs.gz  					\
+	@qemu-system-arm -nographic -m 128M -M versatilepb -usb						\
+			 -device rtl8139,netdev=nic0							\
+			 -netdev bridge,id=nic0,br=virbr0,helper=/usr/lib/qemu/qemu-bridge-helper	\
+			 -kernel $(IMAGEDIR)/zImage        						\
+			 -initrd $(IMAGEDIR)/initramfs.gz  						\
 			 -append "$(KERNEL_CMDLINE)"
 
 staging:
