@@ -4,3 +4,4 @@
 103-mib_encode_snmp_element_oid_fix.patch
 105-siginterrupt.patch
 106-moreinterfaces.patch
+107-sizeof-fix.patch
