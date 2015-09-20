@@ -34,7 +34,7 @@ Requirements
 ------------
 
 The build environment requires at least the following tools, tested on
-Ubuntu 14.04:
+Ubuntu 14.04, 15.04, and 15.10:
 
 * gcc-arm-linux-gnueabi
 * cpp-arm-linux-gnueabi
