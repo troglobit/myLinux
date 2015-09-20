@@ -24,7 +24,7 @@ TARBALL         = $(PKG).$(PKGSUFFIX)
 ifdef KERNEL_RC
 RC_PATH         = testing/
 endif
-URL             = ftp://ftp.kernel.org/pub/linux/kernel/v3.x/$(RC_PATH)$(TARBALL)
+URL             = ftp://ftp.kernel.org/pub/linux/kernel/v4.x/$(RC_PATH)$(TARBALL)
 CONFIG          = config-$(BASE_VER)
 ZIMAGE          = $(PKG)/arch/$(ARCH)/boot/zImage
 
@@ -75,7 +75,7 @@ menuconfig:
 	@echo "  CONFIG  $(PKG)";
 	@$(MAKE) -C $(PKG) menuconfig
 
-dtbinst:
+dtbinst: $(ZIMAGE)
 	INSTALL_DTBS_PATH=$(IMAGEDIR) $(MAKE) -C $(PKG) dtbs dtbs_install
 
 kernel: $(ZIMAGE)

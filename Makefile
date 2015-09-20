@@ -19,9 +19,9 @@ ARCH            = arm
 CROSS          ?= arm-linux-gnueabi-
 CROSS_COMPILE  ?= $(CROSS)
 #KERNEL_RC       = -rc7
-KERNEL_VERSION  = 3.19.5
+KERNEL_VERSION  = 4.1.7
 # Add --debug to cmdline to debug finit
-KERNEL_CMDLINE  = root=/dev/ram console=ttyAMA0,115200 quiet init=/sbin/finit
+KERNEL_CMDLINE  = root=/dev/ram mem=128M console=ttyAMA0,115200 quiet init=/sbin/finit
 
 CC              = $(CROSS_COMPILE)gcc
 CFLAGS          =
@@ -29,16 +29,16 @@ CPPFLAGS        = -I$(STAGING)/include
 LDLIBS          =
 LDFLAGS         = -L$(STAGING)/lib
 
-NAME           := "TroglOS Linux"
-RELEASE_ID     := "chaos"
-RELEASE        := "Chaos Devel `date --iso-8601`"
-VERSION_ID     := "1.0-beta4"
-VERSION        := "$(VERSION_ID), $(RELEASE)"
+NAME           := TroglOS Linux
+RELEASE_ID     := chaos
+RELEASE        := Chaos Devel `date --iso-8601`
+VERSION_ID     := 1.0-beta5
+VERSION        := $(VERSION_ID), $(RELEASE)
 ID             := "troglos"
-PRETTY_NAME    := "$(NAME) $(VERSION_ID)"
-HOME_URL       := "http://troglobit.com"
-SUPPORT_URL    := "https://github.com/troglobit/troglos"
-BUG_REPORT_URL := "https://github.com/troglobit/troglos/issues"
+PRETTY_NAME    := $(NAME) $(VERSION_ID)
+HOME_URL       := http://troglobit.com
+SUPPORT_URL    := https://github.com/troglobit/troglos
+BUG_REPORT_URL := https://github.com/troglobit/troglos/issues
 
 ROOTDIR        := $(shell pwd)
 STAGING         = $(ROOTDIR)/staging
@@ -68,7 +68,7 @@ run:
 			 -netdev bridge,id=nic0,br=virbr0,helper=/usr/lib/qemu/qemu-bridge-helper	\
 			 -kernel $(IMAGEDIR)/zImage        						\
 			 -initrd $(IMAGEDIR)/initramfs.gz  						\
-			 -append "$(KERNEL_CMDLINE)"
+			 -append "$(KERNEL_CMDLINE)" 2>/dev/null
 
 staging:
 	@echo "  STAGING Root file system ..."
@@ -113,6 +113,9 @@ kernel_menuconfig:
 
 kernel_oldconfig:
 	@$(MAKE) -C kernel oldconfig
+
+kernel_defconfig:
+	@$(MAKE) -C kernel defconfig
 
 kernel_saveconfig:
 	@$(MAKE) -C kernel saveconfig
