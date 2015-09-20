@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/arm 4.0.0-rc1 Kernel Configuration
+# Linux/arm 4.0.9 Kernel Configuration
 #
 CONFIG_ARM=y
 CONFIG_MIGHT_HAVE_PCI=y
@@ -740,6 +740,7 @@ CONFIG_OF_PCI=y
 CONFIG_OF_PCI_IRQ=y
 CONFIG_OF_MTD=y
 CONFIG_OF_RESERVED_MEM=y
+# CONFIG_OF_OVERLAY is not set
 CONFIG_ARCH_MIGHT_HAVE_PC_PARPORT=y
 # CONFIG_PARPORT is not set
 CONFIG_BLK_DEV=y
@@ -2243,7 +2244,6 @@ CONFIG_CLKSRC_MMIO=y
 # CONFIG_SH_TIMER_TMU is not set
 # CONFIG_EM_TIMER_STI is not set
 # CONFIG_CLKSRC_VERSATILE is not set
-# CONFIG_ASM9260_TIMER is not set
 # CONFIG_MAILBOX is not set
 CONFIG_IOMMU_SUPPORT=y
 
