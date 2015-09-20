@@ -45,6 +45,7 @@ STAGING         = $(ROOTDIR)/staging
 # usr/lib usr/share usr/bin usr/sbin 
 STAGING_DIRS    = mnt proc sys lib share bin sbin tmp var home
 IMAGEDIR        = $(ROOTDIR)/images
+PERSISTENT     := $(IMAGEDIR)/mnt
 MAKEFLAGS       = --silent --no-print-directory
 DOWNLOADS      ?= $(shell xdg-user-dir DOWNLOAD 2>/dev/null || echo "$(ROOTDIR)/downloads")
 
@@ -58,12 +59,15 @@ all: staging kernel lib packages ramdisk
 
 # qemu-img create -f qcow hda.img 2G
 # +=> -hda hda.img
-#			 -drive file=kalle.img,if=virtio
+#			 -drive file=disk.img,if=virtio
 #			 -dtb $(IMAGEDIR)/versatile-ab.dtb
 #			 -dtb $(IMAGEDIR)/versatile-pb.dtb
 run:
 	@echo "  QEMU    Ctrl-a x -- exit | Ctrl-a c -- switch console/monitor"
+	-@mkdir $(PERSISTENT) 2>/dev/null
 	@qemu-system-arm -nographic -m 128M -M versatilepb -usb						\
+			 -device virtio-9p-pci,fsdev=mnt,mount_tag=mnt_target				\
+			 -fsdev local,id=mnt,path=$(PERSISTENT),security_model=none			\
 			 -device rtl8139,netdev=nic0							\
 			 -netdev bridge,id=nic0,br=virbr0,helper=/usr/lib/qemu/qemu-bridge-helper	\
 			 -kernel $(IMAGEDIR)/zImage        						\
