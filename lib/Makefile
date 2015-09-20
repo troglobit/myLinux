@@ -16,7 +16,7 @@
 .PHONY: all install clean distclean
 
 exclude          = Makefile
-dir_y            = zlib
+dir_y            = libite libuev zlib
 dir_n            =
 dir_             =
 dir_all          = $(filter-out $(exclude), $(notdir $(wildcard *)))
