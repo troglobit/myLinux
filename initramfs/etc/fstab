@@ -1,6 +1,7 @@
-proc		/proc	proc		defaults				0	0
-#devtmpfs	/dev	devtmpfs	defaults				0	0
-sysfs		/sys	sysfs		defaults				0	0
-/tmp		/tmp	tmpfs		size=4M,noatime,nodiratime,nosuid	0	0
-/var		/var	tmpfs		size=4M,noatime,nodiratime,nosuid	0	0
+proc		/proc	proc		defaults						0	0
+#devtmpfs	/dev	devtmpfs	defaults						0	0
+sysfs		/sys	sysfs		defaults						0	0
+/tmp		/tmp	tmpfs		size=4M,noatime,nodiratime,nosuid			0	0
+/var		/var	tmpfs		size=4M,noatime,nodiratime,nosuid			0	0
 mnt_target	/mnt	9p		trans=virtio,version=9p2000.L,posixacl,cache=loose	0	0
+#overlay	/home	overlay		lowerdir=/home,upperdir=/mnt/home,workdir=/mnt/work	0	0
