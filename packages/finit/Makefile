@@ -15,7 +15,7 @@
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .PHONY: all install clean distclean
 
-VER            ?= 1.12
+VER            ?= 2.0
 #VER             = dev
 VERSION         = $(VER)
 NAME            = finit
@@ -24,11 +24,12 @@ PKGSUFFIX	= tar.xz
 PATCHES 	= patches/*.patch
 URL             = https://github.com/troglobit/$(NAME)/releases/download/$(VER)/$(PKG).$(PKGSUFFIX)
 
-CPPFLAGS        = -DEMBEDDED_SYSTEM
-PLUGINS         = bootmisc.so initctl.so hwclock.so time.so
-DESTDIR         = $(STAGING)
-
-export CPPFLAGS PLUGINS DESTDIR
+PLUGINS        := bootmisc initctl hwclock tty time netlink
+CFG_OPTS       := --enable-embedded
+CFG_OPTS       += --with-heading="$(PRETTY_NAME)"
+CFG_OPTS       += --with-plugins="$(PLUGINS)"
+CFG_OPTS       += --with-libite=$(STAGING)
+CFG_OPTS       += --with-libuev=$(STAGING)
 
 
 all: build
@@ -39,20 +40,21 @@ $(PKG)/Makefile: $(ARCHIVE) $(PATCHES) patches/series
 	-@$(RM) -r $(PKG)
 	@tar xfJ $(ARCHIVE)
 	@echo "  PATCH   $(PKG)/"
-	@(cd $(PKG); rm -rf patches; ln -sf ../patches .)
+	@(cd $(PKG); ln -sf ../patches .)
 	@(cd $(PKG); quilt push -qa)
 	@touch $@
 
 unpack: $(PKG)/Makefile
 
 $(PKG)/.stamp: $(PKG)/Makefile
+	@(cd $(PKG) && ./configure $(CFG_OPTS))
 	+@$(MAKE) -C $(PKG)
 	@touch $@
 
 build: $(PKG)/.stamp
 
 install:
-	+@$(MAKE) -C $(PKG) install-exec
+	+@$(MAKE) DESTDIR=$(STAGING) -C $(PKG) install-exec
 	@ln -sf sbin/finit $(STAGING)/init
 
 clean:
