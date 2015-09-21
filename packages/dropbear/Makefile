@@ -15,7 +15,7 @@
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .PHONY: all install clean distclean
 
-VER            ?= 2014.66
+VER            ?= 2015.68
 PKG             = dropbear-$(VER)
 PKGSUFFIX       = tar.bz2
 PATCHES         = patches/*.patch
