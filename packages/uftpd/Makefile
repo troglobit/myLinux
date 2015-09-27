@@ -15,13 +15,13 @@
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .PHONY: all install clean distclean
 
-#VER            ?= 1.9
-VER             = dev
+VER            ?= 1.9.1
+#VER             = dev
 NAME            = uftpd
 PKG		= $(NAME)-$(VER)
 PKGSUFFIX       = tar.xz
 PATCHES         = patches/*.patch
-URL             = https://github.com/troglobit/$(NAME)/releases/download/$(VER)/$(PKG).$(PKGSUFFIX)
+URL             = https://github.com/troglobit/$(NAME)/releases/download/v$(VER)/$(PKG).$(PKGSUFFIX)
 CFG_OPTS        = --with-libuev=$(STAGING) --with-libite=$(STAGING)
 
 all: build
@@ -35,7 +35,7 @@ $(PKG)/Makefile: $(ARCHIVE) $(PATCHES) patches/series
 	@(cd $(PKG);				\
 		ln -sf ../patches .;		\
 		quilt push -qa;			\
-		./configure $$CFG_OPTS)
+		./configure $(CFG_OPTS))
 	@touch $@
 
 unpack: $(PKG)/Makefile
