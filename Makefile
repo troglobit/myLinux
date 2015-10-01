@@ -31,7 +31,7 @@ LDFLAGS         = -L$(STAGING)/lib
 
 NAME           := TroglOS Linux
 RELEASE_ID     := chaos
-RELEASE        := Chaos Devel `date --iso-8601`
+RELEASE         = Chaos Devel `date --iso-8601`
 VERSION_ID     := 1.0-beta5
 VERSION        := $(VERSION_ID), $(RELEASE)
 ID             := "troglos"
