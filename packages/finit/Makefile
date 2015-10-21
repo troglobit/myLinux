@@ -15,7 +15,7 @@
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .PHONY: all install clean distclean
 
-VER            ?= 2.0
+VER            ?= 2.1
 #VER             = dev
 VERSION         = $(VER)
 NAME            = finit
