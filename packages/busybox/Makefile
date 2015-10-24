@@ -22,10 +22,6 @@ PKGSUFFIX	= tar.bz2
 PATCHES 	= patches/*.patch
 URL             = http://busybox.net/downloads/$(PKG).$(PKGSUFFIX)
 CONFIG		= config-$(BASE_VER)
-CFLAGS         := $(filter-out -W -Wall, $(CFLAGS))
-CFLAGS         := $(filter-out -Werror, $(CFLAGS))
-CFLAGS         := $(filter-out -Wcast-align, $(CFLAGS))
-CFLAGS         := $(filter-out -Wformat, $(CFLAGS))
 
 all: build
 
