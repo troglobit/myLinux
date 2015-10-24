@@ -35,5 +35,6 @@ sasl:x:45:
 plugdev:x:46:
 staff:x:50:
 games:x:60:
+lldpd:x:70:lldpd
 users:x:100:
 nogroup:x:65534:
