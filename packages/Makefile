@@ -16,7 +16,7 @@
 .PHONY: all install clean distclean
 
 exclude          = Makefile
-dir_y            = busybox dropbear mini-snmpd finit watchdogd uftpd lldpd
+dir_y            = busybox dropbear finit inadyn lldpd mini-snmpd uftpd watchdogd
 dir_n            =
 dir_             =
 dir_all          = $(filter-out $(exclude), $(notdir $(wildcard *)))
