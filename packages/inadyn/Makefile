@@ -22,7 +22,7 @@ PKG		= $(NAME)-$(VER)
 PKGSUFFIX       = tar.xz
 PATCHES         = patches/*.patch
 URL             = https://github.com/troglobit/$(NAME)/releases/download/$(VER)/$(PKG).$(PKGSUFFIX)
-CFG_OPTS        = --prefix= --host=arm-linux-gnueabi --disable-ssl
+CFG_OPTS        = --prefix= --host=$(HOST) --disable-ssl
 
 all: build
 

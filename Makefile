@@ -16,7 +16,8 @@
 .PHONY: run staging kernel lib packages clean distclean
 
 ARCH            = arm
-CROSS          ?= arm-linux-gnueabi-
+HOST            = arm-linux-gnueabi
+CROSS          ?= $(HOST)-
 CROSS_COMPILE  ?= $(CROSS)
 #KERNEL_RC       = -rc7
 KERNEL_VERSION  = 4.2.4
@@ -49,7 +50,7 @@ PERSISTENT     := $(IMAGEDIR)/mnt
 MAKEFLAGS       = --silent --no-print-directory
 DOWNLOADS      ?= $(shell xdg-user-dir DOWNLOAD 2>/dev/null || echo "$(ROOTDIR)/downloads")
 
-export ARCH CROSS CROSS_COMPILE
+export ARCH HOST CROSS CROSS_COMPILE
 export KERNEL_VERSION KERNEL_RC
 export CC CFLAGS CPPFLAGS LDLIBS LDFLAGS
 export NAME VERSION_ID VERSION ID PRETTY_NAME HOME_URL

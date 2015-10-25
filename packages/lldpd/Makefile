@@ -22,7 +22,7 @@ PKG		= $(NAME)-$(VER)
 PKGSUFFIX       = tar.gz
 PATCHES         = patches/*.patch
 URL             = http://media.luffy.cx/files/lldpd/$(PKG).$(PKGSUFFIX)
-CFG_OPTS        = --prefix=/ --host=arm-linux-gnueabi
+CFG_OPTS        = --prefix= --host=$(HOST)
 CFG_OPTS       += --with-privsep-user=lldpd
 CFG_OPTS       += --with-privsep-group=lldpd
 CFG_OPTS       += --with-privsep-chroot=/var/run
