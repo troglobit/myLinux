@@ -20,7 +20,7 @@ HOST            = arm-linux-gnueabi
 CROSS          ?= $(HOST)-
 CROSS_COMPILE  ?= $(CROSS)
 #KERNEL_RC       = -rc7
-KERNEL_VERSION  = 4.2.4
+KERNEL_VERSION  = 4.2.5
 # Add --debug to cmdline to debug finit
 KERNEL_CMDLINE  = root=/dev/ram mem=128M console=ttyAMA0,115200 quiet init=/sbin/finit
 
