@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/arm 4.2.3 Kernel Configuration
+# Linux/arm 4.2.5 Kernel Configuration
 #
 CONFIG_ARM=y
 CONFIG_MIGHT_HAVE_PCI=y
@@ -46,7 +46,8 @@ CONFIG_DEFAULT_HOSTNAME="(none)"
 CONFIG_SWAP=y
 CONFIG_SYSVIPC=y
 CONFIG_SYSVIPC_SYSCTL=y
-# CONFIG_POSIX_MQUEUE is not set
+CONFIG_POSIX_MQUEUE=y
+CONFIG_POSIX_MQUEUE_SYSCTL=y
 CONFIG_CROSS_MEMORY_ATTACH=y
 # CONFIG_FHANDLE is not set
 CONFIG_USELIB=y
@@ -565,7 +566,8 @@ CONFIG_NET_PTP_CLASSIFY=y
 # CONFIG_IP_DCCP is not set
 # CONFIG_IP_SCTP is not set
 # CONFIG_RDS is not set
-# CONFIG_TIPC is not set
+CONFIG_TIPC=y
+CONFIG_TIPC_MEDIA_UDP=y
 # CONFIG_ATM is not set
 # CONFIG_L2TP is not set
 CONFIG_STP=y
