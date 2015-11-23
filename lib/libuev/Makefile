@@ -15,7 +15,7 @@
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .PHONY: all install clean distclean
 
-VER            ?= 1.2.3
+VER            ?= 1.2.4
 NAME            = libuev
 PKG		= $(NAME)-$(VER)
 PKGSUFFIX	= tar.xz
