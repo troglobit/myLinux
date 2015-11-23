@@ -15,7 +15,7 @@
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .PHONY: all install clean distclean
 
-VER            ?= 2.1
+VER            ?= 2.2
 #VER             = dev
 VERSION         = $(VER)
 NAME            = finit
@@ -24,12 +24,14 @@ PKGSUFFIX	= tar.xz
 PATCHES 	= patches/*.patch
 URL             = https://github.com/troglobit/$(NAME)/releases/download/$(VER)/$(PKG).$(PKGSUFFIX)
 
-PLUGINS        := bootmisc initctl hwclock tty time netlink
+# --enable-static
+PLUGINS        := bootmisc initctl hwclock tty time netlink urandom
 CFG_OPTS       := --enable-embedded
 CFG_OPTS       += --with-heading="$(PRETTY_NAME)"
 CFG_OPTS       += --with-plugins="$(PLUGINS)"
-CFG_OPTS       += --with-libite=$(STAGING)
-CFG_OPTS       += --with-libuev=$(STAGING)
+#CFG_OPTS       += --with-randomseed=/mnt/random-seed
+#CFG_OPTS       += --with-libite=$(STAGING)
+#CFG_OPTS       += --with-libuev=$(STAGING)
 
 
 all: build
