@@ -30,8 +30,8 @@ CFG_OPTS       := --enable-embedded
 CFG_OPTS       += --with-heading="$(PRETTY_NAME)"
 CFG_OPTS       += --with-plugins="$(PLUGINS)"
 #CFG_OPTS       += --with-randomseed=/mnt/random-seed
-#CFG_OPTS       += --with-libite=$(STAGING)
-#CFG_OPTS       += --with-libuev=$(STAGING)
+CFG_OPTS       += --with-libite=$(STAGING)
+CFG_OPTS       += --with-libuev=$(STAGING)
 
 
 all: build
