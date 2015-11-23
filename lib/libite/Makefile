@@ -15,7 +15,7 @@
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .PHONY: all install clean distclean
 
-VER            ?= 1.1.1
+VER            ?= 1.2.0
 NAME            = libite
 PKG		= $(NAME)-$(VER)
 PKGSUFFIX	= tar.xz
