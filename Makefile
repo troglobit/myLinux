@@ -46,9 +46,10 @@ STAGING         = $(ROOTDIR)/staging
 # usr/lib usr/share usr/bin usr/sbin 
 STAGING_DIRS    = mnt proc sys lib share bin sbin tmp var home
 IMAGEDIR        = $(ROOTDIR)/images
-PERSISTENT     := $(IMAGEDIR)/mnt
+PERSISTENT     ?= $(shell xdg-user-dir DOCUMENTS)/TroglOS
+MTD            ?= $(PERSISTENT)/Config.mtd
 MAKEFLAGS       = --silent --no-print-directory
-DOWNLOADS      ?= $(shell xdg-user-dir DOWNLOAD 2>/dev/null || echo "$(ROOTDIR)/downloads")
+DOWNLOADS      ?= $(shell xdg-user-dir DOWNLOAD)
 
 export ARCH HOST CROSS CROSS_COMPILE
 export KERNEL_VERSION KERNEL_RC
@@ -65,15 +66,15 @@ all: staging kernel lib packages ramdisk
 #			 -dtb $(IMAGEDIR)/versatile-pb.dtb
 run:
 	@echo "  QEMU    Ctrl-a x -- exit | Ctrl-a c -- switch console/monitor"
-	-@mkdir $(PERSISTENT) 2>/dev/null
+	-@mkdir -p $(PERSISTENT) 2>/dev/null
+	-@[ ! -e $(MTD) ] && dd if=/dev/zero of=$(MTD) bs=16384 count=960
 	@qemu-system-arm -nographic -m 128M -M versatilepb -usb						\
-			 -device virtio-9p-pci,fsdev=mnt,mount_tag=mnt_target				\
-			 -fsdev local,id=mnt,path=$(PERSISTENT),security_model=none			\
+			 -drive if=scsi,file=$(MTD),format=raw						\
 			 -device rtl8139,netdev=nic0							\
 			 -netdev bridge,id=nic0,br=virbr0,helper=/usr/lib/qemu/qemu-bridge-helper	\
 			 -kernel $(IMAGEDIR)/zImage        						\
 			 -initrd $(IMAGEDIR)/initramfs.gz  						\
-			 -append "$(KERNEL_CMDLINE)" 2>/dev/null
+			 -append "$(KERNEL_CMDLINE) block2mtd.block2mtd=/dev/sda,,Config"
 
 staging:
 	@echo "  STAGING Root file system ..."
