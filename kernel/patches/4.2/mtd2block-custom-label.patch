@@ -1,0 +1,99 @@
+commit 69f0cbdcfa6a80fbebe206e2bc3e516342da3be8
+Author: Joachim Nilsson <troglobit@gmail.com>
+Date:   Wed Nov 18 16:38:13 2015 +0100
+
+    mtd2block: Add support for an optional custom MTD label
+    
+    This patch adds support for an optional MTD label for mtd2block emulated
+    MTD devices.  Useful when, e.g. testing device images using Qemu.  The
+    following /etc/fstab line in can then be used to mount a file system
+    regardless of the actual MTD partition number:
+    
+        mtd:Config	/mnt	jffs2	noatime,nodiratime	0    0
+    
+    Kernel command line syntax:
+    
+        block2mtd.block2mtd=/dev/sda,,Config
+    
+    The ',,' is the optional erase_size, which like before this patch,
+    defaults to PAGE_SIZE if left out.
+    
+    Signed-off-by: Joachim Nilsson <troglobit@gmail.com>
+
+diff --git a/drivers/mtd/devices/block2mtd.c b/drivers/mtd/devices/block2mtd.c
+index b16f3cd..309276c 100644
+--- a/drivers/mtd/devices/block2mtd.c
++++ b/drivers/mtd/devices/block2mtd.c
+@@ -218,7 +218,7 @@ static void block2mtd_free_device(struct block2mtd_dev *dev)
+ 
+ 
+ static struct block2mtd_dev *add_device(char *devname, int erase_size,
+-		int timeout)
++		char *label, int timeout)
+ {
+ #ifndef MODULE
+ 	int i;
+@@ -282,7 +282,10 @@ static struct block2mtd_dev *add_device(char *devname, int erase_size,
+ 
+ 	/* Setup the MTD structure */
+ 	/* make the name contain the block device in */
+-	name = kasprintf(GFP_KERNEL, "block2mtd: %s", devname);
++	if (!label)
++		name = kasprintf(GFP_KERNEL, "block2mtd: %s", devname);
++	else
++		name = kstrdup(label, GFP_KERNEL);
+ 	if (!name)
+ 		goto err_destroy_mutex;
+ 
+@@ -383,8 +386,8 @@ static int block2mtd_setup2(const char *val)
+ 	/* 80 for device, 12 for erase size, 80 for name, 8 for timeout */
+ 	char buf[80 + 12 + 80 + 8];
+ 	char *str = buf;
+-	char *token[2];
+-	char *name;
++	char *token[3];
++	char *name, *label = NULL;
+ 	size_t erase_size = PAGE_SIZE;
+ 	unsigned long timeout = MTD_DEFAULT_TIMEOUT;
+ 	int i, ret;
+@@ -397,7 +400,7 @@ static int block2mtd_setup2(const char *val)
+ 	strcpy(str, val);
+ 	kill_final_newline(str);
+ 
+-	for (i = 0; i < 2; i++)
++	for (i = 0; i < 3; i++)
+ 		token[i] = strsep(&str, ",");
+ 
+ 	if (str) {
+@@ -416,7 +419,7 @@ static int block2mtd_setup2(const char *val)
+ 		return 0;
+ 	}
+ 
+-	if (token[1]) {
++	if (token[1] && strlen(token[1])) {
+ 		ret = parse_num(&erase_size, token[1]);
+ 		if (ret) {
+ 			pr_err("illegal erase size\n");
+@@ -424,7 +427,12 @@ static int block2mtd_setup2(const char *val)
+ 		}
+ 	}
+ 
+-	add_device(name, erase_size, timeout);
++	if (token[2]) {
++		label = token[2];
++		pr_info("Using custom MTD label '%s' for dev %s\n", label, name);
++	}
++
++	add_device(name, erase_size, label, timeout);
+ 
+ 	return 0;
+ }
+@@ -458,7 +466,7 @@ static int block2mtd_setup(const char *val, struct kernel_param *kp)
+ 
+ 
+ module_param_call(block2mtd, block2mtd_setup, NULL, NULL, 0200);
+-MODULE_PARM_DESC(block2mtd, "Device to use. \"block2mtd=<dev>[,<erasesize>]\"");
++MODULE_PARM_DESC(block2mtd, "Device to use. \"block2mtd=<dev>[,[<erasesize>][,<name>]]\"");
+ 
+ static int __init block2mtd_init(void)
+ {

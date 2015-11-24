@@ -21,6 +21,7 @@ PKG             = linux-$(VER)
 PKGNAME	        = kernel
 PKGSUFFIX       = tar.xz
 TARBALL         = $(PKG).$(PKGSUFFIX)
+PATCHES         = patches/$(BASE_VER)/*.patch
 ifdef KERNEL_RC
 RC_PATH         = testing/
 endif
@@ -32,9 +33,13 @@ all: kernel headers_install modules modules_install
 
 include $(ROOTDIR)/pkg.mk
 
-$(PKG)/Makefile: $(ARCHIVE)
+$(PKG)/Makefile: $(ARCHIVE) $(PATCHES) patches/$(BASE_VER)/series
+	-@$(RM) -r $(PKG)
 	@echo "  UNPACK  $(PKG)"
-	@tar Jxf $(ARCHIVE)
+	@tar xfJ $(ARCHIVE)
+	@echo "  PATCH   $(PKG)/"
+	@(cd $(PKG); ln -sf ../patches/$(BASE_VER) patches)
+	@(cd $(PKG); quilt push -qa)
 	@touch $@
 
 unpack: $(PKG)/Makefile
