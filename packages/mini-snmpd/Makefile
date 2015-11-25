@@ -15,16 +15,14 @@
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .PHONY: all install clean distclean
 
-VER            ?= 1.2b
-NAME            = mini_snmpd
+VER            ?= 1.3
+NAME            = mini-snmpd
+BIN             = mini_snmpd
 PKG		= $(NAME)-$(VER)
 PKGSUFFIX	= tar.gz
 PATCHES 	= patches/*.patch
 URL             = http://ftp.troglobit.com/mini-snmpd/$(PKG).$(PKGSUFFIX)
-CFLAGS         := $(filter-out -W -Wall, $(CFLAGS))
-CFLAGS         := $(filter-out -Werror, $(CFLAGS))
-CFLAGS         := $(filter-out -Wcast-align, $(CFLAGS))
-CFLAGS         := $(filter-out -Wformat, $(CFLAGS))
+CFG_OPTS        = --prefix= --host=$(HOST)
 
 all: build
 
@@ -32,22 +30,25 @@ include $(ROOTDIR)/pkg.mk
 
 $(PKG)/Makefile: $(ARCHIVE) $(PATCHES) patches/series
 	-@$(RM) -r $(PKG)
-	@tar xfz $(ARCHIVE) && mv $(NAME) $(PKG)
+	@tar xfz $(ARCHIVE)
 	@echo "  PATCH   $(PKG)/"
-	@(cd $(PKG); ln -sf ../patches .)
-	@(cd $(PKG); quilt push -qa)
+	@(cd $(PKG);				\
+		ln -sf ../patches .;		\
+		quilt push -qa;			\
+		echo "  CONFIG  $(PKG)/";	\
+		./configure $(CFG_OPTS)) > /dev/null
 	@touch $@
 
 unpack: $(PKG)/Makefile
 
 $(PKG)/.stamp: $(PKG)/Makefile
-	+@$(MAKE) -C $(PKG) OFLAGS="-O2 -D__IPV4__ -static" CC=$(CC)
+	+@$(MAKE) -C $(PKG)
 	@touch $@
 
 build: $(PKG)/.stamp
 
-install:
-	@$(CROSS_COMPILE)strip -o $(STAGING)/sbin/$(NAME) $(PKG)/$(NAME)
+install: $(PKG)/.stamp
+	@$(CROSS_COMPILE)strip -o $(STAGING)/sbin/$(BIN) $(PKG)/$(BIN)
 
 clean:
 	-@$(MAKE) -C $(PKG) clean
