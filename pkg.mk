@@ -1,19 +1,29 @@
 # Assumes PKG, VER and URL being set already. Alternatively set PKGNAME.
 # If the package is not tar.gz packed, set PKGSUFFIX to the proper suffix.
 
-PKGNAME		?= $(PKG:-$(VER)=)
+FETCH           ?= wget -t3 -nc --no-dns-cache --no-iri -q -cO
+PKGNAME         ?= $(PKG:-$(VER)=)
 PKGSUFFIX       ?= tar.gz
-TARBALL		?= $(PKG).$(PKGSUFFIX)
+TARBALL         ?= $(PKG).$(PKGSUFFIX)
 TMPFILE          = $(ROOTDIR)/tmp/$(TARBALL)
-ARCHIVE		?= $(DOWNLOADS)/$(PKGNAME)/$(TARBALL)
-PRIMARY_URL	?= $(LOCAL_FTP_MIRROR)/$(PKGNAME)/$(TARBALL)
+ARCHIVE         ?= $(DOWNLOADS)/$(PKGNAME)/$(TARBALL)
+MIRROR          ?= $(FTP_MIRROR)/$(PKGNAME)/$(TARBALL)
 
 $(ARCHIVE):
-	@echo "  FETCH   $(PKG) ..." 1>&2
 	@mkdir -p $(dir $@)
 	@mkdir -p $(ROOTDIR)/tmp
-	@curl -L -o $(TMPFILE) $(PRIMARY_URL) || curl -L -o $(TMPFILE) $(URL)
+	@if [ x"$(FTP_MIRROR)" != x ]; then		\
+		echo "  FETCH   $(MIRROR) ...";		\
+		$(FETCH) $(TMPFILE) $(MIRROR);		\
+	else						\
+		echo "  FETCH   $(URL) ...";		\
+		$(FETCH) $(TMPFILE) $(URL);		\
+	fi
 	@mv $(TMPFILE) $@
+	@if [ $$? -ne 0 ]; then				\
+		rm $(TMPFILE);				\
+		exit 1;					\
+	fi
 
 download: $(ARCHIVE)
 
