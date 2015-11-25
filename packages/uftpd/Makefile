@@ -35,7 +35,8 @@ $(PKG)/Makefile: $(ARCHIVE) $(PATCHES) patches/series
 	@(cd $(PKG);				\
 		ln -sf ../patches .;		\
 		quilt push -qa;			\
-		./configure $(CFG_OPTS))
+		echo "  CONFIG  $(PKG)/";	\
+		./configure $(CFG_OPTS)) > /dev/null
 	@touch $@
 
 unpack: $(PKG)/Makefile
