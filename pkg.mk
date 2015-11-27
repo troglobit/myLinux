@@ -12,11 +12,15 @@ MIRROR          ?= $(FTP_MIRROR)/$(PKGNAME)/$(TARBALL)
 $(ARCHIVE):
 	@mkdir -p $(dir $@)
 	@mkdir -p $(ROOTDIR)/tmp
+	@if [ -e $(TMPFILE) ]; then			\
+		echo "  WARNING Previous download failed, cleaning up ..."; \
+		rm $(TMPFILE);				\
+	fi
 	@if [ x"$(FTP_MIRROR)" != x ]; then		\
-		echo "  FETCH   $(MIRROR) ...";		\
+		echo "  WGET    $(MIRROR) ...";		\
 		$(FETCH) $(TMPFILE) $(MIRROR);		\
 	else						\
-		echo "  FETCH   $(URL) ...";		\
+		echo "  WGET    $(URL) ...";		\
 		$(FETCH) $(TMPFILE) $(URL);		\
 	fi
 	@mv $(TMPFILE) $@
