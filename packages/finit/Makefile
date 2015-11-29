@@ -33,6 +33,7 @@ CFG_OPTS       += --with-plugins="$(PLUGINS)"
 CFG_OPTS       += --with-libite=$(STAGING)
 CFG_OPTS       += --with-libuev=$(STAGING)
 
+export PKG
 
 all: build
 
@@ -54,15 +55,19 @@ $(PKG)/.stamp: $(PKG)/Makefile
 	@touch $@
 
 build: $(PKG)/.stamp
+	$(MAKE) -C plugins
 
 install:
 	+@$(MAKE) DESTDIR=$(STAGING) -C $(PKG) install-exec
 	@ln -sf sbin/finit $(STAGING)/init
+	$(MAKE) -C plugins $@
 
 clean:
 	-@$(MAKE) -C $(PKG) clean
 	-@$(RM) $(PKG)/.stamp
+	$(MAKE) -C plugins $@
 
 distclean:
 	-@$(RM) -rf finit-*
+	$(MAKE) -C plugins $@
 
