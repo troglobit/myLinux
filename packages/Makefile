@@ -15,11 +15,21 @@
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .PHONY: all install clean distclean
 
-exclude          = Makefile
-dir_y            = busybox dropbear finit inadyn lldpd mini-snmpd uftpd watchdogd
-dir_n            =
-dir_             =
-dir_all          = $(filter-out $(exclude), $(notdir $(wildcard *)))
+-include $(ROOTDIR)/.config
+
+exclude                   = Makefile
+dir_y                     =
+dir_$(CONFIG_BUSYBOX)    += busybox
+dir_$(CONFIG_DROPBEAR)   += dropbear
+dir_$(CONFIG_FINIT)      += finit
+dir_$(CONFIG_INADYN)     += inadyn
+dir_$(CONFIG_LLDPD)      += lldpd
+dir_$(CONFIG_MINI_SNMPD) += mini-snmpd
+dir_$(CONFIG_UFTPD)      += uftpd
+dir_$(CONFIG_WATCHDOGD)  += watchdogd
+dir_n                     =
+dir_                      =
+dir_all                   = $(filter-out $(exclude), $(notdir $(wildcard *)))
 
 include ../rules.mk
 

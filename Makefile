@@ -52,6 +52,14 @@ MTD            ?= $(PERSISTENT)/Config.mtd
 MAKEFLAGS       = --silent --no-print-directory
 DOWNLOADS      ?= $(shell xdg-user-dir DOWNLOAD)
 
+# For Linux Kconfig, menuconfig et al
+CONFIG         := $(ROOTDIR)/.config
+HOSTCC         := cc
+HOST_CFLAGS    := -MMD -MP
+srctree        := $(ROOTDIR)
+kcfg           := $(ROOTDIR)/kconfig
+KBUILD_KCONFIG := $(ROOTDIR)/Kconfig
+
 export ARCH HOST CROSS CROSS_COMPILE
 export KERNEL_VERSION KERNEL_RC
 export CC CFLAGS CPPFLAGS LDLIBS LDFLAGS STRIP
@@ -59,6 +67,10 @@ export NAME VERSION_ID VERSION ID PRETTY_NAME HOME_URL
 export ROOTDIR STAGING IMAGEDIR DOWNLOADS
 
 all: staging kernel lib packages ramdisk
+
+# Linux Kconfig, menuconfig et al
+$(CONFIG): defconfig
+include kconfig/Makefile
 
 # qemu-img create -f qcow hda.img 2G
 # +=> -hda hda.img
@@ -133,7 +145,7 @@ kernel_install:
 # Packages may depend on libraries, so we build libs first
 packages: lib
 
-packages lib:
+packages lib: $(CONFIG)
 	@$(MAKE) -j5 -C $@ all
 	@$(MAKE) -j5 -C $@ install
 
@@ -149,11 +161,14 @@ clean:
 		/bin/echo -ne "\033]0;$(PWD) $$dir\007";	\
 		$(MAKE) -C $$dir $@;				\
 	done
+	@$(RM) $(addprefix $(kcfg)/, $(clean-files)) $(OBJS) $(DEPS)
 
+# @$(RM) `find kconfig -name '*~'`
 distclean:
 	@for dir in kernel lib packages; do			\
 		echo "  REMOVE  $$dir";				\
 		/bin/echo -ne "\033]0;$(PWD) $$dir\007";	\
 		$(MAKE) -C $$dir $@;				\
 	done
-	-@$(RM) -rf $(STAGING) $(IMAGEDIR)
+	@$(RM) $(addprefix $(kcfg)/, $(clean-files)) $(OBJS) $(DEPS)
+	-@$(RM) -rf $(STAGING) $(IMAGEDIR) $(CONFIG)

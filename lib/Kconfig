@@ -1,0 +1,20 @@
+menu "Libraries"
+
+config LIBUEV
+       bool "libuEv"
+       help
+	 uEv is a small Linux-only event loop library used by, e.g.,
+	 Finit and uftpd.
+
+config LIBITE
+       bool "libite (LITE)"
+       help
+	 This is a lightweight helper library with all misc. functions
+	 missing on a Linux system, c.f. regular UNIX (OpenBSD).  With
+	 some sugar on top.  Your basic frog DNA.
+
+config ZLIB
+       bool "Zlib"
+       help
+	 Zlib is used by some apps
+endmenu

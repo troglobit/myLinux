@@ -15,11 +15,16 @@
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .PHONY: all install clean distclean
 
-exclude          = Makefile
-dir_y            = libite libuev zlib
-dir_n            =
-dir_             =
-dir_all          = $(filter-out $(exclude), $(notdir $(wildcard *)))
+-include $(ROOTDIR)/.config
+
+exclude                  = Makefile
+dir_y                    =
+dir_$(CONFIG_LIBITE)    += libite
+dir_$(CONFIG_LIBUEV)    += libuev
+dir_$(CONFIG_ZLIB)       = zlib
+dir_n                    =
+dir_                     =
+dir_all                  = $(filter-out $(exclude), $(notdir $(wildcard *)))
 
 include ../rules.mk
 

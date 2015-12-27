@@ -1,0 +1,44 @@
+menu "Packages"
+
+config BUSYBOX
+       bool "BusyBox"
+       help
+         Your basic embedded swiss army chainsaw.
+
+config DROPBEAR
+       bool "Dropbear SSH"
+       help
+	 Embedded friendly SSH daemon and client, and scp
+
+config FINIT
+       bool "Fast Init (Finit)"
+       help
+         The original Asus EeePC fastinit clone, on steroids.
+
+config INADYN
+       bool "The In-a-Dyn DDNS Client"
+       help
+	 Powerful and small DDNS client inadyn
+
+config LLDPD
+       bool "LLDP Daemon"
+       help
+         Vincent Bernat's excellent LLDP daemon.
+
+config MINI_SNMPD
+       bool "Mini SNMP Daemon"
+       help
+	 Robert Ernst's original mini_snmpd reborn.
+
+config UFTPD
+       bool "TFTP/FTP Daemon That Just Works"
+       help
+	 Troglobit uftpd, quick TFTP and fuzzy-less FTP daemon.
+
+config WATCHDOGD
+       bool "Advanced Watchdog Daemon"
+       help
+	 Troglobit watchdogd, with supervisor API for instrumentation
+	 of your own processes.
+
+endmenu
