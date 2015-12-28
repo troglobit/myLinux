@@ -20,7 +20,7 @@ Introduction
 ------------
 
 TroglOS is a playful, but working, example of how to create a virtual
-devboard from the ground up with components like Linux and BusyBox.
+devboard from components like Qemu, Linux and BusyBox.
 
 Use the build framework in TroglOS to test your embedded applications
 before the actual hardware arrives.  Or as a reference when said
@@ -41,7 +41,7 @@ Ubuntu 14.04, 15.04, and 15.10:
 * binutils-arm-linux-gnueabi
 * libc6-armel-cross
 * libc6-dev-armel-cross
-* curl
+* wget
 * make
 * gcc (or clang, for the menuconfig interface)
 * quilt
@@ -78,8 +78,9 @@ Assuming you have a `virbr0` interface in your system.  If you've run
 anything in [virt-manager](http://virt-manager.org/) prior to this then
 you're set, otherwise you're unfortunately on your own.
 
-Clone this repository, then type `make`.  When the build has completed,
-start Qemu with `make run` -- Have fun!
+Clone this repository, then type `make`, or modify the `defconfig` using
+the well known Linux `make menuconfig` interface.  When the build has
+completed, start Qemu with `make run` -- Now go have fun! :-)
 
 
 Upgrading Linux
