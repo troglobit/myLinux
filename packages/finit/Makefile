@@ -33,8 +33,6 @@ CFG_OPTS       += --with-plugins="$(PLUGINS)"
 CFG_OPTS       += --with-libite=$(STAGING)
 CFG_OPTS       += --with-libuev=$(STAGING)
 
-export PKG
-
 all: build
 
 include $(ROOTDIR)/pkg.mk
@@ -59,7 +57,8 @@ build: $(PKG)/.stamp
 
 install:
 	+@$(MAKE) DESTDIR=$(STAGING) -C $(PKG) install-exec
-	@ln -sf sbin/finit $(STAGING)/init
+	@cp sbin/finit $(STAGING)/init
+	@ln -sf sbin/init $(STAGING)/init
 	$(MAKE) -C plugins $@
 
 clean:
