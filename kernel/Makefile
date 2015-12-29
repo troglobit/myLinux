@@ -15,7 +15,9 @@
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .PHONY: all defconfig oldconfig saveconfig headers_install modules_install clean distclean
 
-VER            ?= $(KERNEL_VERSION)$(KERNEL_RC)
+-include $(ROOTDIR)/.config
+
+VER            ?= $(shell echo $(CONFIG_LINUX_VERSION)$(CONFIG_LINUX_RC) | sed 's/"//g')
 BASE_VER       := $(shell echo $(VER) | sed 's/\([0-9]*\.[0-9]*\).*/\1/')
 PKG             = linux-$(VER)
 PKGNAME	        = kernel

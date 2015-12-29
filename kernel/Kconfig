@@ -1,0 +1,22 @@
+menu "Kernel"
+
+config LINUX_VERSION
+       int "Linux version"
+       help
+	 Linux kernel version, downloaded from kernel.org, it is
+       	 assumed to be a kernel >= 4.0
+
+config LINUX_RC
+       int "Linux -rcN version"
+       help
+	 Give on the form: -rcN, e.g. -rc2
+
+config LINUX_CMDLINE
+       string "Kernel command line"
+       default "root=/dev/ram mem=128M console=ttyAMA0,115200 quiet"
+       help
+         The command line to pass to the kernel at boot.  Here you can control
+	 which init process to start as PID 1, e.g. init=/bin/sh to escape the
+	 boot process entirely.  Or other flags, like --debug to debug Finit.
+
+endmenu

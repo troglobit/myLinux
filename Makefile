@@ -19,10 +19,6 @@ ARCH            = arm
 HOST            = arm-linux-gnueabi
 CROSS          ?= $(HOST)-
 CROSS_COMPILE  ?= $(CROSS)
-#KERNEL_RC       = -rc7
-KERNEL_VERSION  = 4.3.1
-# Add --debug to cmdline to debug finit
-KERNEL_CMDLINE  = root=/dev/ram mem=128M console=ttyAMA0,115200 quiet init=/sbin/finit
 
 CC              = $(CROSS_COMPILE)gcc
 CFLAGS          =
@@ -60,6 +56,10 @@ srctree        := $(ROOTDIR)
 kcfg           := $(ROOTDIR)/kconfig
 KBUILD_KCONFIG := $(ROOTDIR)/Kconfig
 
+# XXX: Needed only for 'make run', which should be moved to a separate makefile
+-include $(CONFIG)
+KERNEL_CMDLINE  = $(shell echo $(CONFIG_LINUX_CMDLINE) | sed 's/"//g')
+
 export ARCH HOST CROSS CROSS_COMPILE
 export KERNEL_VERSION KERNEL_RC
 export CC CFLAGS CPPFLAGS LDLIBS LDFLAGS STRIP
@@ -78,6 +78,7 @@ include kconfig/Makefile
 #			 -dtb $(IMAGEDIR)/versatile-ab.dtb
 #			 -dtb $(IMAGEDIR)/versatile-pb.dtb
 run:
+	@test -e $(CONFIG) || { echo "Not configured yet, please run at least 'make defconfig' first."; exit 1; }
 	@echo "  QEMU    Ctrl-a x -- exit | Ctrl-a c -- switch console/monitor"
 	-@mkdir -p $(PERSISTENT) 2>/dev/null
 	-@[ ! -e $(MTD) ] && dd if=/dev/zero of=$(MTD) bs=16384 count=960

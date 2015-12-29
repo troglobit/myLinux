@@ -4,6 +4,13 @@
 CONFIG_CROSS_COMPILE=""
 
 #
+# Kernel
+#
+CONFIG_LINUX_VERSION="4.3.1"
+CONFIG_LINUX_RC=""
+CONFIG_LINUX_CMDLINE="root=/dev/ram mem=128M console=ttyAMA0,115200 quiet"
+
+#
 # Libraries
 #
 CONFIG_LIBUEV=y
