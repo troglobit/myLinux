@@ -68,17 +68,18 @@ export ROOTDIR STAGING IMAGEDIR DOWNLOADS
 
 all: staging kernel lib packages ramdisk
 
+dep:
+	@test -e $(CONFIG) || { echo "Not configured yet, please run at least 'make defconfig' first."; exit 1; }
+
 # Linux Kconfig, menuconfig et al
-$(CONFIG): defconfig
-include kconfig/Makefile
+include kconfig/config.mk
 
 # qemu-img create -f qcow hda.img 2G
 # +=> -hda hda.img
 #			 -drive file=disk.img,if=virtio
 #			 -dtb $(IMAGEDIR)/versatile-ab.dtb
 #			 -dtb $(IMAGEDIR)/versatile-pb.dtb
-run:
-	@test -e $(CONFIG) || { echo "Not configured yet, please run at least 'make defconfig' first."; exit 1; }
+run: dep
 	@echo "  QEMU    Ctrl-a x -- exit | Ctrl-a c -- switch console/monitor"
 	-@mkdir -p $(PERSISTENT) 2>/dev/null
 	-@[ ! -e $(MTD) ] && dd if=/dev/zero of=$(MTD) bs=16384 count=960
@@ -90,7 +91,7 @@ run:
 			 -initrd $(IMAGEDIR)/initramfs.gz  						\
 			 -append "$(KERNEL_CMDLINE) block2mtd.block2mtd=/dev/sda,,Config"
 
-staging:
+staging: dep
 	@echo "  STAGING Root file system ..."
 	@mkdir -p $(IMAGEDIR)
 	@mkdir -p $(STAGING)

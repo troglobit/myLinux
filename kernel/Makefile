@@ -24,7 +24,7 @@ PKGNAME	        = kernel
 PKGSUFFIX       = tar.xz
 TARBALL         = $(PKG).$(PKGSUFFIX)
 PATCHES         = patches/$(BASE_VER)/*.patch
-ifdef KERNEL_RC
+ifdef CONFIG_LINUX_RC
 RC_PATH         = testing/
 endif
 URL             = ftp://ftp.kernel.org/pub/linux/kernel/v4.x/$(RC_PATH)$(TARBALL)

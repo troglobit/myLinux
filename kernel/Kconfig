@@ -1,13 +1,13 @@
 menu "Kernel"
 
 config LINUX_VERSION
-       int "Linux version"
+       string "Linux version"
        help
 	 Linux kernel version, downloaded from kernel.org, it is
        	 assumed to be a kernel >= 4.0
 
 config LINUX_RC
-       int "Linux -rcN version"
+       string "Linux -rcN version"
        help
 	 Give on the form: -rcN, e.g. -rc2
 
