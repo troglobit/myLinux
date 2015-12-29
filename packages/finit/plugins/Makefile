@@ -2,7 +2,7 @@ PLUGINS   = mtd.so
 LDFLAGS += -fPIC -shared -I$(shell pwd)/../$(PKG)
 
 mtd.so: mtd.c
-	@$(CC) $(LDFLAGS) -o $@ $< $(LDLIBS)
+	@$(CC) $(CPPFLAGS) $(LDFLAGS) -o $@ $< $(LDLIBS)
 
 clean:
 	-@$(RM) $(PLUGINS)

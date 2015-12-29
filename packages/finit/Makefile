@@ -53,6 +53,7 @@ $(PKG)/.stamp: $(PKG)/Makefile
 	@touch $@
 
 build: $(PKG)/.stamp
+	+@$(MAKE) DESTDIR=$(STAGING) -C $(PKG) install-dev
 	$(MAKE) -C plugins
 
 install:

@@ -21,9 +21,9 @@
 #include <sys/reboot.h>
 #include <mtd/mtd-user.h>
 
-#include "finit.h"
-#include "plugin.h"
-#include "helpers.h"
+#include <finit/finit.h>
+#include <finit/plugin.h>
+#include <finit/helpers.h>
 
 #define MTD_CONFIG_LABEL  "Config"
 
