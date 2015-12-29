@@ -11,6 +11,8 @@ lkc_defs.h
 gconf.glade.h
 *.pot
 *.mo
+*.o
+*.d
 
 #
 # configuration programs
