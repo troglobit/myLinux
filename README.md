@@ -24,17 +24,21 @@ devboard from components like Qemu, Linux and BusyBox.
 
 Use the build framework in TroglOS to test your embedded applications
 before the actual hardware arrives.  Or as a reference when said
-hardware starts acting up -- as it invariably does ...
+hardware starts acting up -- as it invariably does ... or even as a
+reference to another embedded Linux build system.  TroglOS is relatively
+clean and vanilla, the intent is to keep it as close to upstream sources
+as possible.
 
-Currently TroglOS targets an *ARM Versatile PB* devboard with Qemu.
-GitHub pull requests to support more targets are very welcome!
+Currently TroglOS targets an *ARM Versatile PB* devboard with Qemu and
+is only tested on Ubuntu 64-bit build hosts, using the standard Debian
+cross-toolchain.  Pull requests for more targets are most welcome! :)
 
 
 Requirements
 ------------
 
-The build environment requires at least the following tools, tested on
-Ubuntu 14.04, 15.04, and 15.10:
+The build environment currently requires at least the following tools,
+tested on Ubuntu 14.04, 15.04, and 15.10:
 
 * gcc-arm-linux-gnueabi
 * cpp-arm-linux-gnueabi
@@ -86,10 +90,10 @@ completed, start Qemu with `make run` -- Now go have fun! :-)
 Upgrading Linux
 ---------------
 
-Change the `KERNEL_VERSION` in the top-level `Makefile`.  If the kernel
+Change the Linux kernel version using `make menuconfig`.  If the kernel
 is just a minor patch release, you're done.
 
-If it's a major kernel upgrade, copy the latest `kernel/config-X.YY` to
+If it is a major kernel upgrade, copy the latest `kernel/config-X.YY` to
 `kernel/config-X.ZZ` and call `make kernel_oldconfig`.  This will unpack
 the kernel and give you a set of questions for all new features.
 
@@ -100,11 +104,9 @@ Make sure to do a `make kernel_saveconfig`, and possibly add the new
 Testing SNMP
 ------------
 
-TroglOS uses [Robert Ernst's](http://members.aon.at/linuxfreak)
-[mini_snmpd](http://members.aon.at/linuxfreak/linux/mini_snmpd.html) as
-its SNMP daemon currently.  It's extremely small and therefore very
-limited in its functionality, but it's enough to monitor TroglOS by
-remote if needed.
+TroglOS use [mini-snmpd](https://github.com/troglobit/mini-snmpd) as its
+SNMP agent.  It is very small and therefore also very limited in
+functionality, but it is enough to monitor TroglOS by remote if needed.
 
 To test it you need an SNMP client.  The following command installs
 `snmpset`, `snmpget`, `snmpwalk`, base MIBs and all standard MIBs
