@@ -58,7 +58,7 @@ build: $(PKG)/.stamp
 
 install:
 	+@$(MAKE) DESTDIR=$(STAGING) -C $(PKG) install-exec
-	@cp sbin/finit $(STAGING)/init
+	@ln -sf finit $(STAGING)/sbin/init
 	@ln -sf sbin/init $(STAGING)/init
 	$(MAKE) -C plugins $@
 
