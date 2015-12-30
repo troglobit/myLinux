@@ -1,3 +1,7 @@
+# To be included by top-level Makefile
+kcfg           := $(ROOTDIR)/kconfig
+KBUILD_KCONFIG := $(ROOTDIR)/Kconfig
+
 PHONY += oldconfig menuconfig config silentoldconfig
 PHONY += allnoconfig allyesconfig allmodconfig alldefconfig randconfig
 PHONY += listnewconfig oldnoconfig savedefconfig defconfig
@@ -57,4 +61,10 @@ help:
 	@echo  '  randconfig	  - New config with random answer to all options'
 	@echo  '  listnewconfig   - List new options'
 	@echo  '  oldnoconfig     - Same as silentoldconfig but set new symbols to n (unset)'
+
+$(kcfg)/conf:
+	$(MAKE) -C $(kcfg) conf
+
+$(kcfg)/mconf:
+	$(MAKE) -C $(kcfg) mconf
 

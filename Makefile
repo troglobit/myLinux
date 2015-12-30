@@ -39,6 +39,7 @@ SUPPORT_URL    := https://github.com/troglobit/troglos
 BUG_REPORT_URL := https://github.com/troglobit/troglos/issues
 
 ROOTDIR        := $(shell pwd)
+CONFIG         := $(ROOTDIR)/.config
 STAGING         = $(ROOTDIR)/staging
 # usr/lib usr/share usr/bin usr/sbin 
 STAGING_DIRS    = mnt proc sys lib share bin sbin tmp var home
@@ -48,38 +49,31 @@ MTD            ?= $(PERSISTENT)/Config.mtd
 MAKEFLAGS       = --silent --no-print-directory
 DOWNLOADS      ?= $(shell xdg-user-dir DOWNLOAD)
 
-# For Linux Kconfig, menuconfig et al
-CONFIG         := $(ROOTDIR)/.config
-HOSTCC         := cc
-HOST_CFLAGS    := -MMD -MP
-srctree        := $(ROOTDIR)
-kcfg           := $(ROOTDIR)/kconfig
-KBUILD_KCONFIG := $(ROOTDIR)/Kconfig
-
-# XXX: Needed only for 'make run', which should be moved to a separate makefile
--include $(CONFIG)
-KERNEL_CMDLINE  = $(shell echo $(CONFIG_LINUX_CMDLINE) | sed 's/"//g')
-
 export ARCH HOST CROSS CROSS_COMPILE
-export KERNEL_VERSION KERNEL_RC
 export CC CFLAGS CPPFLAGS LDLIBS LDFLAGS STRIP
 export NAME VERSION_ID VERSION ID PRETTY_NAME HOME_URL
 export ROOTDIR STAGING IMAGEDIR DOWNLOADS
 
 all: staging kernel lib packages ramdisk
 
-dep:
-	@test -e $(CONFIG) || { echo "Not configured yet, please run at least 'make defconfig' first."; exit 1; }
+$(CONFIG):
+	@test -e $(CONFIG) || $(MAKE) defconfig
+
+dep: $(CONFIG)
 
 # Linux Kconfig, menuconfig et al
 include kconfig/config.mk
+
+# XXX: Needed only for 'make run', which should be moved to a separate makefile
+-include $(CONFIG)
+KERNEL_CMDLINE = $(shell echo $(CONFIG_LINUX_CMDLINE) | sed 's/"//g')
 
 # qemu-img create -f qcow hda.img 2G
 # +=> -hda hda.img
 #			 -drive file=disk.img,if=virtio
 #			 -dtb $(IMAGEDIR)/versatile-ab.dtb
 #			 -dtb $(IMAGEDIR)/versatile-pb.dtb
-run: dep
+run: $(CONFIG)
 	@echo "  QEMU    Ctrl-a x -- exit | Ctrl-a c -- switch console/monitor"
 	-@mkdir -p $(PERSISTENT) 2>/dev/null
 	-@[ ! -e $(MTD) ] && dd if=/dev/zero of=$(MTD) bs=16384 count=960
@@ -91,7 +85,7 @@ run: dep
 			 -initrd $(IMAGEDIR)/initramfs.gz  						\
 			 -append "$(KERNEL_CMDLINE) block2mtd.block2mtd=/dev/sda,,Config"
 
-staging: dep
+staging: $(CONFIG)
 	@echo "  STAGING Root file system ..."
 	@mkdir -p $(IMAGEDIR)
 	@mkdir -p $(STAGING)
@@ -119,7 +113,7 @@ staging: dep
 
 # Cleanup staging (may need to separate into a staging + romfs dir, like uClinux-dist)
 ramdisk:
-	@echo "  INITRD  $(NAME) $(KERNEL_VERSION)"
+	@echo "  INITRD  $(NAME) $(CONFIG_LINUX_VERSION)"
 	@rm -rf $(STAGING)/lib/pkgconfig
 	@rm -rf $(STAGING)/lib/*.a
 	@rm -rf $(STAGING)/share/man
@@ -163,14 +157,12 @@ clean:
 		/bin/echo -ne "\033]0;$(PWD) $$dir\007";	\
 		$(MAKE) -C $$dir $@;				\
 	done
-	@$(RM) $(addprefix $(kcfg)/, $(clean-files)) $(OBJS) $(DEPS)
 
 # @$(RM) `find kconfig -name '*~'`
 distclean:
-	@for dir in kernel lib packages; do			\
+	@for dir in kconfig kernel lib packages; do		\
 		echo "  REMOVE  $$dir";				\
 		/bin/echo -ne "\033]0;$(PWD) $$dir\007";	\
 		$(MAKE) -C $$dir $@;				\
 	done
-	@$(RM) $(addprefix $(kcfg)/, $(clean-files)) $(OBJS) $(DEPS)
 	-@$(RM) -rf $(STAGING) $(IMAGEDIR) $(CONFIG)

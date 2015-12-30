@@ -1,10 +1,10 @@
 # ===========================================================================
 # Kernel configuration targets
-# These targets are used from top-level makefile
-VPATH := $(kcfg)
+HOSTCC          := cc
+HOST_CFLAGS     := -MMD -MP
 
 # lxdialog stuff
-check-lxdialog  := $(kcfg)/lxdialog/check-lxdialog.sh
+check-lxdialog  := lxdialog/check-lxdialog.sh
 
 # Use recursively expanded variables so we do not call gcc unless
 # we really need to do so. (Do not call gcc as part of make mrproper)
@@ -20,15 +20,15 @@ HOST_CFLAGS += $(shell $(check-lxdialog) -ccflags) -DLOCALE
 lxdialog := lxdialog/checklist.o lxdialog/util.o lxdialog/inputbox.o
 lxdialog += lxdialog/textbox.o lxdialog/yesno.o lxdialog/menubox.o
 
-conf-objs   := $(kcfg)/conf.o  $(kcfg)/zconf.tab.o
-mconf-objs  := $(kcfg)/mconf.o $(kcfg)/zconf.tab.o $(addprefix $(kcfg)/, $(lxdialog))
+conf-objs   := conf.o  zconf.tab.o
+mconf-objs  := mconf.o zconf.tab.o $(lxdialog)
 OBJS        := $(conf-objs) $(mconf-objs) 
 DEPS        := $(OBJS:.o=.d)
 
-hostprogs-y := $(kcfg)/conf
+hostprogs-y := conf
 
 ifeq ($(MAKECMDGOALS),menuconfig)
-	hostprogs-y += $(kcfg)/mconf
+	hostprogs-y += mconf
 endif
 
 clean-files	:= lkc_defs.h qconf.moc .tmp_qtcheck .tmp_gtkcheck
@@ -45,7 +45,7 @@ dochecklxdialog:
 always := dochecklxdialog
 
 # Add environment specific flags
-HOST_CFLAGS += $(shell $(kcfg)/check.sh $(HOSTCC) $(HOSTCFLAGS))
+HOST_CFLAGS += $(shell ./check.sh $(HOSTCC) $(HOSTCFLAGS))
 
 # generated files seem to need this to find local include files
 HOSTCFLAGS_lex.zconf.o	:= -I$(kcfg)
@@ -53,11 +53,11 @@ HOSTCFLAGS_zconf.tab.o	:= -I$(kcfg)
 
 HOSTLOADLIBES_mconf   = $(shell $(check-lxdialog) -ldflags $(HOSTCC))
 
-$(kcfg)/zconf.tab.o: $(kcfg)/lex.zconf.c $(kcfg)/zconf.hash.c
+zconf.tab.o: lex.zconf.c zconf.hash.c
 
-$(kcfg)/kconfig_load.o: lkc_defs.h
+kconfig_load.o: lkc_defs.h
 
-lkc_defs.h: $(kcfg)/lkc_proto.h
+lkc_defs.h: lkc_proto.h
 	$(Q)sed < $< > $@ 's/P(\([^,]*\),.*/#define \1 (\*\1_p)/'
 
 ###
@@ -68,9 +68,9 @@ lkc_defs.h: $(kcfg)/lkc_proto.h
 
 ifdef LKC_GENPARSER
 
-$(kcfg)/zconf.tab.c: $(kcfg)/zconf.y
-$(kcfg)/lex.zconf.c: $(kcfg)/zconf.l
-$(kcfg)/zconf.hash.c: $(kcfg)/zconf.gperf
+zconf.tab.c: zconf.y
+lex.zconf.c: zconf.l
+zconf.hash.c: zconf.gperf
 
 %.tab.c: %.y
 	bison -l -b $* -p $(notdir $*) $<
@@ -84,17 +84,23 @@ lex.%.c: %.l
 	gperf < $< > $@
 	cp $@ $@_shipped
 else
-$(kcfg)/%:: $(kcfg)/%_shipped
+%:: %_shipped
 	cat $< > $@
 endif
 
 %.o: %.c
 	$(HOSTCC) $(HOST_CFLAGS) -c -o $@ $<
 
-$(kcfg)/mconf: $(mconf-objs)
+mconf: $(mconf-objs)
 	$(HOSTCC) -o $@ $^ $(HOST_CFLAGS) $(HOSTLOADLIBES_mconf)
 
-$(kcfg)/conf: $(conf-objs)
+conf: $(conf-objs)
 	$(HOSTCC) -o $@ $^ $(HOST_CFLAGS)
+
+clean:
+	-$(RM) $(clean-files) $(OBJS) $(DEPS)
+
+distclean:
+	-$(RM) $(clean-files) $(OBJS) $(DEPS) *.o *.d *~
 
 -include $(DEPS)
