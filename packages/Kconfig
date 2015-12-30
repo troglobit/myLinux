@@ -30,6 +30,16 @@ config MINI_SNMPD
        help
 	 Robert Ernst's original mini_snmpd reborn.
 
+config TETRIS
+       bool "Micro Tetris"
+       help
+         One of the smallest Tetris implementations in the world!
+	 
+	 Utilizing only ANSI escape sequences to draw the board, no external
+	 library dependencies other than a standard C library, like uClibc or
+	 musl libc. Hence, very suitable for embedded devices in need of an
+	 easter egg ;-)
+
 config UFTPD
        bool "TFTP/FTP Daemon That Just Works"
        help
