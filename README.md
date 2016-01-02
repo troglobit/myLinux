@@ -8,7 +8,7 @@ Table of Contents
 
 * [Introduction](#introduction)
 * [Requirements](#requirements)
-* [Running](#running)
+* [Qemu Networking](#qemu-networking)
 * [Upgrading Linux](#upgrading-linux)
 * [Testing SNMP](#testing-snmp)
 * [Dropbear SSH](#dropbear-ssh)
@@ -23,15 +23,29 @@ TroglOS is a playful, but working, example of how to create a virtual
 devboard from components like Qemu, Linux and BusyBox.
 
 Use the build framework in TroglOS to test your embedded applications
-before the actual hardware arrives.  Or as a reference when said
-hardware starts acting up -- as it invariably does ... or even as a
-reference to another embedded Linux build system.  TroglOS is relatively
-clean and vanilla, the intent is to keep it as close to upstream sources
-as possible.
+before the actual hardware arrives.  Or as a stable reference when said
+hardware starts acting up -- as it invariably does ... you can even use
+it as a reference to other embedded Linux build systems.  TroglOS is
+relatively clean and vanilla, the intent is to keep it as close to
+upstream sources as possible.
 
 Currently TroglOS targets an *ARM Versatile PB* devboard with Qemu and
 is only tested on Ubuntu 64-bit build hosts, using the standard Debian
 cross-toolchain.  Pull requests for more targets are most welcome! :)
+
+To try it out, simply clone this repository, then type:
+
+    make
+
+Modify the configuration using the well known Linux menuconfig interface
+
+    make menuconfig
+
+When the build has completed, start Qemu
+
+    make run
+
+Now go have fun! :-)
 
 
 Requirements
@@ -55,8 +69,8 @@ tested on Ubuntu 14.04, 15.04, and 15.10:
 * probably more, gzip?, mkimge?
 
 
-Running
--------
+Qemu Networking
+---------------
 
 TroglOS uses Qemu to run the resulting kernel + image.  For networking
 you may need to do the following to your host system, here Ubuntu 14.04:
@@ -82,10 +96,6 @@ connect to, edit/create the file `/etc/qemu/bridge.conf` and add:
 Assuming you have a `virbr0` interface in your system.  If you've run
 anything in [virt-manager](http://virt-manager.org/) prior to this then
 you're set, otherwise you're unfortunately on your own.
-
-Clone this repository, then type `make`, or modify the `defconfig` using
-the well known Linux `make menuconfig` interface.  When the build has
-completed, start Qemu with `make run` -- Now go have fun! :-)
 
 
 Upgrading Linux
