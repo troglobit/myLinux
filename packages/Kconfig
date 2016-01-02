@@ -30,6 +30,13 @@ config MINI_SNMPD
        help
 	 Robert Ernst's original mini_snmpd reborn.
 
+config SMCROUTE
+       bool "Static Multicast Routing Daemon"
+       help
+	 Carsten Schill's smcroute daemon, for static-only multicast routes.
+	 
+	 http://troglobit.com/smcroute.html
+
 config TETRIS
        bool "Micro Tetris"
        help
