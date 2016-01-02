@@ -62,6 +62,15 @@ config SMCROUTE
 	 
 	 http://troglobit.com/smcroute.html
 
+config STRACE
+       bool "strace - Trace system calls and signals in an application"
+       help
+	  Use strace to troubleshoot binaries without having to run them
+	  through a debugger.  strace prints system calls and signals
+	  your application makes.
+	  
+	  http://strace.sourceforge.net       
+
 config TETRIS
        bool "Micro Tetris"
        help
