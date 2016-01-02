@@ -22,8 +22,8 @@
 #include <mtd/mtd-user.h>
 
 #include <finit/finit.h>
-#include <finit/plugin.h>
 #include <finit/helpers.h>
+#include <finit/plugin.h>
 
 #define MTD_CONFIG_LABEL  "Config"
 

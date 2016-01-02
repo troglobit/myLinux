@@ -1,6 +1,6 @@
 # Glue for cross compiling the Linux kernel
 #
-# Copyright (c) 2014-2015  Joachim Nilsson <troglobit@gmail.com
+# Copyright (c) 2014-2016  Joachim Nilsson <troglobit@gmail.com
 #
 # Permission to use, copy, modify, and/or distribute this software for
 # any purpose with or without fee is hereby granted, provided that the
@@ -17,42 +17,24 @@
 
 -include $(ROOTDIR)/.config
 
-VER            ?= $(shell echo $(CONFIG_LINUX_VERSION)$(CONFIG_LINUX_RC) | sed 's/"//g')
-BASE_VER       := $(shell echo $(VER) | sed 's/\([0-9]*\.[0-9]*\).*/\1/')
-PKG             = linux-$(VER)
-PKGNAME	        = kernel
-PKGSUFFIX       = tar.xz
-TARBALL         = $(PKG).$(PKGSUFFIX)
-PATCHES         = patches/$(BASE_VER)/*.patch
+PKGVER         ?= $(shell echo $(CONFIG_LINUX_VERSION)$(CONFIG_LINUX_RC) | sed 's/"//g')
+PKGBASEVER     := $(shell echo $(PKGVER) | sed 's/\([0-9]*\.[0-9]*\).*/\1/')
+PKG            := linux-$(PKGVER)
+PKGNAME	       := kernel
+PKGSUFFIX      := tar.xz
+PKGTARGETS     := kernel headers_install modules modules_install
+PKGPATCHES     := patches/$(PKGBASEVER)/*.patch patches/$(PKGBASEVER)/series
 ifdef CONFIG_LINUX_RC
 RC_PATH         = testing/
 endif
-URL             = ftp://ftp.kernel.org/pub/linux/kernel/v4.x/$(RC_PATH)$(TARBALL)
-CONFIG          = config-$(BASE_VER)
+PKGURL          = ftp://ftp.kernel.org/pub/linux/kernel/v4.x/$(RC_PATH)$(PKGTAR)
+CONFIG          = config-$(PKGBASEVER)
 ZIMAGE          = $(PKG)/arch/$(ARCH)/boot/zImage
-
-all: kernel headers_install modules modules_install
 
 include $(ROOTDIR)/pkg.mk
 
-$(PKG)/Makefile: $(ARCHIVE) $(PATCHES) patches/$(BASE_VER)/series
-	-@$(RM) -r $(PKG)
-	@echo "  UNPACK  $(PKG)"
-	@tar xfJ $(ARCHIVE)
-	@echo "  PATCH   $(PKG)/"
-	@(cd $(PKG); ln -sf ../patches/$(BASE_VER) patches)
-	@(cd $(PKG); quilt push -qa)
-	@touch $@
-
-unpack: $(PKG)/Makefile
-
-$(PKG)/.prepared: $(PKG)/Makefile
-	@echo "  PREPARE $(PKG)"
-	@$(MAKE) -C $(PKG) prepare scripts
-	@touch $@
-
-$(PKG)/.config: $(PKG)/Makefile
-	@if [ ! -e $(PKG)/.config ]; then				\
+$(PKG)/.config::
+	@if [ ! -s $(PKG)/.config ]; then				\
 		echo "  INSTALL $@ from $(CONFIG)";			\
 		if [ -f $(CONFIG) ]; then				\
 			cp $(CONFIG) $@;				\
@@ -60,18 +42,20 @@ $(PKG)/.config: $(PKG)/Makefile
 		else							\
 			$(MAKE) -C $(PKG) versatile_defconfig;		\
 		fi;							\
+		echo "  PREPARE $(PKG)";				\
+		$(MAKE) -C $(PKG) prepare scripts;			\
 	else								\
 		echo "  NO-OP   $(PKG)/.config already installed.";	\
 	fi
 
-$(ZIMAGE): $(PKG)/.config $(PKG)/.prepared
+$(ZIMAGE): $(PKG)/.config
 	@echo "  BUILD   $(PKG)";
 	+@$(MAKE) -C $(PKG) zImage
 
 defconfig:
-	$(MAKE) -C $(PKG) versatile_defconfig
+	@$(MAKE) -C $(PKG) versatile_defconfig
 
-oldconfig: $(PKG)/.config
+oldconfig:: $(PKG)/.config
 	@$(MAKE) -C $(PKG) oldconfig
 
 saveconfig:
@@ -114,11 +98,5 @@ modules_install: modules
 				  modules_install;		\
 	fi
 
-clean:
-	@echo "  CLEAN   kernel/$(PKG)"
-	-@$(MAKE) -C $(PKG) $@
-
-distclean:
-	@echo "  REMOVE  kernel/linux-*"
+distclean::
 	-@$(RM) -rf linux-*
-

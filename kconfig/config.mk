@@ -13,37 +13,37 @@ Kconfig := Kconfig
 endif
 
 menuconfig: $(kcfg)/mconf
-	$< $(Kconfig)
+	@$< $(Kconfig)
 
 config: $(kcfg)/conf
-	$< --oldaskconfig $(Kconfig)
+	@$< --oldaskconfig $(Kconfig)
 
 oldconfig: $(kcfg)/conf
-	$< --$@ $(Kconfig)
+	@$< --$@ $(Kconfig)
 
 silentoldconfig: $(kcfg)/conf
-	$(Q)mkdir -p include/generated
-	$< --$@ $(Kconfig)
+	@mkdir -p include/generated
+	@$< --$@ $(Kconfig)
 
 allnoconfig allyesconfig allmodconfig alldefconfig randconfig: $(kcfg)/conf
-	$< --$@ $(Kconfig)
+	@$< --$@ $(Kconfig)
 
 listnewconfig oldnoconfig: $(kcfg)/conf
-	$< --$@ $(Kconfig)
+	@$< --$@ $(Kconfig)
 
 savedefconfig: $(kcfg)/conf
-	$< --$@=defconfig $(Kconfig)
+	@$< --$@=defconfig $(Kconfig)
 
 defconfig: $(kcfg)/conf
 ifeq ($(KBUILD_DEFCONFIG),)
-	$< --defconfig $(Kconfig)
+	@$< --defconfig $(Kconfig)
 else
 	@echo "*** Default configuration is based on '$(KBUILD_DEFCONFIG)'"
-	$(Q)$< --defconfig=configs/$(KBUILD_DEFCONFIG) $(Kconfig)
+	@$< --defconfig=configs/$(KBUILD_DEFCONFIG) $(Kconfig)
 endif
 
 %_defconfig: $(kcfg)/conf
-	$(Q)$< --defconfig=configs/$@ $(Kconfig)
+	@$< --defconfig=configs/$@ $(Kconfig)
 
 # Help text used by make help
 help:
@@ -63,8 +63,8 @@ help:
 	@echo  '  oldnoconfig     - Same as silentoldconfig but set new symbols to n (unset)'
 
 $(kcfg)/conf:
-	$(MAKE) -C $(kcfg) conf
+	@$(MAKE) -C $(kcfg) conf
 
 $(kcfg)/mconf:
-	$(MAKE) -C $(kcfg) mconf
+	@$(MAKE) -C $(kcfg) mconf
 

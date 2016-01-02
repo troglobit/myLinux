@@ -1,5 +1,6 @@
 PLUGINS   = mtd.so
-LDFLAGS += -fPIC -shared -I$(shell pwd)/../$(PKG)
+CPPFLAGS += -I$(shell pwd)/../$(PKG) -I$(STAGING)/include
+LDFLAGS  += -fPIC -shared
 
 mtd.so: mtd.c
 	@$(CC) $(CPPFLAGS) $(LDFLAGS) -o $@ $< $(LDLIBS)

@@ -1,6 +1,6 @@
 # Top level Makefile
 #
-# Copyright (c) 2014-2015  Joachim Nilsson <troglobit@gmail.com
+# Copyright (c) 2014-2016  Joachim Nilsson <troglobit@gmail.com
 #
 # Permission to use, copy, modify, and/or distribute this software for
 # any purpose with or without fee is hereby granted, provided that the
@@ -16,9 +16,9 @@
 .PHONY: run staging kernel lib packages clean distclean
 
 ARCH            = arm
-HOST            = arm-linux-gnueabi
-CROSS          ?= $(HOST)-
+CROSS          ?= arm-linux-gnueabi-
 CROSS_COMPILE  ?= $(CROSS)
+CROSS_TARGET    = $(CROSS_COMPILE:-=)
 
 CC              = $(CROSS_COMPILE)gcc
 CFLAGS          =
@@ -27,16 +27,17 @@ LDLIBS          =
 LDFLAGS         = -L$(STAGING)/lib
 STRIP           = $(CROSS_COMPILE)strip
 
-NAME           := TroglOS Linux
-RELEASE_ID     := chaos
-RELEASE         = Chaos Devel `date --iso-8601`
-VERSION_ID     := 1.0-beta8
-VERSION        := $(VERSION_ID), $(RELEASE)
-ID             := "troglos"
-PRETTY_NAME    := $(NAME) $(VERSION_ID)
-HOME_URL       := http://troglobit.com
-SUPPORT_URL    := https://github.com/troglobit/troglos
-BUG_REPORT_URL := https://github.com/troglobit/troglos/issues
+OSNAME         := TroglOS Linux
+OSRELEASE_ID   := chaos
+OSRELEASE       = Chaos Devel `date --iso-8601`
+OSVERSION_ID   := 1.0-beta9
+OSVERSION      := $(OSVERSION_ID), $(OSRELEASE)
+OSID           := "troglos"
+OSPRETTY_NAME  := $(OSNAME) $(OSVERSION_ID)
+OSHOME_URL     := http://troglobit.com
+TROGLOHUB      := https://github.com/troglobit
+SUPPORT_URL    := $(TROGLOHUB)/troglos
+BUG_REPORT_URL := $(TROGLOHUB)/troglos/issues
 
 ROOTDIR        := $(shell pwd)
 CONFIG         := $(ROOTDIR)/.config
@@ -46,20 +47,36 @@ STAGING_DIRS    = mnt proc sys lib share bin sbin tmp var home
 IMAGEDIR        = $(ROOTDIR)/images
 PERSISTENT     ?= $(shell xdg-user-dir DOCUMENTS)/TroglOS
 MTD            ?= $(PERSISTENT)/Config.mtd
-MAKEFLAGS       = --silent --no-print-directory
 DOWNLOADS      ?= $(shell xdg-user-dir DOWNLOAD)
 
-export ARCH HOST CROSS CROSS_COMPILE
+ifdef V
+  ifeq ("$(origin V)", "command line")
+    KBUILD_VERBOSE = $(V)
+  endif
+endif
+ifndef KBUILD_VERBOSE
+  KBUILD_VERBOSE = 0
+endif
+ifeq ($(KBUILD_VERBOSE),1)
+MAKEFLAGS       =
+REDIRECT        =
+else
+MAKEFLAGS       = --silent --no-print-directory
+REDIRECT        = >/dev/null 2>&1
+endif
+
+export ARCH CROSS CROSS_COMPILE CROSS_TARGET
 export CC CFLAGS CPPFLAGS LDLIBS LDFLAGS STRIP
-export NAME VERSION_ID VERSION ID PRETTY_NAME HOME_URL
+export OSNAME OSVERSION_ID OSVERSION OSID OSPRETTY_NAME OSHOME_URL
+export TROGLOHUB
 export ROOTDIR STAGING IMAGEDIR DOWNLOADS
+export KBUILD_VERBOSE MAKEFLAGS REDIRECT
 
-all: staging kernel lib packages ramdisk
 
-$(CONFIG):
+all: dep staging kernel lib packages ramdisk
+
+dep:
 	@test -e $(CONFIG) || $(MAKE) defconfig
-
-dep: $(CONFIG)
 
 # Linux Kconfig, menuconfig et al
 include kconfig/config.mk
@@ -73,7 +90,7 @@ KERNEL_CMDLINE = $(shell echo $(CONFIG_LINUX_CMDLINE) | sed 's/"//g')
 #			 -drive file=disk.img,if=virtio
 #			 -dtb $(IMAGEDIR)/versatile-ab.dtb
 #			 -dtb $(IMAGEDIR)/versatile-pb.dtb
-run: $(CONFIG)
+run:
 	@echo "  QEMU    Ctrl-a x -- exit | Ctrl-a c -- switch console/monitor"
 	-@mkdir -p $(PERSISTENT) 2>/dev/null
 	-@[ ! -e $(MTD) ] && dd if=/dev/zero of=$(MTD) bs=16384 count=960
@@ -85,7 +102,7 @@ run: $(CONFIG)
 			 -initrd $(IMAGEDIR)/initramfs.gz  						\
 			 -append "$(KERNEL_CMDLINE) block2mtd.block2mtd=/dev/sda,,Config"
 
-staging: $(CONFIG)
+staging:
 	@echo "  STAGING Root file system ..."
 	@mkdir -p $(IMAGEDIR)
 	@mkdir -p $(STAGING)
@@ -94,26 +111,26 @@ staging: $(CONFIG)
 	done
 	-@(cd $(STAGING) && ln -sf . usr 2>/dev/null)
 	@cp -a $(ROOTDIR)/initramfs/* $(STAGING)/
-	@echo "NAME=\"$(NAME)\""                       > $(STAGING)/etc/os-release
-	@echo "VERSION=\"$(VERSION)\""                 >>$(STAGING)/etc/os-release
-	@echo "ID=\"$(ID)\""                           >>$(STAGING)/etc/os-release
-	@echo "PRETTY_NAME=\"$(PRETTY_NAME)\""         >>$(STAGING)/etc/os-release
-	@echo "VERSION_ID=\"$(VERSION_ID)\""           >>$(STAGING)/etc/os-release
-	@echo "HOME_URL=\"$(HOME_URL)\""               >>$(STAGING)/etc/os-release
+	@echo "NAME=\"$(OSNAME)\""                     > $(STAGING)/etc/os-release
+	@echo "VERSION=\"$(OSVERSION)\""               >>$(STAGING)/etc/os-release
+	@echo "ID=\"$(OSID)\""                         >>$(STAGING)/etc/os-release
+	@echo "PRETTY_NAME=\"$(OSPRETTY_NAME)\""       >>$(STAGING)/etc/os-release
+	@echo "VERSION_ID=\"$(OSVERSION_ID)\""         >>$(STAGING)/etc/os-release
+	@echo "HOME_URL=\"$(OSHOME_URL)\""             >>$(STAGING)/etc/os-release
 	@echo "SUPPORT_URL=\"$(SUPPORT_URL)\""         >>$(STAGING)/etc/os-release
 	@echo "BUG_REPORT_URL=\"$(BUG_REPORT_URL)\""   >>$(STAGING)/etc/os-release
-	@echo "$(VERSION)"                             > $(STAGING)/etc/version
-	@echo "$(NAME) $(VERSION_ID) \\\\n \\l"        > $(STAGING)/etc/issue
-	@echo "$(NAME) $(VERSION_ID)"                  > $(STAGING)/etc/issue.net
-	@echo "$(RELEASE_ID)"                          > $(STAGING)/etc/hostname
-	@sed -i 's/HOSTNAME/$(RELEASE_ID)/' $(STAGING)/etc/hosts
+	@echo "$(OSVERSION)"                           > $(STAGING)/etc/version
+	@echo "$(OSNAME) $(OSVERSION_ID) \\\\n \\l"    > $(STAGING)/etc/issue
+	@echo "$(OSNAME) $(OSVERSION_ID)"              > $(STAGING)/etc/issue.net
+	@echo "$(OSRELEASE_ID)"                        > $(STAGING)/etc/hostname
+	@sed -i 's/HOSTNAME/$(OSRELEASE_ID)/' $(STAGING)/etc/hosts
 	@echo "  INSTALL Toolchain shared libraries ..."
 	# XXX: UGLY FIXME!!
 	@cp -a /usr/arm-linux-gnueabi/lib/* $(STAGING)/lib/
 
 # Cleanup staging (may need to separate into a staging + romfs dir, like uClinux-dist)
 ramdisk:
-	@echo "  INITRD  $(NAME) $(CONFIG_LINUX_VERSION)"
+	@echo "  INITRD  $(OSNAME) $(CONFIG_LINUX_VERSION)"
 	@rm -rf $(STAGING)/lib/pkgconfig
 	@rm -rf $(STAGING)/lib/*.a
 	@rm -rf $(STAGING)/share/man
@@ -141,7 +158,7 @@ kernel_install:
 # Packages may depend on libraries, so we build libs first
 packages: lib
 
-packages lib: $(CONFIG)
+packages lib:
 	@$(MAKE) -j5 -C $@ all
 	@$(MAKE) -j5 -C $@ install
 

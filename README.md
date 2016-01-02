@@ -41,6 +41,7 @@ The build environment currently requires at least the following tools,
 tested on Ubuntu 14.04, 15.04, and 15.10:
 
 * gcc-arm-linux-gnueabi
+* g++-arm-linux-gnueabi
 * cpp-arm-linux-gnueabi
 * binutils-arm-linux-gnueabi
 * libc6-armel-cross

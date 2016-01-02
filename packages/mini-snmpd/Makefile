@@ -1,59 +1,9 @@
 # Glue for cross compiling Mini SNMP Daemon
-#
-# Copyright (c) 2014-2015  Joachim Nilsson <troglobit@gmail.com
-#
-# Permission to use, copy, modify, and/or distribute this software for
-# any purpose with or without fee is hereby granted, provided that the
-# above copyright notice and this permission notice appear in all copies.
-#
-# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-# IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-.PHONY: all install clean distclean
 
-VER            ?= 1.3
-NAME            = mini-snmpd
-BIN             = mini_snmpd
-PKG		= $(NAME)-$(VER)
-PKGSUFFIX	= tar.gz
-PATCHES 	= patches/*.patch
-URL             = http://ftp.troglobit.com/mini-snmpd/$(PKG).$(PKGSUFFIX)
-CFG_OPTS        = --prefix= --host=$(HOST)
-
-all: build
+PKGVER     := 1.3
+PKG        := mini-snmpd-$(PKGVER)
+PKGURL      = $(TROGLOHUB)/$(PKGNAME)/releases/download/v$(PKGVER)/(PKGTAR)
+PKGCFG     := --prefix= --host=$(CROSS_TARGET)
+PKGINSTALL := install-exec
 
 include $(ROOTDIR)/pkg.mk
-
-$(PKG)/Makefile: $(ARCHIVE) $(PATCHES) patches/series
-	-@$(RM) -r $(PKG)
-	@tar xfz $(ARCHIVE)
-	@echo "  PATCH   $(PKG)/"
-	@(cd $(PKG);				\
-		ln -sf ../patches .;		\
-		quilt push -qa;			\
-		echo "  CONFIG  $(PKG)/";	\
-		./configure $(CFG_OPTS)) > /dev/null
-	@touch $@
-
-unpack: $(PKG)/Makefile
-
-$(PKG)/.stamp: $(PKG)/Makefile
-	+@$(MAKE) -C $(PKG)
-	@touch $@
-
-build: $(PKG)/.stamp
-
-install: $(PKG)/.stamp
-	@$(CROSS_COMPILE)strip -o $(STAGING)/sbin/$(BIN) $(PKG)/$(BIN)
-
-clean:
-	-@$(MAKE) -C $(PKG) clean
-	-@$(RM) $(PKG)/.stamp
-
-distclean:
-	-@$(RM) -rf mini_snmpd-*
-

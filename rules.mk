@@ -5,14 +5,14 @@ all:
 	@for dir in $(dir_y); do				\
 		echo "  BUILD   $(THIS)/$$dir";			\
 		/bin/echo -ne "\033]0;$(PWD) $(THIS)/$$dir\007";\
-		$(MAKE) -C $$dir $@;				\
+		$(MAKE) -C $$dir $@ || exit 1;			\
 	done
 
 install:
 	@for dir in $(dir_y); do				\
 		echo "  INSTALL $(THIS)/$$dir";			\
 		/bin/echo -ne "\033]0;$(PWD) $(THIS)/$$dir\007";\
-		$(MAKE) -C $$dir $@;				\
+		$(MAKE) -C $$dir $@ || exit 1;			\
 	done
 
 clean: 
