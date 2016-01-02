@@ -30,6 +30,14 @@ config MINI_SNMPD
        help
 	 Robert Ernst's original mini_snmpd reborn.
 
+config MROUTED
+       bool "The original dynamic multicast routing daemon"
+       help
+	 The restored original mrouted.  This is not PIM but DVMRP, so
+	 basically RIP but for multicast.  Very reliable.
+	 
+	 http://troglobit.com/mrouted.html
+
 config SMCROUTE
        bool "Static Multicast Routing Daemon"
        help

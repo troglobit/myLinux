@@ -25,6 +25,7 @@ dir_$(CONFIG_FINIT)      += finit
 dir_$(CONFIG_INADYN)     += inadyn
 dir_$(CONFIG_LLDPD)      += lldpd
 dir_$(CONFIG_MINI_SNMPD) += mini-snmpd
+dir_$(CONFIG_MROUTED)    += mrouted
 dir_$(CONFIG_SMCROUTE)   += smcroute
 dir_$(CONFIG_TETRIS)     += tetris
 dir_$(CONFIG_UFTPD)      += uftpd
