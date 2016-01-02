@@ -38,6 +38,15 @@ config MROUTED
 	 
 	 http://troglobit.com/mrouted.html
 
+config PIMD
+       bool "PIM-SM/SSM multicast routing daemon"
+       help
+         pimd is a lightweight PIM-SM/SSM v2 multicast routing daemon.
+         It is the original USC (netweb/catarina.usc.edu) implementation
+         of the protocol, based on RFC2362.
+	 
+	 http://troglobit.com/pimd.html
+
 config SMCROUTE
        bool "Static Multicast Routing Daemon"
        help
