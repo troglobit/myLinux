@@ -37,11 +37,13 @@ To try it out, simply clone this repository, then type:
 
     make
 
-Modify the configuration using the well known Linux menuconfig interface
+Or modify the configuration using the well known menuconfig interface
 
     make menuconfig
+	make
 
-When the build has completed, start Qemu
+When the build has completed, start Qemu.  Use `root` to login.  
+No password by default.
 
     make run
 
