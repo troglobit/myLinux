@@ -12,7 +12,7 @@ else
 Kconfig := Kconfig
 endif
 
-menuconfig: $(kcfg)/mconf
+menuconfig: $(kcfg)/mconf dep
 	@$< $(Kconfig)
 
 config: $(kcfg)/conf
