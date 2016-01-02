@@ -1,0 +1,16 @@
+Index: netcalc-2.0/Makefile.in
+===================================================================
+--- netcalc-2.0.orig/Makefile.in
++++ netcalc-2.0/Makefile.in
+@@ -889,8 +889,10 @@ uninstall-man: uninstall-man1
+ test: check
+ 
+ # Hook in to install to add netcalc --> ipcalc symlink
++# Removed in TroglOS, ipcalc provided by BusyBox for reference
+ install-exec-hook:
+-	(cd $(DESTDIR)$(bindir); $(LN_S) $(EXEC) $(SYMLINK))
++	#(cd $(DESTDIR)$(bindir); $(LN_S) $(EXEC) $(SYMLINK))
++	@true
+ 
+ release: dist
+ 	@for file in $(DIST_ARCHIVES); do	\

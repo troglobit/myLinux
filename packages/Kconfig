@@ -38,6 +38,14 @@ config MROUTED
 	 
 	 http://troglobit.com/mrouted.html
 
+config NETCALC
+       bool "netcalc - Simple subnet calculator"
+       help
+         netcalc is a slimmed down version of sipcalc using the popular
+	 output format of ipcalc.
+	 
+	 https://github.com/troglobit/netcalc/
+
 config PIMD
        bool "PIM-SM/SSM multicast routing daemon"
        help
