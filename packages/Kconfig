@@ -1,37 +1,35 @@
-menu "Packages"
-
-config BUSYBOX
-       bool "BusyBox"
-       help
-         Your basic embedded swiss army chainsaw.
+menu "Networking packages"
 
 config DROPBEAR
-       bool "Dropbear SSH"
+       bool "dropbear - Dropbear SSH daemon, client and scp"
        help
-	 Embedded friendly SSH daemon and client, and scp
-
-config FINIT
-       bool "Fast Init (Finit)"
-       help
-         The original Asus EeePC fastinit clone, on steroids.
+	 Embedded friendly SSH daemon, client, and scp tool.
+	 
+	 https://matt.ucc.asn.au/dropbear/dropbear.html
 
 config INADYN
-       bool "The In-a-Dyn DDNS Client"
+       bool "inadyn - Dynamic DNS (DDNS) Client"
        help
 	 Powerful and small DDNS client inadyn
+	 
+	 http://troglobit.com/inadyn.html
 
 config LLDPD
-       bool "LLDP Daemon"
+       bool "lldpd - IEEE 802.1ab LLDP Daemon"
        help
-         Vincent Bernat's excellent LLDP daemon.
+         Vincent Bernat's excellent IEEE 802.1ab LLDP daemon.
+	 
+	 http://vincentbernat.github.io/lldpd/
 
 config MINI_SNMPD
-       bool "Mini SNMP Daemon"
+       bool "mini-snmpd - Mini SNMP Daemon"
        help
 	 Robert Ernst's original mini_snmpd reborn.
+	 
+	 http://troglobit.com/mini-snmpd.html
 
 config MROUTED
-       bool "The original dynamic multicast routing daemon"
+       bool "mrouted - The original dynamic multicast routing daemon"
        help
 	 The restored original mrouted.  This is not PIM but DVMRP, so
 	 basically RIP but for multicast.  Very reliable.
@@ -47,7 +45,7 @@ config NETCALC
 	 https://github.com/troglobit/netcalc/
 
 config PIMD
-       bool "PIM-SM/SSM multicast routing daemon"
+       bool "pimd - PIM-SM/SSM multicast routing daemon"
        help
          pimd is a lightweight PIM-SM/SSM v2 multicast routing daemon.
          It is the original USC (netweb/catarina.usc.edu) implementation
@@ -56,11 +54,55 @@ config PIMD
 	 http://troglobit.com/pimd.html
 
 config SMCROUTE
-       bool "Static Multicast Routing Daemon"
+       bool "smcroute - Static Multicast Routing Daemon"
        help
 	 Carsten Schill's smcroute daemon, for static-only multicast routes.
 	 
 	 http://troglobit.com/smcroute.html
+
+config UFTPD
+       bool "uftpd - TFTP/FTP Daemon That Just Works"
+       help
+	 Troglobit uftpd, quick TFTP and fuzzy-less FTP daemon.
+	 
+	 http://troglobit.com/uftpd.html
+
+endmenu
+
+menu "System packages"
+
+config BUSYBOX
+       bool "BusyBox - Your basic embedded swiss army chainsaw"
+       help
+         BusyBox combines tiny versions of many common UNIX utilities
+         into a single small executable. It provides replacements for
+         most of the utilities you usually find in GNU fileutils,
+         shellutils, etc. The utilities in BusyBox generally have fewer
+         options than their full-featured GNU cousins; however, the
+         options that are included provide the expected functionality
+         and behave very much like their GNU counterparts. BusyBox
+         provides a fairly complete environment for any small or
+         embedded system.
+	 
+	 BusyBox has been written with size-optimization and limited
+	 resources in mind. It is also extremely modular so you can
+	 easily include or exclude commands (or features) at compile
+	 time. This makes it easy to customize your embedded systems. To
+	 create a working system, just add some device nodes in /dev, a
+	 few configuration files in /etc, and a Linux kernel.
+	 
+	 Use `make packages/busybox-menuconfig` and `-saveconfig` to
+	 modify and save your BusyBox configuration in TroglOS.
+	 
+	 https://busybox.net/
+
+config FINIT
+       bool "finit - Fast SysV init Replacement with Process Supervision"
+       help
+         The original Asus EeePC fastinit clone, on steroids.  With process
+	 supervision, plugin support, and more!
+	 
+	 http://troglobit.com/finit.html
 
 config STRACE
        bool "strace - Trace system calls and signals in an application"
@@ -72,7 +114,7 @@ config STRACE
 	  http://strace.sourceforge.net       
 
 config TETRIS
-       bool "Micro Tetris"
+       bool "tetris - Micro Tetris"
        help
          One of the smallest Tetris implementations in the world!
 	 
@@ -80,16 +122,16 @@ config TETRIS
 	 library dependencies other than a standard C library, like uClibc or
 	 musl libc. Hence, very suitable for embedded devices in need of an
 	 easter egg ;-)
-
-config UFTPD
-       bool "TFTP/FTP Daemon That Just Works"
-       help
-	 Troglobit uftpd, quick TFTP and fuzzy-less FTP daemon.
+	 
+	 http://troglobit.com/tetris.html
 
 config WATCHDOGD
-       bool "Advanced Watchdog Daemon"
+       bool "watchdogd - Advanced Watchdog Daemon"
        help
-	 Troglobit watchdogd, with supervisor API for instrumentation
-	 of your own processes.
+         Extended version of uClinux-dist watchdogd.  Monitors loadavg,
+	 file descriptors and memory leaks, and capable of supervising
+	 your processes main loop using an instrumentation API.
+	 
+	 https://github.com/troglobit/watchdogd
 
 endmenu

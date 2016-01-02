@@ -1,8 +1,11 @@
 #
 # For a description of the syntax of this configuration file,
-# see Documentation/kbuild/kconfig-language.txt.
+# see doc/kconfig/kconfig-language.txt.
 #
 mainmenu "TroglOS Virtual Devboard Configuration"
+
+# This is where all Qemu and toolchain specific settings go
+menu "Target options"
 
 #config SRCARCH
 #	string
@@ -21,7 +24,13 @@ config CROSS_COMPILE
 	  default make runs in this kernel build directory.  You don't
 	  need to set this unless you want the configured kernel build
 	  directory to select the cross-compiler automatically.
+endmenu
 
+# Kernel specifics: version, rc, cmdline
 source "kernel/Kconfig"
+
+# Target system libraries, or dependencies from packages
 source "lib/Kconfig"
+
+# Target system daemons, tools
 source "packages/Kconfig"
