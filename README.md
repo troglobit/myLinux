@@ -100,6 +100,37 @@ anything in [virt-manager](http://virt-manager.org/) prior to this then
 you're set, otherwise you're unfortunately on your own.
 
 
+Troubleshooting
+---------------
+
+TroglOS builds silent.  You will not see any compiler output, warnings
+or such by default.  When something does not work this can be slightly
+annoying, so there are several shortcuts and other tricks to help you!
+
+    make V=1
+
+This enables verbose build, what you are probably used to from other
+build systems.  But what if you only want to rebuild a single package?
+
+    make V=1 packages/busybox-build
+
+This builds only BusyBox, with verbose mode enabled.  Other useful
+shortcuts are:
+
+    make packages/busybox-clean
+    make packages/busybox-distclean
+    make packages/busybox-install
+
+To tweak the kernel the following build shortcuts are available:
+
+    make kernel
+	make kernel_menuconfig
+	make kernel_saveconfig
+
+There are a few more, see the Makefile for details, it is surprisingly
+readable! :-)
+
+
 Upgrading Linux
 ---------------
 
