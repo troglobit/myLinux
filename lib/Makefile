@@ -21,6 +21,7 @@ exclude                  = Makefile
 dir_y                    =
 dir_$(CONFIG_LIBITE)    += libite
 dir_$(CONFIG_LIBUEV)    += libuev
+dir_$(CONFIG_LIPIFY)    += lipify
 dir_$(CONFIG_ZLIB)      += zlib
 dir_n                    =
 dir_                     =

@@ -13,6 +13,13 @@ config LIBITE
 	 missing on a Linux system, c.f. regular UNIX (OpenBSD).  With
 	 some sugar on top.  Your basic frog DNA.
 
+config LIPIFY
+       bool "lipify - C library for http://ipify.org"
+       help
+	 Very small C library for http://ipify.org, the open "what's my IP" API.
+	 
+	 https://github.com/troglobit/lipify/
+
 config ZLIB
        bool "Zlib"
        help
