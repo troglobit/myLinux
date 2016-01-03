@@ -44,6 +44,31 @@ config NETCALC
 	 
 	 https://github.com/troglobit/netcalc/
 
+config OMPING
+       bool "omping - Open Multicast Ping"
+       help
+
+	 The omping tool is a pure UDP client and server wrapped in a small
+	 binary.  Perfectly suited for verifying multicast connectivity on
+	 your local network.
+	 
+	 Compared to traditional ping omping does not use ICMP.  Based on
+	 RFC draft <http://tools.ietf.org/html/draft-ietf-mboned-ssmping-08>
+	 and can thus test many different aspects of a setup:
+	 
+	   "In addition to checking reception of multicast (SSM or ASM),
+	    the protocol can provide related information such as multicast
+	    tree setup time, the number of hops the packets have traveled,
+	    as well as packet delay and loss."
+	 
+	 Features:
+	 
+	 - Similar user experience as classic ping tool
+	 - Ping multiple hosts at once
+	 - Any-source and Source-specific Multicast 
+	 
+	 https://github.com/troglobit/omping/
+
 config PIMD
        bool "pimd - PIM-SM/SSM multicast routing daemon"
        help
