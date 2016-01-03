@@ -1,6 +1,6 @@
 # Glue for cross compiling Dropbear SSH
 
-PKGVER     := 2015.68
+PKGVER     := 2015.71
 PKG        := dropbear-$(PKGVER)
 PKGSUFFIX  := tar.bz2
 PKGURL      = http://matt.ucc.asn.au/dropbear/releases/$(PKGTAR)
@@ -12,3 +12,6 @@ PKGCFG     := --host=$(CROSS_TARGET) --prefix= --sysconfdir=/mnt
 PKGCFG     += --disable-wtmp --disable-shadow --disable-lastlog
 
 include $(ROOTDIR)/pkg.mk
+
+install::
+	@mkdir -p $(STAGING)/etc/dropbear
