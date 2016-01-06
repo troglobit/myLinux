@@ -24,6 +24,9 @@
 #              If set, build system will attempt to use patches/1.9/*.patch
 # PKGPATCHES - Used only in Defaults to patches/*.patch, assumes Quilt is used
 # PKGSUFFIX  - Defaults to tar.gz, may be overridden
+# PKGDEVPATH - If set when calling the `dev` rule, this creates a developer
+#              symlink in lib/$(PKGNAME)-name or packages/$(PKGNAME)-dev which
+#              can be used to evaluate or develop packages between releases.
 #
 ### Variables set by pkg.mk, may be used by including Makefile
 #
@@ -49,6 +52,10 @@
 
 PKGFETCH   ?= wget -t3 -nc --no-dns-cache --no-iri -q -cO
 PKGNAME    ?= $(PKG:-$(PKGVER)=)
+PKGDEV     := $(PKGNAME)-dev
+ifneq ("$(wildcard $(PKGDEV))","")
+PKG        := $(PKGDEV)
+endif
 PKGSUFFIX  ?= tar.gz
 PKGPATCHES ?= patches/*.patch
 PKGTAR     ?= $(PKG).$(PKGSUFFIX)
@@ -63,6 +70,7 @@ tmpfile    := $(shell mktemp /tmp/troglos.XXXXXX)
 all: $(PKGTARGETS)
 
 $(ARCHIVE):
+ifeq ("$(wildcard $(PKGDEV))","")
 	@mkdir -p $(dir $@)
 	@mkdir -p $(ROOTDIR)/tmp
 	@if [ -e $(TMPFILE) ]; then						\
@@ -81,6 +89,9 @@ $(ARCHIVE):
 		rm $(TMPFILE);							\
 		exit 1;								\
 	fi
+else
+	@true
+endif
 
 download: $(ARCHIVE)
 
@@ -93,6 +104,7 @@ checksums/$(PKG).sha1: $(ARCHIVE)
 gensum: checksums/$(PKG).sha1
 
 $(PKG)/.unpacked:: Makefile $(ARCHIVE) $(PKGPATCHES)
+ifeq ("$(wildcard $(PKGDEV))","")
 	@echo "  UNPACK  $(PKG)"
 	-@$(RM) -r $(PKG)
 	@tar xf $(ARCHIVE)
@@ -102,6 +114,7 @@ $(PKG)/.unpacked:: Makefile $(ARCHIVE) $(PKGPATCHES)
 		 ln -sf ../patches/$(PKGBASEVER) patches;			\
 		 quilt push -qa $(REDIRECT));					\
 	fi
+endif
 	@touch $@
 
 unpack: $(PKG)/.unpacked
@@ -121,6 +134,21 @@ $(PKG)/.config:: $(PKG)/.unpacked
 
 oldconfig:: $(PKG)/.config
 
+$(PKGDEV):
+	if [ -z "$(PKGDEVPATH)" ]; then						\
+		echo "  ERROR   Cannot set up $(PKGDEV), missing PKGDEVPATH!";	\
+		echo "          Example: PKGDEVPATH=/path/to/pkg-vcs";		\
+		exit 1;								\
+	fi
+	@if [ ! -d "$(PKGDEVPATH)" ]; then					\
+		echo "	ERROR	PKGDEVPATH=$(PKGDEVPATH) is not a directory!";	\
+		exit 1;								\
+	fi
+	@ln -sf $(PKGDEVPATH) $(PKGDEV)
+	@echo "  DEV     Developer mode enabled for $(PKGNAME)"
+
+dev: $(PKGDEV)
+
 $(PKG)/.stamp:: $(PKG)/.config
 	@echo "  BUILD   $(PKG)"
 	+@$(MAKE) $(PKGENV) -C $(PKG) $(REDIRECT)
@@ -133,7 +161,13 @@ clean::
 	-@$(RM) $(PKG)/.stamp
 
 distclean::
+ifeq ("$(wildcard $(PKGDEV))","")
 	-@$(RM) -rf $(PKGNAME)-*
+else
+	@unset CLEAN_DIRS
+	-@$(MAKE) -C $(PKG) $@ $(REDIRECT)
+	-@$(RM) $(PKG)/.stamp
+endif
 
 install::
 	@echo "  INSTALL $(PKG)"

@@ -14,6 +14,10 @@ $(addsuffix -distclean,$(TARGETS)):
 	@echo "  REMOVE  $(patsubst %-distclean,%,$@)"
 	-+@$(MAKE) -C $(patsubst %-distclean,%,$@) distclean
 
+$(addsuffix -dev,$(TARGETS)):
+	@echo "  DEV     $(patsubst %-dev,%,$@)"
+	+@$(MAKE) -C $(patsubst %-dev,%,$@) dev
+
 $(addsuffix -menuconfig,$(TARGETS)):
 	@echo "  CONFIG  $(patsubst %-menuconfig,%,$@)"
 	@$(MAKE) -C $(patsubst %-menuconfig,%,$@) menuconfig
