@@ -62,6 +62,8 @@ PKGTAR     ?= $(PKG).$(PKGSUFFIX)
 PKGENV     ?= DESTDIR=$(STAGING) prefix=
 PKGTARGETS ?= build
 PKGINSTALL ?= install
+PKGSUM      = $(PKGTAR).md5
+CHECKSUM    = $(shell pwd)/checksums/$(PKGSUM)
 TMPFILE     = $(ROOTDIR)/tmp/$(PKGTAR)
 ARCHIVE     = $(DOWNLOADS)/$(PKGNAME)/$(PKGTAR)
 MIRROR      = $(FTP_MIRROR)/$(PKGNAME)/$(PKGTAR)
@@ -95,18 +97,22 @@ endif
 
 download: $(ARCHIVE)
 
-checksums/$(PKG).sha1: $(ARCHIVE)
-	@echo "Generating SHA1 checksum for $(PKG) ..."
+$(CHECKSUM): $(ARCHIVE)
+	@echo "  CHKSUM  $(PKGTAR)"
 	@mkdir -p checksums
-	(cd $(dir $(ARCHIVE)); sha1sum $(PKG)*) > $@
-	git add $@
+	@(cd $(dir $(ARCHIVE)); md5sum $(PKGTAR)) > $@
+	@git add -f $@
 
-gensum: checksums/$(PKG).sha1
+chksum: $(CHECKSUM)
 
 $(PKG)/.unpacked:: Makefile $(ARCHIVE) $(PKGPATCHES)
 ifeq ("$(wildcard $(PKGDEV))","")
-	@echo "  UNPACK  $(PKG)"
 	-@$(RM) -r $(PKG)
+	@(cd $(dir $(ARCHIVE));							\
+	  md5sum -c $(CHECKSUM) $(REDIRECT)					\
+	  || { echo "  FAILED  Verifying $(PKGTAR) checksum!"; exit 1; })
+	@echo "  VRFY    $(PKG) checksum OK"
+	@echo "  UNPACK  $(PKG)"
 	@tar xf $(ARCHIVE)
 	@if [ -d patches/$(PKGBASEVER) ]; then					\
 		echo "  PATCH   $(PKG)";					\
