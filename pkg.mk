@@ -130,9 +130,14 @@ $(PKG)/.config:: $(PKG)/.unpacked
 	@echo -n '$(PKGCFG)' > $(tmpfile)
 	@if [ -s $(tmpfile) ]; then						\
 		rm $(tmpfile);							\
+		cd $(PKG);							\
+		if [ ! -e configure -a -e autogen.sh ]; then			\
+			echo "  AUTOGEN $(PKG)";				\
+			./autogen.sh;						\
+		fi;								\
 		echo "  CONFIG  $(PKG)";					\
-		(cd $(PKG) && $(PKGCFGENV)					\
-		  ./configure $(PKGCFG) $(REDIRECT));				\
+		$(PKGCFGENV) ./configure $(PKGCFG) $(REDIRECT);			\
+		cd - >/dev/null;						\
 	else									\
 		rm $(tmpfile);							\
 	fi
