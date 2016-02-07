@@ -1,6 +1,6 @@
 # Glue for cross compiling lldpd, IEEE 802.1AB
 
-PKGVER     := 0.7.11
+PKGVER     := 0.9.0
 PKG        := lldpd-$(PKGVER)
 PKGURL      = http://media.luffy.cx/files/lldpd/$(PKGTAR)
 PKGCFGENV  := export ac_cv_func_fork_works=yes;
@@ -12,8 +12,8 @@ PKGCFG     += --with-privsep-chroot=/var/run
 PKGCFG     += --enable-cdp
 PKGCFG     += --enable-lldpmed
 PKGCFG     += --enable-dot1 --enable-dot3
-PKGCFG     += --disable-fdp
-PKGCFG     += --disable-edp --disable-sonmp
+PKGCFG     += --disable-fdp --disable-edp --disable-sonmp
+PKGCFG     += --disable-doxygen-doc --without-json --without-xml
 #PKGCFG     += --with-snmp
 PKGINSTALL := install-exec
 
