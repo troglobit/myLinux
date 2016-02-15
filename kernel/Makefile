@@ -27,7 +27,7 @@ PKGPATCHES     := patches/$(PKGBASEVER)/*.patch patches/$(PKGBASEVER)/series
 ifdef CONFIG_LINUX_RC
 RC_PATH         = testing/
 endif
-PKGURL          = ftp://ftp.kernel.org/pub/linux/kernel/v4.x/$(RC_PATH)$(PKGTAR)
+PKGURL          = http://ftp.kernel.org/pub/linux/kernel/v4.x/$(RC_PATH)$(PKGTAR)
 CONFIG          = config-$(PKGBASEVER)
 ZIMAGE          = $(PKG)/arch/$(ARCH)/boot/zImage
 
