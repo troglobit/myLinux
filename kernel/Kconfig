@@ -6,8 +6,15 @@ config LINUX_VERSION
 	 Linux kernel version, downloaded from kernel.org, it is
        	 assumed to be a kernel >= 4.0
 
+config LINUX_TESTING
+       bool "Enable Linux testing (-rcN) versions"
+       default n
+       help
+         Enable building testing kernels.
+
 config LINUX_RC
        string "Linux -rcN version"
+       depends on LINUX_TESTING
        help
 	 Give on the form: -rcN, e.g. -rc2
 
