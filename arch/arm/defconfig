@@ -1,13 +1,17 @@
 #
 # TroglOS Virtual Devboard Default Configuration
 #
+
+#
+# Target options
+#
 CONFIG_CROSS_COMPILE=""
 
 #
 # Kernel
 #
-CONFIG_LINUX_VERSION="4.3.1"
-CONFIG_LINUX_RC=""
+CONFIG_LINUX_VERSION="4.4.1"
+# CONFIG_LINUX_TESTING is not set
 CONFIG_LINUX_CMDLINE="root=/dev/ram mem=128M console=ttyAMA0,115200 quiet"
 
 #
@@ -15,16 +19,28 @@ CONFIG_LINUX_CMDLINE="root=/dev/ram mem=128M console=ttyAMA0,115200 quiet"
 #
 CONFIG_LIBUEV=y
 CONFIG_LIBITE=y
+# CONFIG_LIPIFY is not set
 CONFIG_ZLIB=y
 
 #
-# Packages
+# Networking packages
 #
-CONFIG_BUSYBOX=y
 CONFIG_DROPBEAR=y
-CONFIG_FINIT=y
 CONFIG_INADYN=y
 CONFIG_LLDPD=y
 CONFIG_MINI_SNMPD=y
+# CONFIG_MROUTED is not set
+# CONFIG_NETCALC is not set
+# CONFIG_OMPING is not set
+# CONFIG_PIMD is not set
+# CONFIG_SMCROUTE is not set
 CONFIG_UFTPD=y
+
+#
+# System packages
+#
+CONFIG_BUSYBOX=y
+CONFIG_FINIT=y
+# CONFIG_STRACE is not set
+# CONFIG_TETRIS is not set
 CONFIG_WATCHDOGD=y
