@@ -1,6 +1,6 @@
 # Glue for cross compiling lldpd, IEEE 802.1AB
 
-PKGVER     := 0.9.0
+PKGVER     := 0.9.1
 PKG        := lldpd-$(PKGVER)
 PKGURL      = http://media.luffy.cx/files/lldpd/$(PKGTAR)
 PKGCFGENV  := export ac_cv_func_fork_works=yes;
