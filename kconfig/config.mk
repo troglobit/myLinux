@@ -12,29 +12,29 @@ else
 Kconfig := Kconfig
 endif
 
-menuconfig: $(kcfg)/mconf dep
+menuconfig: $(kcfg)/mconf dep					## Update current config utilising a menu based program
 	@$< $(Kconfig)
 
-config: $(kcfg)/conf
+config: $(kcfg)/conf						## Update current config utilising a line-oriented program
 	@$< --oldaskconfig $(Kconfig)
 
-oldconfig: $(kcfg)/conf
+oldconfig: $(kcfg)/conf						## Update current config utilising a provided .config as base
 	@$< --$@ $(Kconfig)
 
-silentoldconfig: $(kcfg)/conf
+silentoldconfig: $(kcfg)/conf					## Same as oldconfig, but quietly, additionally update deps
 	@mkdir -p include/generated
 	@$< --$@ $(Kconfig)
 
 allnoconfig allyesconfig allmodconfig alldefconfig randconfig: $(kcfg)/conf
 	@$< --$@ $(Kconfig)
 
-listnewconfig oldnoconfig: $(kcfg)/conf
+listnewconfig oldnoconfig: $(kcfg)/conf				## List new options
 	@$< --$@ $(Kconfig)
 
 savedefconfig: $(kcfg)/conf
 	@$< --$@=defconfig $(Kconfig)
 
-defconfig: $(kcfg)/conf
+defconfig: $(kcfg)/conf						## Use TroglOS defconfig
 ifeq ($(KBUILD_DEFCONFIG),)
 	@$< --defconfig $(Kconfig)
 else
@@ -44,23 +44,6 @@ endif
 
 %_defconfig: $(kcfg)/conf
 	@$< --defconfig=configs/$@ $(Kconfig)
-
-# Help text used by make help
-help:
-	@echo  '  config	  - Update current config utilising a line-oriented program'
-	@echo  '  menuconfig	  - Update current config utilising a menu based program'
-	@echo  '  oldconfig	  - Update current config utilising a provided .config as base'
-	@echo  '  localmodconfig  - Update current config disabling modules not loaded'
-	@echo  '  silentoldconfig - Same as oldconfig, but quietly, additionally update deps'
-	@echo  '  defconfig	  - New config with default from ARCH supplied defconfig'
-	@echo  '  savedefconfig   - Save current config as ./defconfig (minimal config)'
-	@echo  '  allnoconfig	  - New config where all options are answered with no'
-	@echo  '  allyesconfig	  - New config where all options are accepted with yes'
-	@echo  '  allmodconfig	  - New config selecting modules when possible'
-	@echo  '  alldefconfig    - New config with all symbols set to default'
-	@echo  '  randconfig	  - New config with random answer to all options'
-	@echo  '  listnewconfig   - List new options'
-	@echo  '  oldnoconfig     - Same as silentoldconfig but set new symbols to n (unset)'
 
 $(kcfg)/conf:
 	@$(MAKE) -C $(kcfg) conf

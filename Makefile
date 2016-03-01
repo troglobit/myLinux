@@ -73,9 +73,9 @@ export ROOTDIR STAGING IMAGEDIR DOWNLOADS
 export KBUILD_VERBOSE MAKEFLAGS REDIRECT
 
 
-all: dep staging kernel lib packages ramdisk
+all: dep staging kernel lib packages ramdisk			## Build all the things
 
-dep:
+dep:								## Use TroglOS defconfig if user forgets to run menuconfig
 	@test -e $(CONFIG) || $(MAKE) defconfig
 
 # Linux Kconfig, menuconfig et al
@@ -90,7 +90,7 @@ KERNEL_CMDLINE = $(shell echo $(CONFIG_LINUX_CMDLINE) | sed 's/"//g')
 #			 -drive file=disk.img,if=virtio
 #			 -dtb $(IMAGEDIR)/versatile-ab.dtb
 #			 -dtb $(IMAGEDIR)/versatile-pb.dtb
-run:
+run:								## Run Qemu for selected ARCH
 	@echo "  QEMU    Ctrl-a x -- exit | Ctrl-a c -- switch console/monitor"
 	-@mkdir -p $(PERSISTENT) 2>/dev/null
 	-@[ ! -e $(MTD) ] && dd if=/dev/zero of=$(MTD) bs=16384 count=960
@@ -102,7 +102,7 @@ run:
 			 -initrd $(IMAGEDIR)/initramfs.gz  						\
 			 -append "$(KERNEL_CMDLINE) block2mtd.block2mtd=/dev/sda,,Config"
 
-staging:
+staging:							## Initialize staging area
 	@echo "  STAGING Root file system ..."
 	@mkdir -p $(IMAGEDIR)
 	@mkdir -p $(STAGING)
@@ -129,7 +129,7 @@ staging:
 	@cp -a /usr/arm-linux-gnueabi/lib/* $(STAGING)/lib/
 
 # Cleanup staging (may need to separate into a staging + romfs dir, like uClinux-dist)
-ramdisk:
+ramdisk:							## Build ramdisk of staging dir
 	@echo "  INITRD  $(OSNAME) $(CONFIG_LINUX_VERSION)"
 	@rm -rf $(STAGING)/lib/pkgconfig
 	@rm -rf $(STAGING)/lib/*.a
@@ -137,28 +137,28 @@ ramdisk:
 	@touch $(STAGING)/etc/version
 	@$(MAKE) -f ramdisk.mk $@
 
-kernel:
+kernel:								## Build configured Linux kernel
 	@$(MAKE) -j5 -C kernel all
 
-kernel_menuconfig:
+kernel_menuconfig:						## Call Linux menuconfig
 	@$(MAKE) -C kernel menuconfig
 
-kernel_oldconfig:
+kernel_oldconfig:						## Call Linux oldconfig
 	@$(MAKE) -C kernel oldconfig
 
-kernel_defconfig:
+kernel_defconfig:						## Call Linux defconfig for the selected ARCH
 	@$(MAKE) -C kernel defconfig
 
-kernel_saveconfig:
+kernel_saveconfig:						## Save Linux-VER.REV/.config to kernel/config-VER
 	@$(MAKE) -C kernel saveconfig
 
-kernel_install:
+kernel_install:							## Install Linux device tree
 	@$(MAKE) -C kernel dtbinst
 
 # Packages may depend on libraries, so we build libs first
 packages: lib
 
-packages lib:
+packages lib:							## Build packages or libraries
 	@$(MAKE) -j5 -C $@ all
 	@$(MAKE) -j5 -C $@ install
 
@@ -168,7 +168,7 @@ include quick.mk
 TARGETS=$(shell find lib -maxdepth 1 -mindepth 1 -type d)
 include quick.mk
 
-clean:
+clean:								## Clean build tree, excluding menuconfig
 	@for dir in kernel lib packages; do			\
 		echo "  CLEAN   $$dir";				\
 		/bin/echo -ne "\033]0;$(PWD) $$dir\007";	\
@@ -176,10 +176,17 @@ clean:
 	done
 
 # @$(RM) `find kconfig -name '*~'`
-distclean:
+distclean:							## Really clean, as if started from scratch
 	@for dir in kconfig kernel lib packages; do		\
 		echo "  REMOVE  $$dir";				\
 		/bin/echo -ne "\033]0;$(PWD) $$dir\007";	\
 		$(MAKE) -C $$dir $@;				\
 	done
 	-@$(RM) -rf $(STAGING) $(IMAGEDIR) $(CONFIG)
+
+.PHONY: help
+help:
+	@grep -hP '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+	@echo
+	@echo 'Briefly, after `git clone`: make all; make run'
+	@echo
