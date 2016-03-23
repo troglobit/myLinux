@@ -40,7 +40,7 @@ To try it out, simply clone this repository, then type:
 Or modify the configuration using the well known menuconfig interface
 
     make menuconfig
-	make
+    make
 
 When the build has completed, start Qemu.  Use `root` to login.  
 No password by default.
@@ -54,7 +54,7 @@ Requirements
 ------------
 
 The build environment currently requires at least the following tools,
-tested on Ubuntu 14.04, 15.04, and 15.10:
+tested on Ubuntu 14.04, 15.04, 15.10, and 16.04:
 
 * gcc-arm-linux-gnueabi
 * g++-arm-linux-gnueabi
@@ -80,15 +80,17 @@ you may need to do the following to your host system, here Ubuntu 14.04:
     sudo chmod 4755 /usr/lib/qemu-bridge-helper
     sudo dpkg-statoverride --add root root 4755 /usr/lib/qemu-bridge-helper
 
-In Ubuntu 15.04 the helper script has moved to a qemu sub-directory:
+In Ubuntu 15.04, and later, the helper script has moved to a qemu 
+sub-directory:
 
     sudo chmod 4755 /usr/lib/qemu/qemu-bridge-helper
     sudo dpkg-statoverride --add root root 4755 /usr/lib/qemu/qemu-bridge-helper
 
 The first command makes the Qemu helper "suid root", which means we're
 allowed to manipulate the network to gain external network access.  The
-last command is for Debian/Ubuntu system, it makes sure to record your
-change so that any Qemu package upgrades will overwrite our mode change.
+last command is for Debian/Ubuntu systems, it makes sure to record your
+change so that any Qemu package upgrades will *not* overwrite our mode
+change.
 
 Now you need to tell Qemu what bridges in the system you are allowed to
 connect to, edit/create the file `/etc/qemu/bridge.conf` and add:
@@ -124,8 +126,8 @@ shortcuts are:
 To tweak the kernel the following build shortcuts are available:
 
     make kernel
-	make kernel_menuconfig
-	make kernel_saveconfig
+    make kernel_menuconfig
+    make kernel_saveconfig
 
 There are a few more, see the Makefile for details, it is surprisingly
 readable! :-)
