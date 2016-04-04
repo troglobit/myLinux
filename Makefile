@@ -42,6 +42,7 @@ BUG_REPORT_URL := $(TROGLOHUB)/troglos/issues
 ROOTDIR        := $(shell pwd)
 CONFIG         := $(ROOTDIR)/.config
 STAGING         = $(ROOTDIR)/staging
+BUILDLOG       := $(ROOTDIR)/build.log
 # usr/lib usr/share usr/bin usr/sbin 
 STAGING_DIRS    = mnt proc sys lib share bin sbin tmp var home
 IMAGEDIR        = $(ROOTDIR)/images
@@ -59,13 +60,13 @@ ifndef KBUILD_VERBOSE
 endif
 ifeq ($(KBUILD_VERBOSE),1)
 MAKEFLAGS       =
-REDIRECT        =
+REDIRECT        = 2>&1 | tee -a $(BUILDLOG); [ ${PIPESTATUS[0]} -eq 0 ]
 else
 MAKEFLAGS       = --silent --no-print-directory
-REDIRECT        = >/dev/null 2>&1
+REDIRECT        = >> $(BUILDLOG) 2>&1
 endif
 
-export ARCH CROSS CROSS_COMPILE CROSS_TARGET
+export ARCH BUILDLOG CROSS CROSS_COMPILE CROSS_TARGET
 export CC CFLAGS CPPFLAGS LDLIBS LDFLAGS STRIP
 export OSNAME OSVERSION_ID OSVERSION OSID OSPRETTY_NAME OSHOME_URL
 export TROGLOHUB
@@ -76,7 +77,8 @@ export KBUILD_VERBOSE MAKEFLAGS REDIRECT
 all: dep staging kernel lib packages ramdisk			## Build all the things
 
 dep:								## Use TroglOS defconfig if user forgets to run menuconfig
-	@test -e $(CONFIG) || $(MAKE) defconfig
+	@touch $(BUILDLOG)
+	@test -e $(CONFIG) || $(MAKE) defconfig $(REDIRECT)
 
 # Linux Kconfig, menuconfig et al
 include kconfig/config.mk
@@ -91,7 +93,7 @@ KERNEL_CMDLINE = $(shell echo $(CONFIG_LINUX_CMDLINE) | sed 's/"//g')
 #			 -dtb $(IMAGEDIR)/versatile-ab.dtb
 #			 -dtb $(IMAGEDIR)/versatile-pb.dtb
 run:								## Run Qemu for selected ARCH
-	@echo "  QEMU    Ctrl-a x -- exit | Ctrl-a c -- switch console/monitor"
+	@echo "  QEMU    Ctrl-a x -- exit | Ctrl-a c -- switch console/monitor" | tee -a $(BUILDLOG)
 	-@mkdir -p $(PERSISTENT) 2>/dev/null
 	-@[ ! -e $(MTD) ] && dd if=/dev/zero of=$(MTD) bs=16384 count=960
 	@qemu-system-arm -nographic -m 128M -M versatilepb -usb						\
@@ -103,7 +105,7 @@ run:								## Run Qemu for selected ARCH
 			 -append "$(KERNEL_CMDLINE) block2mtd.block2mtd=/dev/sda,,Config"
 
 staging:							## Initialize staging area
-	@echo "  STAGING Root file system ..."
+	@echo "  STAGING Root file system ..." | tee -a $(BUILDLOG)
 	@mkdir -p $(IMAGEDIR)
 	@mkdir -p $(STAGING)
 	@for dir in $(STAGING_DIRS); do   \
@@ -124,18 +126,18 @@ staging:							## Initialize staging area
 	@echo "$(OSNAME) $(OSVERSION_ID)"              > $(STAGING)/etc/issue.net
 	@echo "$(OSRELEASE_ID)"                        > $(STAGING)/etc/hostname
 	@sed -i 's/HOSTNAME/$(OSRELEASE_ID)/' $(STAGING)/etc/hosts
-	@echo "  INSTALL Toolchain shared libraries ..."
+	@echo "  INSTALL Toolchain shared libraries ..." | tee -a $(BUILDLOG)
 	# XXX: UGLY FIXME!!
 	@cp -a /usr/arm-linux-gnueabi/lib/* $(STAGING)/lib/
 
 # Cleanup staging (may need to separate into a staging + romfs dir, like uClinux-dist)
 ramdisk:							## Build ramdisk of staging dir
-	@echo "  INITRD  $(OSNAME) $(CONFIG_LINUX_VERSION)"
+	@echo "  INITRD  $(OSNAME) $(CONFIG_LINUX_VERSION)" | tee -a $(BUILDLOG)
 	@rm -rf $(STAGING)/lib/pkgconfig
 	@rm -rf $(STAGING)/lib/*.a
 	@rm -rf $(STAGING)/share/man
 	@touch $(STAGING)/etc/version
-	@$(MAKE) -f ramdisk.mk $@
+	@$(MAKE) -f ramdisk.mk $@ $(REDIRECT)
 
 kernel:								## Build configured Linux kernel
 	@$(MAKE) -j5 -C kernel all
@@ -170,19 +172,19 @@ include quick.mk
 
 clean:								## Clean build tree, excluding menuconfig
 	@for dir in kernel lib packages; do			\
-		echo "  CLEAN   $$dir";				\
+		echo "  CLEAN   $$dir" | tee -a $(BUILDLOG);	\
 		/bin/echo -ne "\033]0;$(PWD) $$dir\007";	\
-		$(MAKE) -C $$dir $@;				\
+		$(MAKE) -C $$dir $@ $(REDIRECT);		\
 	done
 
 # @$(RM) `find kconfig -name '*~'`
 distclean:							## Really clean, as if started from scratch
 	@for dir in kconfig kernel lib packages; do		\
-		echo "  REMOVE  $$dir";				\
+		echo "  REMOVE  $$dir" | tee -a $(BUILDLOG);	\
 		/bin/echo -ne "\033]0;$(PWD) $$dir\007";	\
-		$(MAKE) -C $$dir $@;				\
+		$(MAKE) -C $$dir $@ $(REDIRECT);		\
 	done
-	-@$(RM) -rf $(STAGING) $(IMAGEDIR) $(CONFIG)
+	-@$(RM) -rf $(STAGING) $(IMAGEDIR) $(CONFIG) $(BUILDLOG)
 
 .PHONY: help
 help:

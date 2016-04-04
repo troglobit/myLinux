@@ -1,31 +1,31 @@
 $(addsuffix -build,$(TARGETS)):
-	@echo "  BUILD   $(patsubst %-build,%,$@)"
-	+@$(MAKE) -C $(patsubst %-build,%,$@) all
+	@echo "  BUILD   $(patsubst %-build,%,$@)"           | tee -a $(BUILDLOG)
+	+@$(MAKE) -C $(patsubst %-build,%,$@) all            $(REDIRECT)
 
 $(addsuffix -install,$(TARGETS)):
-	@echo "  INSTALL $(patsubst %-install,%,$@)"
-	+@$(MAKE) -C $(patsubst %-install,%,$@) install
+	@echo "  INSTALL $(patsubst %-install,%,$@)"         | tee -a $(BUILDLOG)
+	+@$(MAKE) -C $(patsubst %-install,%,$@) install      $(REDIRECT)
 
 $(addsuffix -chksum,$(TARGETS)):
-	@echo "  CHKSUM  $(patsubst %-chksum,%,$@)"
-	+@$(MAKE) -C $(patsubst %-chksum,%,$@) chksum
+	@echo "  CHKSUM  $(patsubst %-chksum,%,$@)"          | tee -a $(BUILDLOG)
+	+@$(MAKE) -C $(patsubst %-chksum,%,$@) chksum        $(REDIRECT)
 
 $(addsuffix -clean,$(TARGETS)):
-	@echo "  CLEAN   $(patsubst %-clean,%,$@)"
-	-+@$(MAKE) -C $(patsubst %-clean,%,$@) clean
+	@echo "  CLEAN   $(patsubst %-clean,%,$@)"           | tee -a $(BUILDLOG)
+	-+@$(MAKE) -C $(patsubst %-clean,%,$@) clean         $(REDIRECT)
 
 $(addsuffix -distclean,$(TARGETS)):
-	@echo "  REMOVE  $(patsubst %-distclean,%,$@)"
-	-+@$(MAKE) -C $(patsubst %-distclean,%,$@) distclean
+	@echo "  REMOVE  $(patsubst %-distclean,%,$@)"       | tee -a $(BUILDLOG)
+	-+@$(MAKE) -C $(patsubst %-distclean,%,$@) distclean $(REDIRECT)
 
 $(addsuffix -dev,$(TARGETS)):
-	@echo "  DEV     $(patsubst %-dev,%,$@)"
-	+@$(MAKE) -C $(patsubst %-dev,%,$@) dev
+	@echo "  DEV     $(patsubst %-dev,%,$@)"             | tee -a $(BUILDLOG)
+	+@$(MAKE) -C $(patsubst %-dev,%,$@) dev              $(REDIRECT)
 
 $(addsuffix -menuconfig,$(TARGETS)):
-	@echo "  CONFIG  $(patsubst %-menuconfig,%,$@)"
-	@$(MAKE) -C $(patsubst %-menuconfig,%,$@) menuconfig
+	@echo "  CONFIG  $(patsubst %-menuconfig,%,$@)"      | tee -a $(BUILDLOG)
+	@$(MAKE) -C $(patsubst %-menuconfig,%,$@) menuconfig $(REDIRECT)
 
 $(addsuffix -saveconfig,$(TARGETS)):
-	@echo "  SAVING  $(patsubst %-saveconfig,%,$@)"
-	@$(MAKE) -C $(patsubst %-saveconfig,%,$@) saveconfig
+	@echo "  SAVING  $(patsubst %-saveconfig,%,$@)"      | tee -a $(BUILDLOG)
+	@$(MAKE) -C $(patsubst %-saveconfig,%,$@) saveconfig $(REDIRECT)
