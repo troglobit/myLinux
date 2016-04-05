@@ -40,6 +40,7 @@ SUPPORT_URL    := $(TROGLOHUB)/troglos
 BUG_REPORT_URL := $(TROGLOHUB)/troglos/issues
 
 ROOTDIR        := $(shell pwd)
+PATH           := $(ROOTDIR)/bin:$(PATH)
 CONFIG         := $(ROOTDIR)/.config
 STAGING         = $(ROOTDIR)/staging
 BUILDLOG       := $(ROOTDIR)/build.log
@@ -60,7 +61,7 @@ ifndef KBUILD_VERBOSE
 endif
 ifeq ($(KBUILD_VERBOSE),1)
 MAKEFLAGS       =
-REDIRECT        = 2>&1 | $(ROOTDIR)/teepee $(BUILDLOG)
+REDIRECT        = 2>&1 | teepee $(BUILDLOG)
 else
 MAKEFLAGS       = --silent --no-print-directory
 REDIRECT        = >> $(BUILDLOG) 2>&1
@@ -70,7 +71,7 @@ export ARCH BUILDLOG CROSS CROSS_COMPILE CROSS_TARGET
 export CC CFLAGS CPPFLAGS LDLIBS LDFLAGS STRIP
 export OSNAME OSVERSION_ID OSVERSION OSID OSPRETTY_NAME OSHOME_URL
 export TROGLOHUB
-export ROOTDIR STAGING IMAGEDIR DOWNLOADS
+export ROOTDIR PATH STAGING IMAGEDIR DOWNLOADS
 export KBUILD_VERBOSE MAKEFLAGS REDIRECT
 
 
