@@ -60,7 +60,7 @@ ifndef KBUILD_VERBOSE
 endif
 ifeq ($(KBUILD_VERBOSE),1)
 MAKEFLAGS       =
-REDIRECT        = 2>&1 | tee -a $(BUILDLOG); [ ${PIPESTATUS[0]} -eq 0 ]
+REDIRECT        = 2>&1 | $(ROOTDIR)/teepee $(BUILDLOG)
 else
 MAKEFLAGS       = --silent --no-print-directory
 REDIRECT        = >> $(BUILDLOG) 2>&1

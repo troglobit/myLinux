@@ -1,0 +1,20 @@
+#!/bin/bash
+# Wrapper for tee which detects if there was a problem with the command
+# before the pipe.
+#
+# Example:
+#     $ echo "Massive log error"; false | teepee build.log
+#     $ echo $?
+#     $ 1
+#
+# If only tee is used the shell will the exit status of tee, not the
+# exit status of false ... it would've been nice if at least GNU tee
+# had a command line option for this, but no.
+#
+# The reason we use teepee in Makefiles is to ensure bash is used,
+# even for sub-makes.
+
+tee -a $1
+
+[ ${PIPESTATUS[0]} -eq 0 ]
+
