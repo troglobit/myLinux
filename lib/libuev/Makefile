@@ -1,8 +1,9 @@
 # Glue for cross compiling libuEv
 
-PKGVER     := 1.2.4
+PKGVER     := 1.4.0
 PKG        := libuev-$(PKGVER)
 PKGSUFFIX  := tar.xz
 PKGURL      = $(TROGLOHUB)/$(PKGNAME)/releases/download/v$(PKGVER)/$(PKGTAR)
+PKGCFG     := --host=$(CROSS_TARGET) --prefix=
 
 include $(ROOTDIR)/pkg.mk
