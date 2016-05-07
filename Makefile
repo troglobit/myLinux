@@ -43,6 +43,7 @@ ROOTDIR        := $(shell pwd)
 PATH           := $(ROOTDIR)/bin:$(PATH)
 CONFIG         := $(ROOTDIR)/.config
 STAGING         = $(ROOTDIR)/staging
+PKG_CONFIG_PATH:= $(STAGING)/lib/pkgconfig
 BUILDLOG       := $(ROOTDIR)/build.log
 # usr/lib usr/share usr/bin usr/sbin 
 STAGING_DIRS    = mnt proc sys lib share bin sbin tmp var home
@@ -71,7 +72,7 @@ export ARCH BUILDLOG CROSS CROSS_COMPILE CROSS_TARGET
 export CC CFLAGS CPPFLAGS LDLIBS LDFLAGS STRIP
 export OSNAME OSVERSION_ID OSVERSION OSID OSPRETTY_NAME OSHOME_URL
 export TROGLOHUB
-export ROOTDIR PATH STAGING IMAGEDIR DOWNLOADS
+export ROOTDIR PATH STAGING PKG_CONFIG_PATH IMAGEDIR DOWNLOADS
 export KBUILD_VERBOSE MAKEFLAGS REDIRECT
 
 
