@@ -15,42 +15,42 @@
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .PHONY: run staging kernel lib packages clean distclean
 
-ARCH            = arm
-CROSS          ?= arm-linux-gnueabi-
-CROSS_COMPILE  ?= $(CROSS)
-CROSS_TARGET    = $(CROSS_COMPILE:-=)
+ARCH               = arm
+CROSS             ?= arm-linux-gnueabi-
+CROSS_COMPILE     ?= $(CROSS)
+CROSS_TARGET       = $(CROSS_COMPILE:-=)
 
-CC              = $(CROSS_COMPILE)gcc
-CFLAGS          =
-CPPFLAGS        = -I$(STAGING)/include
-LDLIBS          =
-LDFLAGS         = -L$(STAGING)/lib
-STRIP           = $(CROSS_COMPILE)strip
+CC                 = $(CROSS_COMPILE)gcc
+CFLAGS             =
+CPPFLAGS           = -I$(STAGING)/include
+LDLIBS             =
+LDFLAGS            = -L$(STAGING)/lib
+STRIP              = $(CROSS_COMPILE)strip
 
-OSNAME         := TroglOS Linux
-OSRELEASE_ID   := chaos
-OSRELEASE       = Chaos Devel `date --iso-8601`
-OSVERSION_ID   := 1.0-rc1
-OSVERSION      := $(OSVERSION_ID), $(OSRELEASE)
-OSID           := "troglos"
-OSPRETTY_NAME  := $(OSNAME) $(OSVERSION_ID)
-OSHOME_URL     := http://troglobit.com
-TROGLOHUB      := https://github.com/troglobit
-SUPPORT_URL    := $(TROGLOHUB)/troglos
-BUG_REPORT_URL := $(TROGLOHUB)/troglos/issues
+OSNAME            := TroglOS Linux
+OSRELEASE_ID      := chaos
+OSRELEASE          = Chaos Devel `date --iso-8601`
+OSVERSION_ID      := 1.0-rc1
+OSVERSION         := $(OSVERSION_ID), $(OSRELEASE)
+OSID              := "troglos"
+OSPRETTY_NAME     := $(OSNAME) $(OSVERSION_ID)
+OSHOME_URL        := http://troglobit.com
+TROGLOHUB         := https://github.com/troglobit
+SUPPORT_URL       := $(TROGLOHUB)/troglos
+BUG_REPORT_URL    := $(TROGLOHUB)/troglos/issues
 
-ROOTDIR        := $(shell pwd)
-PATH           := $(ROOTDIR)/bin:$(PATH)
-CONFIG         := $(ROOTDIR)/.config
-STAGING         = $(ROOTDIR)/staging
-PKG_CONFIG_PATH:= $(STAGING)/lib/pkgconfig
-BUILDLOG       := $(ROOTDIR)/build.log
+ROOTDIR           := $(shell pwd)
+PATH              := $(ROOTDIR)/bin:$(PATH)
+CONFIG            := $(ROOTDIR)/.config
+STAGING            = $(ROOTDIR)/staging
+BUILDLOG          := $(ROOTDIR)/build.log
 # usr/lib usr/share usr/bin usr/sbin 
-STAGING_DIRS    = mnt proc sys lib share bin sbin tmp var home
-IMAGEDIR        = $(ROOTDIR)/images
-PERSISTENT     ?= $(shell xdg-user-dir DOCUMENTS)/TroglOS
-MTD            ?= $(PERSISTENT)/Config.mtd
-DOWNLOADS      ?= $(shell xdg-user-dir DOWNLOAD)
+STAGING_DIRS       = mnt proc sys lib share bin sbin tmp var home
+IMAGEDIR           = $(ROOTDIR)/images
+PERSISTENT        ?= $(shell xdg-user-dir DOCUMENTS)/TroglOS
+MTD               ?= $(PERSISTENT)/Config.mtd
+DOWNLOADS         ?= $(shell xdg-user-dir DOWNLOAD)
+PKG_CONFIG_LIBDIR := $(STAGING)/lib/pkgconfig
 
 ifdef V
   ifeq ("$(origin V)", "command line")
@@ -58,21 +58,21 @@ ifdef V
   endif
 endif
 ifndef KBUILD_VERBOSE
-  KBUILD_VERBOSE = 0
+  KBUILD_VERBOSE   = 0
 endif
 ifeq ($(KBUILD_VERBOSE),1)
-MAKEFLAGS       =
-REDIRECT        = 2>&1 | teepee $(BUILDLOG)
+MAKEFLAGS          =
+REDIRECT           = 2>&1 | teepee $(BUILDLOG)
 else
-MAKEFLAGS       = --silent --no-print-directory
-REDIRECT        = >> $(BUILDLOG) 2>&1
+MAKEFLAGS          = --silent --no-print-directory
+REDIRECT           = >> $(BUILDLOG) 2>&1
 endif
 
 export ARCH BUILDLOG CROSS CROSS_COMPILE CROSS_TARGET
 export CC CFLAGS CPPFLAGS LDLIBS LDFLAGS STRIP
 export OSNAME OSVERSION_ID OSVERSION OSID OSPRETTY_NAME OSHOME_URL
 export TROGLOHUB
-export ROOTDIR PATH STAGING PKG_CONFIG_PATH IMAGEDIR DOWNLOADS
+export ROOTDIR PATH STAGING PKG_CONFIG_LIBDIR IMAGEDIR DOWNLOADS
 export KBUILD_VERBOSE MAKEFLAGS REDIRECT
 
 
