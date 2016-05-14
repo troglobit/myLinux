@@ -1,6 +1,6 @@
 # Glue for cross compiling libite (LITE)
 
-PKGVER     := 1.5.0
+PKGVER     := 1.6.0
 PKG        := libite-$(PKGVER)
 PKGSUFFIX  := tar.xz
 PKGURL      = $(TROGLOHUB)/$(PKGNAME)/releases/download/v$(PKGVER)/$(PKGTAR)
