@@ -1,4 +1,5 @@
 *~
+build.log
 .config*
 images/*
 staging/*
