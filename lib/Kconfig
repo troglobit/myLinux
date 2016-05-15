@@ -20,6 +20,15 @@ config LIPIFY
 	 
 	 https://github.com/troglobit/lipify/
 
+config NCURSES
+       bool "Ncurses"
+       help
+	 Programming library for text-based user interfaces. Provides
+	 a replacement for the old BSD curses library, but also compat
+	 libraries for termcap.
+	 
+	 http://invisible-island.net/ncurses/ncurses.html
+
 config ZLIB
        bool "Zlib"
        help

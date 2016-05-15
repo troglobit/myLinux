@@ -1,0 +1,5 @@
+/*
+ * Many applications still expect -ltermcap to work and
+ * ncurses -ltinfo is a fully compatible replacement
+ */
+GROUP(libtinfo.so)
