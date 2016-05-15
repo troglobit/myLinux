@@ -129,6 +129,22 @@ config FINIT
 	 
 	 http://troglobit.com/finit.html
 
+config MG
+       bool "mg - A Micro Emacs clone similar to GNU Emacs"
+       help
+	  Mg is a public domain Micro Emacs derivative.  Created in 1986
+	  based on the original MicroEMACS released by Dave Conroy in
+	  1985 to comp.sources.unix.
+	  
+	  The intention is to be a small, fast, and portable Emacs-like
+	  editor for users who cannot, or do not want to, run the real
+	  Emacs for one reason or another.  Compatibility with GNU Emacs
+	  is key for Mg, separating it from other ErsatzEmacs clones,
+	  because there should never be any reason to learn more than
+	  one Emacs flavor.
+	  
+	  https://github.com/troglobit/mg/
+
 config STRACE
        bool "strace - Trace system calls and signals in an application"
        help
