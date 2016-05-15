@@ -135,8 +135,6 @@ staging:							## Initialize staging area
 # Cleanup staging (may need to separate into a staging + romfs dir, like uClinux-dist)
 ramdisk:							## Build ramdisk of staging dir
 	@echo "  INITRD  $(OSNAME) $(CONFIG_LINUX_VERSION)" | tee -a $(BUILDLOG)
-	@rm -rf $(STAGING)/lib/pkgconfig
-	@rm -rf $(STAGING)/lib/*.a
 	@rm -rf $(STAGING)/share/man
 	@touch $(STAGING)/etc/version
 	@$(MAKE) -f ramdisk.mk $@ $(REDIRECT)
