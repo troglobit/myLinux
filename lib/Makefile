@@ -19,6 +19,7 @@
 
 exclude                  = Makefile
 dir_y                    =
+dir_$(CONFIG_CONFUSE)   += confuse
 dir_$(CONFIG_LIBITE)    += libite
 dir_$(CONFIG_LIBUEV)    += libuev
 dir_$(CONFIG_LIPIFY)    += lipify

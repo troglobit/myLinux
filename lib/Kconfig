@@ -1,10 +1,18 @@
 menu "Libraries"
 
-config LIBUEV
-       bool "libuEv"
+config CONFUSE
+       bool "libConfuse"
        help
-	 uEv is a small Linux-only event loop library used by, e.g.,
-	 Finit and uftpd.
+	 libConfuse is a configuration file parser library, licensed
+	 under the terms of the ISC license, and written in C.
+	 
+	 It supports sections and, lists of, values: strings, integers,
+	 floats, booleans.  Other features include single/double-quoted
+	 strings, environment variable expansion, functions and nested
+	 include statements.  Making it very easy to add configuration
+	 file capability to a program using a simple API.
+	 
+	 https://github.com/martinh/libconfuse
 
 config LIBITE
        bool "libite (LITE)"
@@ -12,6 +20,12 @@ config LIBITE
 	 This is a lightweight helper library with all misc. functions
 	 missing on a Linux system, c.f. regular UNIX (OpenBSD).  With
 	 some sugar on top.  Your basic frog DNA.
+
+config LIBUEV
+       bool "libuEv"
+       help
+	 uEv is a small Linux-only event loop library used by, e.g.,
+	 Finit and uftpd.
 
 config LIPIFY
        bool "lipify - C library for http://ipify.org"
