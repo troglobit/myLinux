@@ -47,7 +47,6 @@ config NETCALC
 config OMPING
        bool "omping - Open Multicast Ping"
        help
-
 	 The omping tool is a pure UDP client and server wrapped in a small
 	 binary.  Perfectly suited for verifying multicast connectivity on
 	 your local network.
@@ -68,6 +67,20 @@ config OMPING
 	 - Any-source and Source-specific Multicast 
 	 
 	 https://github.com/troglobit/omping/
+
+config MCJOIN
+       bool "mcjoin - Tiny multicast testing tool"
+       help
+         mcjoin is a very simple and easy-to-use tool to test IPv4
+         multicast. Simply start a multicast generator (server) on one
+         end and one or more data sinks (clients).
+	 
+	 By default group 225.1.2.3 and the UDP port 1234 is used, you
+	 may want to try MCAST_TEST_NET from RFC5771, 233.252.0.0/24, or
+	 the ompoing(8) test group 232.43.211.234 and UDP port 4321.  At
+	 the moment max 250 groups can be joined.
+	 
+	 https://github.com/troglobit/mcjoin/
 
 config PIMD
        bool "pimd - PIM-SM/SSM multicast routing daemon"

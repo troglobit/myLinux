@@ -34,6 +34,7 @@ CONFIG_MINI_SNMPD=y
 # CONFIG_MROUTED is not set
 # CONFIG_NETCALC is not set
 # CONFIG_OMPING is not set
+CONFIG_MCJOIN=y
 # CONFIG_PIMD is not set
 # CONFIG_SMCROUTE is not set
 CONFIG_UFTPD=y
