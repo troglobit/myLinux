@@ -1,6 +1,6 @@
 # Glue for cross compiling multicast test tool mcjoin
 
-PKGVER     := 2.1
+PKGVER     := 2.2
 PKG        := mcjoin-$(PKGVER)
 PKGSUFFIX  := tar.xz
 PKGURL      = $(TROGLOHUB)/$(PKGNAME)/releases/download/v$(PKGVER)/$(PKGTAR)
