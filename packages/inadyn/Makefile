@@ -1,9 +1,9 @@
 # Glue for cross compiling Inadyn DDNS client
 
-PKGVER     := 1.99.15
+PKGVER     := 2.0
 PKG        := inadyn-$(PKGVER)
 PKGSUFFIX  := tar.xz
-PKGURL      = $(TROGLOHUB)/$(PKGNAME)/releases/download/$(PKGVER)/$(PKGTAR)
+PKGURL      = $(TROGLOHUB)/$(PKGNAME)/releases/download/v$(PKGVER)/$(PKGTAR)
 PKGCFG     := --host=$(CROSS_TARGET) --prefix= --disable-ssl
 PKGINSTALL := install-exec
 
