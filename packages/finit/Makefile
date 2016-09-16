@@ -1,17 +1,13 @@
 # Glue for cross compiling Finit SysV init replacement
 
-PKGVER     := 2.4
+PKGVER     := 3.0-rc1
 PKG        := finit-$(PKGVER)
 PKGSUFFIX  := tar.xz
 PKGURL      = $(TROGLOHUB)/$(PKGNAME)/releases/download/$(PKGVER)/$(PKGTAR)
-PLUGINS    := bootmisc initctl hwclock tty time netlink urandom
-# --enable-static
-PKGCFG     := --enable-embedded
+PLUGINS    := bootmisc echo initctl hwclock tty time netlink urandom
+PKGCFGENV  := CFLAGS="-W -Wall -Wextra"
+PKGCFG     := --host=$(CROSS_TARGET) --prefix= --enable-inetd-echo-plugin --enable-emergency-shell
 PKGCFG     += --with-heading="$(OSPRETTY_NAME)"
-PKGCFG     += --with-plugins="$(PLUGINS)"
-#PKGCFG     += --with-randomseed=/mnt/random-seed
-PKGCFG     += --with-libite=$(STAGING)
-PKGCFG     += --with-libuev=$(STAGING)
 PKGINSTALL := install-exec
 
 include $(ROOTDIR)/pkg.mk
