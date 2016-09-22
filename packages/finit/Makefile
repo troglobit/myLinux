@@ -4,7 +4,6 @@ PKGVER     := 3.0-rc1
 PKG        := finit-$(PKGVER)
 PKGSUFFIX  := tar.xz
 PKGURL      = $(TROGLOHUB)/$(PKGNAME)/releases/download/$(PKGVER)/$(PKGTAR)
-PLUGINS    := bootmisc echo initctl hwclock tty time netlink urandom
 PKGCFGENV  := CFLAGS="-W -Wall -Wextra"
 PKGCFG     := --host=$(CROSS_TARGET) --prefix= --with-heading="$(OSPRETTY_NAME)"
 PKGCFG     += --enable-inetd-echo-plugin --enable-inetd-time-plugin
