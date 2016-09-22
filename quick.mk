@@ -24,7 +24,11 @@ $(addsuffix -dev,$(TARGETS)):
 
 $(addsuffix -menuconfig,$(TARGETS)):
 	@echo "  CONFIG  $(patsubst %-menuconfig,%,$@)"      | tee -a $(BUILDLOG)
-	@$(MAKE) -C $(patsubst %-menuconfig,%,$@) menuconfig $(REDIRECT)
+	@$(MAKE) -C $(patsubst %-menuconfig,%,$@) menuconfig
+
+$(addsuffix -oldconfig,$(TARGETS)):
+	@echo "  CONFIG  $(patsubst %-oldconfig,%,$@)"      | tee -a $(BUILDLOG)
+	@$(MAKE) -C $(patsubst %-oldconfig,%,$@) oldconfig
 
 $(addsuffix -saveconfig,$(TARGETS)):
 	@echo "  SAVING  $(patsubst %-saveconfig,%,$@)"      | tee -a $(BUILDLOG)
