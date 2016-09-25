@@ -30,10 +30,12 @@ relatively clean and vanilla, the intent is to keep it as close to
 upstream sources as possible.
 
 Currently TroglOS targets an *ARM Versatile PB* devboard with Qemu and
-is only tested on Ubuntu 64-bit build hosts, using the standard Debian
-cross-toolchain.  Pull requests for more targets are most welcome! :)
+is only tested on a Ubuntu 64-bit build host, using a [crosstool-NG][1]
+based [toolchain][2].  Pull requests for more targets are most welcome!
+:)
 
-To try it out, simply clone this repository, then type:
+To try it out, simply clone this repository, install the dependencies
+listed in the Requirements section, then type:
 
     make
 
@@ -62,7 +64,7 @@ tested on Ubuntu 16.04 (x86_64):
 * quilt
 * qemu-system-arm
 * (install libvirt-bin and virt-manager as well!)
-* [arm-unknown-linux-gnueabi][1] toolchain
+* [arm-unknown-linux-gnueabi][2] toolchain
 * probably more, gzip?, mkimge?
 
 
@@ -216,7 +218,8 @@ using [GitHub](https://github.com/troglobit/troglos)
 Cheers!  
 -- Joachim
 
-[1]: http://ftp.troglobit.com/pub/Toolchains/arm-unknown-linux-gnueabi-6.1.0-1.tar.xz
+[1]: https://github.com/crosstool-ng/crosstool-ng
+[2]: http://ftp.troglobit.com/pub/Toolchains/arm-unknown-linux-gnueabi-6.1.0-1.tar.xz
 
 <!--
   -- Local Variables:
