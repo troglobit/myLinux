@@ -5,10 +5,11 @@ PKG        := lldpd-$(PKGVER)
 PKGURL      = http://media.luffy.cx/files/lldpd/$(PKGTAR)
 PKGCFGENV  := export ac_cv_func_fork_works=yes;
 PKGCFGENV  += export ac_cv_func_vfork_works=yes;
+PKGCFGENV  += CPPFLAGS="-O2"
 PKGCFG     := --host=$(CROSS_TARGET) --prefix=
 PKGCFG     += --with-privsep-user=lldpd
 PKGCFG     += --with-privsep-group=lldpd
-PKGCFG     += --with-privsep-chroot=/var/run
+PKGCFG     += --with-privsep-chroot=/var/run/lldpd
 PKGCFG     += --enable-cdp
 PKGCFG     += --enable-lldpmed
 PKGCFG     += --enable-dot1 --enable-dot3
