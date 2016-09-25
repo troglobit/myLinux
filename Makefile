@@ -13,10 +13,10 @@
 # WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-.PHONY: run staging kernel lib packages clean distclean
+.PHONY: run staging kernel lib packages romfs ramdisk clean distclean
 
 ARCH               = arm
-CROSS             ?= arm-linux-gnueabi-
+CROSS             ?= arm-unknown-linux-gnueabi-
 CROSS_COMPILE     ?= $(CROSS)
 CROSS_TARGET       = $(CROSS_COMPILE:-=)
 
@@ -43,6 +43,7 @@ ROOTDIR           := $(shell pwd)
 PATH              := $(ROOTDIR)/bin:$(PATH)
 CONFIG            := $(ROOTDIR)/.config
 STAGING            = $(ROOTDIR)/staging
+ROMFS              = $(ROOTDIR)/romfs
 BUILDLOG          := $(ROOTDIR)/build.log
 # usr/lib usr/share usr/bin usr/sbin 
 STAGING_DIRS       = mnt proc sys lib share bin sbin tmp var home
@@ -72,7 +73,7 @@ export ARCH BUILDLOG CROSS CROSS_COMPILE CROSS_TARGET
 export CC CFLAGS CPPFLAGS LDLIBS LDFLAGS STRIP
 export OSNAME OSVERSION_ID OSVERSION OSID OSPRETTY_NAME OSHOME_URL
 export TROGLOHUB
-export ROOTDIR PATH STAGING PKG_CONFIG_LIBDIR IMAGEDIR DOWNLOADS
+export ROOTDIR PATH STAGING ROMFS PKG_CONFIG_LIBDIR IMAGEDIR DOWNLOADS
 export KBUILD_VERBOSE MAKEFLAGS REDIRECT
 
 
@@ -128,15 +129,16 @@ staging:							## Initialize staging area
 	@echo "$(OSNAME) $(OSVERSION_ID)"              > $(STAGING)/etc/issue.net
 	@echo "$(OSRELEASE_ID)"                        > $(STAGING)/etc/hostname
 	@sed -i 's/HOSTNAME/$(OSRELEASE_ID)/' $(STAGING)/etc/hosts
-	@echo "  INSTALL Toolchain shared libraries ..." | tee -a $(BUILDLOG)
-	# XXX: UGLY FIXME!!
-	@cp -a /usr/arm-linux-gnueabi/lib/* $(STAGING)/lib/
 
-# Cleanup staging (may need to separate into a staging + romfs dir, like uClinux-dist)
-ramdisk:							## Build ramdisk of staging dir
+romfs:
+	@echo "  INSTALL Toolchain shared libraries ..." | tee -a $(BUILDLOG)
+	@$(CROSS)populate -f -s $(STAGING) -d $(ROMFS)
+
+ramdisk: romfs							## Build ramdisk of staging dir
 	@echo "  INITRD  $(OSNAME) $(CONFIG_LINUX_VERSION)" | tee -a $(BUILDLOG)
-	@rm -rf $(STAGING)/share/man
-	@touch $(STAGING)/etc/version
+	@rm -rf $(ROMFS)/share/man
+	@find $(ROMFS)/ -name '*.a' -delete
+	@touch $(ROMFS)/etc/version
 	@$(MAKE) -f ramdisk.mk $@ $(REDIRECT)
 
 kernel:								## Build configured Linux kernel
@@ -184,7 +186,7 @@ distclean:							## Really clean, as if started from scratch
 		/bin/echo -ne "\033]0;$(PWD) $$dir\007";	\
 		$(MAKE) -C $$dir $@ $(REDIRECT);		\
 	done
-	-@$(RM) -rf $(STAGING) $(IMAGEDIR) $(CONFIG) $(BUILDLOG)
+	-@$(RM) -rf $(STAGING) $(ROMFS) $(IMAGEDIR) $(CONFIG) $(BUILDLOG)
 
 .PHONY: help
 help:

@@ -54,20 +54,15 @@ Requirements
 ------------
 
 The build environment currently requires at least the following tools,
-tested on Ubuntu 14.04, 15.04, 15.10, and 16.04:
+tested on Ubuntu 16.04 (x86_64):
 
-* gcc-arm-linux-gnueabi
-* g++-arm-linux-gnueabi
-* cpp-arm-linux-gnueabi
-* binutils-arm-linux-gnueabi
-* libc6-armel-cross
-* libc6-dev-armel-cross
+* gcc
 * wget
 * make
-* gcc (or clang, for the menuconfig interface)
 * quilt
 * qemu-system-arm
 * (install libvirt-bin and virt-manager as well!)
+* [arm-unknown-linux-gnueabi][1] toolchain
 * probably more, gzip?, mkimge?
 
 
@@ -75,13 +70,7 @@ Qemu Networking
 ---------------
 
 TroglOS uses Qemu to run the resulting kernel + image.  For networking
-you may need to do the following to your host system, here Ubuntu 14.04:
-
-    sudo chmod 4755 /usr/lib/qemu-bridge-helper
-    sudo dpkg-statoverride --add root root 4755 /usr/lib/qemu-bridge-helper
-
-In Ubuntu 15.04, and later, the helper script has moved to a qemu 
-sub-directory:
+you may need to do the following to your host system:
 
     sudo chmod 4755 /usr/lib/qemu/qemu-bridge-helper
     sudo dpkg-statoverride --add root root 4755 /usr/lib/qemu/qemu-bridge-helper
@@ -226,6 +215,8 @@ using [GitHub](https://github.com/troglobit/troglos)
 
 Cheers!  
 -- Joachim
+
+[1]: http://ftp.troglobit.com/pub/Toolchains/arm-unknown-linux-gnueabi-6.1.0-1.tar.xz
 
 <!--
   -- Local Variables:

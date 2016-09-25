@@ -3,7 +3,7 @@
 ifdef KERNEL_RC
 KERNEL_VERSION := $(KERNEL_VERSION).0$(KERNEL_RC)
 endif
-KERNEL_MODULES := $(wildcard $(STAGING)/lib/modules/$(KERNEL_VERSION)*)
+KERNEL_MODULES := $(wildcard $(ROMFS)/lib/modules/$(KERNEL_VERSION)*)
 KERNELRELEASE  := $(shell test -d $(KERNEL_MODULES)/build && $(MAKE) -s -C $(KERNEL_MODULES)/build CROSS_COMPILE=$(CROSS_COMPILE) ARCH=$(ARCH) kernelrelease)
 
 # images/initramfs-$(KERNELRELEASE).img images/initramfs-$(KERNELRELEASE).uImage
@@ -25,7 +25,7 @@ images/initramfs-$(KERNELRELEASE).lzo: images/initramfs-$(KERNELRELEASE).cpio
 images/initramfs-$(KERNELRELEASE).img: images/initramfs-$(KERNELRELEASE).gz
 	@mkimage -T ramdisk -A arm -C none -d $< $@
 
-images/initramfs-$(KERNELRELEASE).cpio: $(STAGING)/etc/version
+images/initramfs-$(KERNELRELEASE).cpio: $(ROMFS)/etc/version
 	@(cat initramfs.devnodes; \
-		sh $(KERNEL_MODULES)/build/scripts/gen_initramfs_list.sh -u squash -g squash $(STAGING)) \
+		sh $(KERNEL_MODULES)/build/scripts/gen_initramfs_list.sh -u squash -g squash $(ROMFS)) \
 		 | $(KERNEL_MODULES)/build/usr/gen_init_cpio - >$@
