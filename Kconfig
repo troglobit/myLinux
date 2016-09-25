@@ -34,3 +34,6 @@ source "lib/Kconfig"
 
 # Target system daemons, tools
 source "packages/Kconfig"
+
+# User defined programs, tools
+source "user/Kconfig"

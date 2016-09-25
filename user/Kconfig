@@ -1,0 +1,7 @@
+menu "User Defined Programs"
+
+config USER_HELLO
+       bool "hello - Hello World example program"
+
+
+endmenu

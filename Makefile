@@ -77,7 +77,7 @@ export ROOTDIR PATH STAGING ROMFS PKG_CONFIG_LIBDIR IMAGEDIR DOWNLOADS
 export KBUILD_VERBOSE MAKEFLAGS REDIRECT
 
 
-all: dep staging kernel lib packages ramdisk			## Build all the things
+all: dep staging kernel lib packages user ramdisk		## Build all the things
 
 dep:								## Use TroglOS defconfig if user forgets to run menuconfig
 	@touch $(BUILDLOG)
@@ -162,7 +162,10 @@ kernel_install:							## Install Linux device tree
 # Packages may depend on libraries, so we build libs first
 packages: lib
 
-packages lib:							## Build packages or libraries
+# We don't know anything about user programs, we build them last
+user: packages lib
+
+user packages lib:						## Build packages or libraries
 	@$(MAKE) -j5 -C $@ all
 	@$(MAKE) -j5 -C $@ install
 
@@ -173,7 +176,7 @@ TARGETS=$(shell find lib -maxdepth 1 -mindepth 1 -type d)
 include quick.mk
 
 clean:								## Clean build tree, excluding menuconfig
-	@for dir in kernel lib packages; do			\
+	@for dir in kernel lib packages user; do		\
 		echo "  CLEAN   $$dir" | tee -a $(BUILDLOG);	\
 		/bin/echo -ne "\033]0;$(PWD) $$dir\007";	\
 		$(MAKE) -C $$dir $@ $(REDIRECT);		\
@@ -181,7 +184,7 @@ clean:								## Clean build tree, excluding menuconfig
 
 # @$(RM) `find kconfig -name '*~'`
 distclean:							## Really clean, as if started from scratch
-	@for dir in kconfig kernel lib packages; do		\
+	@for dir in kconfig kernel lib packages user; do	\
 		echo "  REMOVE  $$dir" | tee -a $(BUILDLOG);	\
 		/bin/echo -ne "\033]0;$(PWD) $$dir\007";	\
 		$(MAKE) -C $$dir $@ $(REDIRECT);		\
