@@ -3,6 +3,7 @@ build.log
 .config*
 images/*
 staging/*
+romfs/*
 kernel/linux-*
 lib/zlib/zlib-*
 packages/busybox/busybox-*
