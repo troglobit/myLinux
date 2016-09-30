@@ -2,7 +2,7 @@
 
 PKGVER     := 1.3
 PKG        := mini-snmpd-$(PKGVER)
-PKGURL      = $(TROGLOHUB)/$(PKGNAME)/releases/download/v$(PKGVER)/(PKGTAR)
+PKGURL      = $(TROGLOHUB)/$(PKGNAME)/releases/download/v$(PKGVER)/$(PKGTAR)
 PKGCFG     := --prefix= --host=$(CROSS_TARGET)
 PKGINSTALL := install-exec
 
