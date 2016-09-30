@@ -125,7 +125,8 @@ endif
 
 unpack: $(PKG)/.unpacked
 
-# Dummy rule, override with your own call to ./configure or similar
+# Default rule, override with your own to create Makefile for build step
+# Silly test -s is to check that $PKGCFG is set ...
 $(PKG)/.config:: $(PKG)/.unpacked
 	@echo -n '$(PKGCFG)' > $(tmpfile)
 	@if [ -s $(tmpfile) ]; then						\
@@ -183,3 +184,4 @@ endif
 install::
 	@echo "  INSTALL $(PKG)"
 	+@$(MAKE) $(PKGENV) -C $(PKG) $(PKGINSTALL) $(REDIRECT)
+
