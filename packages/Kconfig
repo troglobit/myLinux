@@ -21,6 +21,15 @@ config LLDPD
 	 
 	 http://vincentbernat.github.io/lldpd/
 
+config MERECAT
+       bool "merecat - Simple throttling web server"
+       help
+         Merecat httpd is a simplified clone of thttpd by Jef Poskanzer,
+         later picked up by Anthony G. Basile as sthttpd.  Merecat is
+         maintained by Joachim Nilsson.
+         
+	 https://github.com/troglobit/merecat/
+
 config MINI_SNMPD
        bool "mini-snmpd - Mini SNMP Daemon"
        help
