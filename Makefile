@@ -141,9 +141,20 @@ romfs:
 	@$(CROSS)populate -f -s $(STAGING) -d $(ROMFS)
 
 ramdisk: romfs							## Build ramdisk of staging dir
-	@echo "  INITRD  $(OSNAME) $(CONFIG_LINUX_VERSION)" | tee -a $(BUILDLOG)
-	@rm -rf $(ROMFS)/share/man
+	@echo "  PRUNE   Cleaning $(ROMFS)" | tee -a $(BUILDLOG)
+	@rm -rf $(ROMFS)/share/man $(ROMFS)/usr/share/man
+	@rm -rf $(ROMFS)/include   $(ROMFS)/usr/include
 	@find $(ROMFS)/ -name '*.a' -delete
+	@echo "  STRIP   Optimizing $(ROMFS)" | tee -a $(BUILDLOG)
+	@for file in `find romfs/ -executable -type f`; do		\
+		file $$file | grep 'not stripped' 2>&1 >/dev/null;	\
+		if [ $$? -eq 0 ]; then					\
+			continue;					\
+			$(STRIP) $$file;				\
+		fi;							\
+	done
+	@chmod -R u+w $(ROMFS)
+	@echo "  INITRD  $(OSNAME) $(CONFIG_LINUX_VERSION)" | tee -a $(BUILDLOG)
 	@touch $(ROMFS)/etc/version
 	@$(MAKE) -f ramdisk.mk $@ $(REDIRECT)
 
