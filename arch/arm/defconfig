@@ -37,8 +37,10 @@ CONFIG_MINI_SNMPD=y
 # CONFIG_OMPING is not set
 CONFIG_MCJOIN=y
 # CONFIG_PIMD is not set
+CONFIG_REDIR=y
 # CONFIG_SMCROUTE is not set
 CONFIG_UFTPD=y
+CONFIG_UREDIR=y
 
 #
 # System packages

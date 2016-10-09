@@ -100,6 +100,19 @@ config PIMD
 	 
 	 http://troglobit.com/pimd.html
 
+config REDIR
+       bool "redir - A TCP port redirector for UNIX"
+       help
+         Redir listens for TCP connections on a given port, and, when it
+         recieves a connection, then connects to a given destination
+         address:port, and pass data between them. It finds most of its
+         applications in traversing firewalls, but, of course, there are
+         other uses.
+         
+         For a UDP port redirector, see uredir.
+         
+         https://github.com/troglobit/redir/
+
 config SMCROUTE
        bool "smcroute - Static Multicast Routing Daemon"
        help
@@ -113,6 +126,17 @@ config UFTPD
 	 Troglobit uftpd, quick TFTP and fuzzy-less FTP daemon.
 	 
 	 http://troglobit.com/uftpd.html
+
+config UREDIR
+       bool "uredir - A UDP port redirector for UNIX"
+       help
+         uredir is a small tool to redirect UDP connections. It can be
+         used to forward connections on select external interfaces to
+         loopback.
+
+         For a TCP port redirector, see redir.
+         
+         https://github.com/troglobit/uredir/
 
 endmenu
 
