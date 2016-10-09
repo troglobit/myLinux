@@ -114,7 +114,6 @@ staging:							## Initialize staging area
 	@for dir in $(STAGING_DIRS); do   \
 		mkdir -p $(STAGING)/$$dir; \
 	done
-	-@(cd $(STAGING) && ln -sf . usr 2>/dev/null)
 	@cp -a $(ROOTDIR)/initramfs/* $(STAGING)/
 	@echo "NAME=\"$(OSNAME)\""                     > $(STAGING)/etc/os-release
 	@echo "VERSION=\"$(OSVERSION)\""               >>$(STAGING)/etc/os-release
