@@ -21,10 +21,11 @@ CROSS_COMPILE     ?= $(CROSS)
 CROSS_TARGET       = $(CROSS_COMPILE:-=)
 
 CC                 = $(CROSS_COMPILE)gcc
-CFLAGS             =
-CPPFLAGS           = -I$(STAGING)/include
+CFLAGS             = -O2
+#CPPFLAGS           = -U_FORTIFY_SOURCE -D_DEFAULT_SOURCE -D_GNU_SOURCE
+CPPFLAGS           = -I$(STAGING)/include -I$(STAGING)/usr/include
 LDLIBS             =
-LDFLAGS            = -L$(STAGING)/lib
+LDFLAGS            = -L$(STAGING)/lib -L$(STAGING)/usr/lib
 STRIP              = $(CROSS_COMPILE)strip
 
 OSNAME            := TroglOS Linux
@@ -45,6 +46,7 @@ CONFIG            := $(ROOTDIR)/.config
 STAGING            = $(ROOTDIR)/staging
 ROMFS              = $(ROOTDIR)/romfs
 BUILDLOG          := $(ROOTDIR)/build.log
+SYSROOT           := $(shell $(CROSS)gcc -print-sysroot)
 # usr/lib usr/share usr/bin usr/sbin 
 STAGING_DIRS       = mnt proc sys lib share bin sbin tmp var home
 IMAGEDIR           = $(ROOTDIR)/images
@@ -111,10 +113,15 @@ staging:							## Initialize staging area
 	@echo "  STAGING Root file system ..." | tee -a $(BUILDLOG)
 	@mkdir -p $(IMAGEDIR)
 	@mkdir -p $(STAGING)
+	@mkdir -p $(ROMFS)
 	@for dir in $(STAGING_DIRS); do   \
 		mkdir -p $(STAGING)/$$dir; \
 	done
 	@cp -a $(ROOTDIR)/initramfs/* $(STAGING)/
+	@if [ "x$(SYSROOT)" != "x" ]; then 		\
+		cp -fan $(SYSROOT)/* $(STAGING)/;	\
+	fi
+	@chmod -R u+w $(STAGING)
 	@echo "NAME=\"$(OSNAME)\""                     > $(STAGING)/etc/os-release
 	@echo "VERSION=\"$(OSVERSION)\""               >>$(STAGING)/etc/os-release
 	@echo "ID=\"$(OSID)\""                         >>$(STAGING)/etc/os-release
@@ -130,7 +137,7 @@ staging:							## Initialize staging area
 	@sed -i 's/HOSTNAME/$(OSRELEASE_ID)/' $(STAGING)/etc/hosts
 
 romfs:
-	@echo "  INSTALL Toolchain shared libraries ..." | tee -a $(BUILDLOG)
+	@echo "  INSTALL C library files from toolchain" | tee -a $(BUILDLOG)
 	@$(CROSS)populate -f -s $(STAGING) -d $(ROMFS)
 
 ramdisk: romfs							## Build ramdisk of staging dir
