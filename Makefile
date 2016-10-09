@@ -186,10 +186,13 @@ user packages lib:						## Build packages or libraries
 	@$(MAKE) -j5 -C $@ all
 	@$(MAKE) -j5 -C $@ install
 
+TARGETS=$(shell find lib -maxdepth 1 -mindepth 1 -type d)
+include quick.mk
+
 TARGETS=$(shell find packages -maxdepth 1 -mindepth 1 -type d)
 include quick.mk
 
-TARGETS=$(shell find lib -maxdepth 1 -mindepth 1 -type d)
+TARGETS=$(shell find user -maxdepth 1 -mindepth 1 -type d)
 include quick.mk
 
 clean:								## Clean build tree, excluding menuconfig
