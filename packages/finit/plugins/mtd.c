@@ -120,8 +120,12 @@ static void mount_error (void *UNUSED(arg))
    struct mtd_info_user mtd;
    char dev[10];
 
-   if (is_mounted("mtd:" MTD_CONFIG_LABEL))
-      return;
+   if (is_mounted("mtd:" MTD_CONFIG_LABEL)) {
+	   mkdir("/mnt/etc",  0755);
+	   mkdir("/mnt/var",  0755);
+	   mkdir("/mnt/.tmp", 0755);
+	   return;
+   }
 
    if (!find_mtd(MTD_CONFIG_LABEL, dev, sizeof(dev)))
       return;
