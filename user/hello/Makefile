@@ -2,6 +2,7 @@
 
 EXEC = hello
 OBJS = hello.o
+CPPFLAGS = -D_GNU_SOURCE -D_DEFAULT_SOURCE -D_BSD_SOURCE
 
 all: $(EXEC)
 
