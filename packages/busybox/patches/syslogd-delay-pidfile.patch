@@ -1,0 +1,22 @@
+Index: busybox-1.25.0/sysklogd/syslogd.c
+===================================================================
+--- busybox-1.25.0.orig/sysklogd/syslogd.c
++++ busybox-1.25.0/sysklogd/syslogd.c
+@@ -1006,6 +1006,7 @@ static void do_syslogd(void)
+ 		kmsg_init();
+ 
+ 	timestamp_and_log_internal("syslogd started: BusyBox v" BB_VER);
++	write_pidfile(CONFIG_PID_FILE_PATH "/syslogd.pid");
+ 
+ 	while (!bb_got_signal) {
+ 		ssize_t sz;
+@@ -1155,9 +1156,6 @@ int syslogd_main(int argc UNUSED_PARAM,
+ 		bb_daemonize_or_rexec(DAEMON_CHDIR_ROOT, argv);
+ 	}
+ 
+-	//umask(0); - why??
+-	write_pidfile(CONFIG_PID_FILE_PATH "/syslogd.pid");
+-
+ 	do_syslogd();
+ 	/* return EXIT_SUCCESS; */
+ }

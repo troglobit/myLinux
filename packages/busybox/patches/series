@@ -1,2 +1,3 @@
 100_httpd_upload.patch
 110-ntpd-syslog-support.patch
+syslogd-delay-pidfile.patch
