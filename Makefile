@@ -79,7 +79,7 @@ export ROOTDIR PATH STAGING ROMFS PKG_CONFIG_LIBDIR IMAGEDIR DOWNLOADS
 export KBUILD_VERBOSE MAKEFLAGS REDIRECT
 
 
-all: dep staging kernel lib packages user ramdisk		## Build all the things
+all: dep staging kernel lib packages user romfs ramdisk		## Build all the things
 
 dep:								## Use TroglOS defconfig if user forgets to run menuconfig
 	@touch $(BUILDLOG)
@@ -136,11 +136,9 @@ staging:							## Initialize staging area
 	@echo "$(OSRELEASE_ID)"                        > $(STAGING)/etc/hostname
 	@sed -i 's/HOSTNAME/$(OSRELEASE_ID)/' $(STAGING)/etc/hosts
 
-romfs:
+romfs:								## Create stripped down romfs/ from staging/
 	@echo "  INSTALL C library files from toolchain" | tee -a $(BUILDLOG)
 	@$(CROSS)populate -f -s $(STAGING) -d $(ROMFS)
-
-ramdisk: romfs							## Build ramdisk of staging dir
 	@echo "  PRUNE   Cleaning $(ROMFS)" | tee -a $(BUILDLOG)
 	@rm -rf $(ROMFS)/share/man $(ROMFS)/usr/share/man
 	@rm -rf $(ROMFS)/include   $(ROMFS)/usr/include
@@ -154,6 +152,8 @@ ramdisk: romfs							## Build ramdisk of staging dir
 		fi;							\
 	done
 	@chmod -R u+w $(ROMFS)
+
+ramdisk:							## Build ramdisk of staging dir
 	@echo "  INITRD  $(OSNAME) $(CONFIG_LINUX_VERSION)" | tee -a $(BUILDLOG)
 	@touch $(ROMFS)/etc/version
 	@$(MAKE) -f ramdisk.mk $@ $(REDIRECT)
