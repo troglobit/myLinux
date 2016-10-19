@@ -1,0 +1,28 @@
+#!/bin/sh
+
+XDG=`which xdg-user-dir`
+if [ -n "$XDG" ]; then
+	dir=`xdg-user-dir $1`
+else
+	dir=$HOME
+fi
+
+if [ x"$dir" = x"$HOME" ]; then
+	dir=`git rev-parse --show-toplevel`
+
+	# Project dir + etc/ or src/
+	if   [ "$1" = "DOWNLOAD" ]; then
+		dir="$dir/src"
+	elif  [ "$1" = "DOCUMENTS" ]; then
+		dir="$dir/etc"
+	fi
+
+	# Create if missing
+	if [ ! -d $dir ]; then
+		mkdir $dir
+	fi
+fi
+
+echo $dir
+
+exit 0

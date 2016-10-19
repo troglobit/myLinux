@@ -41,6 +41,8 @@ SUPPORT_URL       := $(TROGLOHUB)/troglos
 BUG_REPORT_URL    := $(TROGLOHUB)/troglos/issues
 
 ROOTDIR           := $(shell pwd)
+DOWNLOADS         ?= $(shell bin/xdg-helper DOWNLOAD)
+PERSISTENT        ?= $(shell bin/xdg-helper DOCUMENTS)/TroglOS
 PATH              := $(ROOTDIR)/bin:$(PATH)
 CONFIG            := $(ROOTDIR)/.config
 STAGING            = $(ROOTDIR)/staging
@@ -50,9 +52,7 @@ SYSROOT           := $(shell $(CROSS)gcc -print-sysroot)
 # usr/lib usr/share usr/bin usr/sbin 
 STAGING_DIRS       = mnt proc sys lib share bin sbin tmp var home
 IMAGEDIR           = $(ROOTDIR)/images
-PERSISTENT        ?= $(shell xdg-user-dir DOCUMENTS)/TroglOS
 MTD               ?= $(PERSISTENT)/Config.mtd
-DOWNLOADS         ?= $(shell xdg-user-dir DOWNLOAD)
 PKG_CONFIG_LIBDIR := $(STAGING)/lib/pkgconfig
 
 ifdef V
