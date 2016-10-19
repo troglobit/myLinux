@@ -1,6 +1,6 @@
 /* Simple MTD erase plugin that runs if mtd:Config is not mounted properly
  *
- * Copyright (c) 2015  Joachim Nilsson <troglobit@gmail.com>
+ * Copyright (c) 2015-2016  Joachim Nilsson <troglobit@gmail.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -115,26 +115,26 @@ static int do_erase(char *dev)
 	return close(fd);
 }
 
-static void mount_error (void *UNUSED(arg))
+static void mount_error(void *UNUSED(arg))
 {
-   struct mtd_info_user mtd;
-   char dev[10];
+	struct mtd_info_user mtd;
+	char dev[10];
 
-   if (is_mounted("mtd:" MTD_CONFIG_LABEL)) {
-	   mkdir("/mnt/etc",  0755);
-	   mkdir("/mnt/var",  0755);
-	   mkdir("/mnt/.tmp", 0755);
-	   return;
-   }
+	if (is_mounted("mtd:" MTD_CONFIG_LABEL)) {
+		mkdir("/mnt/etc",  0755);
+		mkdir("/mnt/var",  0755);
+		mkdir("/mnt/.tmp", 0755);
+		return;
+	}
 
-   if (!find_mtd(MTD_CONFIG_LABEL, dev, sizeof(dev)))
-      return;
+	if (!find_mtd(MTD_CONFIG_LABEL, dev, sizeof(dev)))
+		return;
 
-   print_desc("Erasing corrupt configuration partition", NULL);
-   print_result(do_erase(dev));
+	print_desc("Erasing corrupt configuration partition", NULL);
+	print_result(do_erase(dev));
 
-   /* Finit has not setup any signals yet, sys_reboot() won't work */
-   reboot(RB_AUTOBOOT);
+	/* Finit has not setup any signals yet, sys_reboot() won't work */
+	reboot(RB_AUTOBOOT);
 }
 
 static plugin_t plugin = {
@@ -151,3 +151,9 @@ PLUGIN_EXIT(plugin_exit)
 	plugin_unregister(&plugin);
 }
 
+/**
+ * Local Variables:
+ *  indent-tabs-mode: t
+ *  c-file-style: "linux"
+ * End:
+ */
