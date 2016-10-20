@@ -1,6 +1,8 @@
 *~
 build.log
 .config*
+etc/*
+src/*
 images/*
 staging/*
 romfs/*
