@@ -26,6 +26,7 @@
 #include <finit/plugin.h>
 
 #define MTD_CONFIG_LABEL  "Config"
+#define MTD_OVERLAY_DIRS  { "/mnt/etc", "/mnt/var", "/mnt/home", "/mnt/.tmp", NULL }
 
 static int match_line(char *needle, char *line, size_t len, FILE *fp)
 {
@@ -115,15 +116,46 @@ static int do_erase(char *dev)
 	return close(fd);
 }
 
+static int check_overlayfs(void)
+{
+	int exists = 1, created = 0;
+	char *dirs[] = MTD_OVERLAY_DIRS;
+
+	for (int i = 0; dirs[i]; i++) {
+		if (!fexist(dirs[i]))
+			exists = 0;
+	}
+
+	if (exists)
+		return 0;
+
+	print_desc("Creating OverlayFS directories in mtd:" MTD_CONFIG_LABEL, NULL);
+
+	for (int i = 0; dirs[i]; i++) {
+		if (!fexist(dirs[i])) {
+			if (mkdir(dirs[i], 0755) || !fexist(dirs[i])) {
+				_pe("Failed creating %s", dirs[i]);
+				continue;
+			}
+			sync();
+			created++;
+		}
+	}
+
+	print_result(created == 0);
+
+	return created;
+}
+
 static void mount_error(void *UNUSED(arg))
 {
-	struct mtd_info_user mtd;
 	char dev[10];
+	struct mtd_info_user mtd;
 
 	if (is_mounted("mtd:" MTD_CONFIG_LABEL)) {
-		mkdir("/mnt/etc",  0755);
-		mkdir("/mnt/var",  0755);
-		mkdir("/mnt/.tmp", 0755);
+		if (check_overlayfs())
+			reboot(RB_AUTOBOOT);
+
 		return;
 	}
 
