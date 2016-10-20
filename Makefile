@@ -47,13 +47,13 @@ PATH              := $(ROOTDIR)/bin:$(PATH)
 CONFIG            := $(ROOTDIR)/.config
 STAGING            = $(ROOTDIR)/staging
 ROMFS              = $(ROOTDIR)/romfs
+IMAGEDIR           = $(ROOTDIR)/images
 BUILDLOG          := $(ROOTDIR)/build.log
+PKG_CONFIG_LIBDIR := $(STAGING)/lib/pkgconfig
 SYSROOT           := $(shell $(CROSS)gcc -print-sysroot)
 # usr/lib usr/share usr/bin usr/sbin 
 STAGING_DIRS       = mnt proc sys lib share bin sbin tmp var home
-IMAGEDIR           = $(ROOTDIR)/images
-MTD               ?= $(PERSISTENT)/Config.mtd
-PKG_CONFIG_LIBDIR := $(STAGING)/lib/pkgconfig
+export PATH
 
 ifdef V
   ifeq ("$(origin V)", "command line")
@@ -75,7 +75,8 @@ export ARCH BUILDLOG CROSS CROSS_COMPILE CROSS_TARGET
 export CC CFLAGS CPPFLAGS LDLIBS LDFLAGS STRIP
 export OSNAME OSVERSION_ID OSVERSION OSID OSPRETTY_NAME OSHOME_URL
 export TROGLOHUB
-export ROOTDIR PATH STAGING ROMFS PKG_CONFIG_LIBDIR IMAGEDIR DOWNLOADS
+export ROOTDIR DOWNLOADS PERSISTENT
+export PATH CONFIG STAGING ROMFS IMAGEDIR PKG_CONFIG_LIBDIR
 export KBUILD_VERBOSE MAKEFLAGS REDIRECT
 
 
@@ -88,26 +89,8 @@ dep:								## Use TroglOS defconfig if user forgets to run menuconfig
 # Linux Kconfig, menuconfig et al
 include kconfig/config.mk
 
-# XXX: Needed only for 'make run', which should be moved to a separate makefile
--include $(CONFIG)
-KERNEL_CMDLINE = $(shell echo $(CONFIG_LINUX_CMDLINE) | sed 's/"//g')
-
-# qemu-img create -f qcow hda.img 2G
-# +=> -hda hda.img
-#			 -drive file=disk.img,if=virtio
-#			 -dtb $(IMAGEDIR)/versatile-ab.dtb
-#			 -dtb $(IMAGEDIR)/versatile-pb.dtb
 run:								## Run Qemu for selected ARCH
-	@echo "  QEMU    Ctrl-a x -- exit | Ctrl-a c -- switch console/monitor" | tee -a $(BUILDLOG)
-	-@mkdir -p $(PERSISTENT) 2>/dev/null
-	-@[ ! -e $(MTD) ] && dd if=/dev/zero of=$(MTD) bs=16384 count=960
-	@qemu-system-arm -nographic -m 128M -M versatilepb -usb						\
-			 -drive if=scsi,file=$(MTD),format=raw						\
-			 -device rtl8139,netdev=nic0							\
-			 -netdev bridge,id=nic0,br=virbr0,helper=/usr/lib/qemu/qemu-bridge-helper	\
-			 -kernel $(IMAGEDIR)/zImage        						\
-			 -initrd $(IMAGEDIR)/initramfs.gz  						\
-			 -append "$(KERNEL_CMDLINE) block2mtd.block2mtd=/dev/sda,,Config"
+	@make -C arch $@
 
 staging:							## Initialize staging area
 	@echo "  STAGING Root file system ..." | tee -a $(BUILDLOG)
