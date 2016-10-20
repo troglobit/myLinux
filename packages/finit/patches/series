@@ -1,3 +1,4 @@
 empty.patch
 reboot-wait.patch
 pretty-mount-error.patch
+reduced-kernel-loglevel.patch
