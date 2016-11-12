@@ -12,7 +12,7 @@ CONFIG_CROSS_COMPILE=""
 #
 CONFIG_LINUX_VERSION="4.4.31"
 # CONFIG_LINUX_TESTING is not set
-CONFIG_LINUX_CMDLINE="root=/dev/ram mem=128M console=ttyAMA0,115200 quiet"
+CONFIG_LINUX_CMDLINE="root=/dev/ram mem=256M console=ttyAMA0,115200"
 
 #
 # Libraries
