@@ -121,7 +121,7 @@ staging:							## Initialize staging area
 
 romfs:								## Create stripped down romfs/ from staging/
 	@echo "  INSTALL C library files from toolchain" | tee -a $(BUILDLOG)
-	@$(CROSS)populate -f -s $(STAGING) -d $(ROMFS)
+	@$(CROSS)populate -f -s $(STAGING) -d $(ROMFS) | tee -a $(BUILDLOG)
 	@echo "  PRUNE   Cleaning $(ROMFS)" | tee -a $(BUILDLOG)
 	@rm -rf $(ROMFS)/share/man $(ROMFS)/usr/share/man
 	@rm -rf $(ROMFS)/include   $(ROMFS)/usr/include
