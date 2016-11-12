@@ -62,7 +62,7 @@ tested on Ubuntu 16.04 (x86_64):
 * automake autoconf libtool pkg-config flex bison wget quilt bc
 * qemu-system-arm (install libvirt-bin and virt-manager as well!)
 * [arm-unknown-linux-gnueabi][2] toolchain
-* probably more, gzip?, mkimge?
+* probably more, gzip?, mkimage?
 
 
 Qemu Networking
