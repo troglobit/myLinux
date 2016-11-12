@@ -1,6 +1,6 @@
 # Glue for cross compiling Merecat httpd
 
-PKGVER     := 2.30
+PKGVER     := 2.31
 PKG        := merecat-$(PKGVER)
 PKGSUFFIX  := tar.xz
 PKGURL      = $(TROGLOHUB)/$(PKGNAME)/releases/download/v$(PKGVER)/$(PKGTAR)
