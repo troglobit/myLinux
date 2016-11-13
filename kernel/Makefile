@@ -28,7 +28,7 @@ ifdef CONFIG_LINUX_RC
 RC_PATH         = testing/
 endif
 PKGURL          = http://ftp.kernel.org/pub/linux/kernel/v4.x/$(RC_PATH)$(PKGTAR)
-CONFIG          = config-$(PKGBASEVER)
+CONFIG          = $(PRODDIR)/linux.config-$(PKGBASEVER)
 ZIMAGE          = $(PKG)/arch/$(ARCH)/boot/zImage
 
 include $(ROOTDIR)/pkg.mk

@@ -15,9 +15,10 @@
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .PHONY: run staging kernel lib packages romfs ramdisk clean distclean
 
-ARCH               = arm
 CROSS             ?= arm-unknown-linux-gnueabi-
 CROSS_COMPILE     ?= $(CROSS)
+ARCH              ?= arm
+MACH              ?= versatile
 CROSS_TARGET       = $(CROSS_COMPILE:-=)
 
 CC                 = $(CROSS_COMPILE)gcc
@@ -41,6 +42,8 @@ SUPPORT_URL       := $(TROGLOHUB)/troglos
 BUG_REPORT_URL    := $(TROGLOHUB)/troglos/issues
 
 ROOTDIR           := $(shell pwd)
+srctree           := $(ROOTDIR)
+PRODDIR           := $(ROOTDIR)/arch/$(ARCH)/$(MACH)
 DOWNLOADS         ?= $(shell bin/xdg-helper DOWNLOAD)
 PERSISTENT        ?= $(shell bin/xdg-helper DOCUMENTS)/TroglOS
 PATH              := $(ROOTDIR)/bin:$(PATH)
@@ -75,7 +78,7 @@ export ARCH BUILDLOG CROSS CROSS_COMPILE CROSS_TARGET
 export CC CFLAGS CPPFLAGS LDLIBS LDFLAGS STRIP
 export OSNAME OSVERSION_ID OSVERSION OSID OSPRETTY_NAME OSHOME_URL
 export TROGLOHUB
-export ROOTDIR DOWNLOADS PERSISTENT
+export ROOTDIR srctree PRODDIR DOWNLOADS PERSISTENT
 export PATH CONFIG STAGING ROMFS IMAGEDIR PKG_CONFIG_LIBDIR
 export KBUILD_VERBOSE MAKEFLAGS REDIRECT
 
@@ -84,7 +87,7 @@ all: dep staging kernel lib packages user romfs ramdisk		## Build all the things
 
 dep:								## Use TroglOS defconfig if user forgets to run menuconfig
 	@touch $(BUILDLOG)
-	@test -e $(CONFIG) || $(MAKE) defconfig $(REDIRECT)
+	@test -e $(CONFIG) || $(MAKE) $(MACH)_defconfig
 
 # Linux Kconfig, menuconfig et al
 include kconfig/config.mk

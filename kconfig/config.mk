@@ -39,11 +39,12 @@ ifeq ($(KBUILD_DEFCONFIG),)
 	@$< --defconfig $(Kconfig)
 else
 	@echo "*** Default configuration is based on '$(KBUILD_DEFCONFIG)'"
-	@$< --defconfig=configs/$(KBUILD_DEFCONFIG) $(Kconfig)
+	@$< --defconfig=arch/$(ARCH)/configs/$(KBUILD_DEFCONFIG) $(Kconfig)
 endif
 
 %_defconfig: $(kcfg)/conf
-	@$< --defconfig=configs/$@ $(Kconfig)
+	@echo "  CONFIG  $(ARCH)/configs/$@ ..." | tee -a $(BUILDLOG)
+	@$< --defconfig=arch/$(ARCH)/configs/$@ $(Kconfig) $(REDIRECT)
 
 $(kcfg)/conf:
 	@$(MAKE) -C $(kcfg) conf
