@@ -19,6 +19,7 @@ config ARCH
 
 config CROSS_COMPILE
 	string "Cross-compiler tool prefix"
+	option env="CROSS_COMPILE"
 	help
 	  Same as running 'make CROSS_COMPILE=prefix-' but stored for
 	  default make runs in this kernel build directory.  You don't

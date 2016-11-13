@@ -15,10 +15,9 @@
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .PHONY: run staging kernel lib packages romfs ramdisk clean distclean
 
-CROSS             ?= arm-unknown-linux-gnueabi-
-CROSS_COMPILE     ?= $(CROSS)
 ARCH              ?= arm
 MACH              ?= versatile
+CROSS_COMPILE     ?= arm-unknown-linux-gnueabi-
 CROSS_TARGET       = $(CROSS_COMPILE:-=)
 
 CC                 = $(CROSS_COMPILE)gcc
@@ -53,7 +52,7 @@ ROMFS              = $(ROOTDIR)/romfs
 IMAGEDIR           = $(ROOTDIR)/images
 BUILDLOG          := $(ROOTDIR)/build.log
 PKG_CONFIG_LIBDIR := $(STAGING)/lib/pkgconfig
-SYSROOT           := $(shell $(CROSS)gcc -print-sysroot)
+SYSROOT           := $(shell $(CROSS_COMPILE)gcc -print-sysroot)
 # usr/lib usr/share usr/bin usr/sbin 
 STAGING_DIRS       = mnt proc sys lib share bin sbin tmp var home
 export PATH
@@ -74,7 +73,7 @@ MAKEFLAGS          = --silent --no-print-directory
 REDIRECT           = >> $(BUILDLOG) 2>&1
 endif
 
-export ARCH BUILDLOG CROSS CROSS_COMPILE CROSS_TARGET
+export ARCH BUILDLOG CROSS_COMPILE CROSS_TARGET
 export CC CFLAGS CPPFLAGS LDLIBS LDFLAGS STRIP
 export OSNAME OSVERSION_ID OSVERSION OSID OSPRETTY_NAME OSHOME_URL
 export TROGLOHUB
@@ -124,7 +123,7 @@ staging:							## Initialize staging area
 
 romfs:								## Create stripped down romfs/ from staging/
 	@echo "  INSTALL C library files from toolchain" | tee -a $(BUILDLOG)
-	@$(CROSS)populate -f -s $(STAGING) -d $(ROMFS) | tee -a $(BUILDLOG)
+	@$(CROSS_COMPILE)populate -f -s $(STAGING) -d $(ROMFS) | tee -a $(BUILDLOG)
 	@echo "  PRUNE   Cleaning $(ROMFS)" | tee -a $(BUILDLOG)
 	@rm -rf $(ROMFS)/share/man $(ROMFS)/usr/share/man
 	@rm -rf $(ROMFS)/include   $(ROMFS)/usr/include
