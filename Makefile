@@ -89,7 +89,7 @@ dep:								## Use TroglOS defconfig if user forgets to run menuconfig
 # Linux Kconfig, menuconfig et al
 include kconfig/config.mk
 
-run:								## Run Qemu for selected ARCH
+run: kernel_install						## Run Qemu for selected ARCH
 	@make -C arch $@
 
 staging:							## Initialize staging area
@@ -97,7 +97,7 @@ staging:							## Initialize staging area
 	@mkdir -p $(IMAGEDIR)
 	@mkdir -p $(STAGING)
 	@mkdir -p $(ROMFS)
-	@for dir in $(STAGING_DIRS); do   \
+	@for dir in $(STAGING_DIRS); do    \
 		mkdir -p $(STAGING)/$$dir; \
 	done
 	@cp -a $(ROOTDIR)/initramfs/* $(STAGING)/

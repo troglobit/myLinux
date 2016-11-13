@@ -25,7 +25,6 @@ KERNEL_CMDLINE     = $(shell echo $(CONFIG_LINUX_CMDLINE) | sed 's/"//g')
 # +=> -hda hda.img
 #			 -drive file=disk.img,if=virtio
 #			 -dtb $(IMAGEDIR)/versatile-ab.dtb
-#			 -dtb $(IMAGEDIR)/versatile-pb.dtb
 run:
 	@echo "  QEMU    Ctrl-a x -- exit | Ctrl-a c -- switch console/monitor" | tee -a $(BUILDLOG)
 	-@mkdir -p $(PERSISTENT) 2>/dev/null
@@ -36,4 +35,5 @@ run:
 			 -netdev bridge,id=nic0,br=virbr0,helper=/usr/lib/qemu/qemu-bridge-helper	\
 			 -kernel $(IMAGEDIR)/zImage        						\
 			 -initrd $(IMAGEDIR)/initramfs.gz  						\
+			 -dtb $(IMAGEDIR)/versatile-pb.dtb						\
 			 -append "$(KERNEL_CMDLINE) block2mtd.block2mtd=/dev/sda,,Config quiet"
