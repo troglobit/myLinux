@@ -59,7 +59,8 @@ The build environment currently requires at least the following tools,
 tested on Ubuntu 16.04 (x86_64):
 
 * build-essential (gcc, make, etc.)
-* automake autoconf libtool pkg-config flex bison wget quilt bc lzop
+* automake autoconf libtool pkg-config flex bison wget quilt
+* bc lzop device-tree-compiler
 * qemu-system-arm (install libvirt-bin and virt-manager as well!)
 * [arm-unknown-linux-gnueabi][2] toolchain
 * probably more, gzip?, mkimage?

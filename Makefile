@@ -91,7 +91,7 @@ dep:								## Use TroglOS defconfig if user forgets to run menuconfig
 # Linux Kconfig, menuconfig et al
 include kconfig/config.mk
 
-run: kernel_install						## Run Qemu for selected ARCH
+run:								## Run Qemu for selected ARCH
 	@make -C arch $@
 
 staging:							## Initialize staging area
@@ -145,6 +145,7 @@ ramdisk:							## Build ramdisk of staging dir
 
 kernel:								## Build configured Linux kernel
 	@$(MAKE) -j5 -C kernel all
+	@$(MAKE) kernel_install
 
 kernel_menuconfig:						## Call Linux menuconfig
 	@$(MAKE) -C kernel menuconfig
