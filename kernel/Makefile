@@ -38,7 +38,7 @@ $(PKG)/.config::
 		echo "  INSTALL $@ from $(CONFIG)" | tee -a $(BUILDLOG);	\
 		if [ -f $(CONFIG) ]; then					\
 			cp $(CONFIG) $@;					\
-			$(MAKE) V=1 -C $(PKG) oldconfig $(REDIRECT);		\
+			$(MAKE) V=1 -C $(PKG) oldconfig;			\
 		else								\
 			$(MAKE) V=1 -C $(PKG) versatile_defconfig $(REDIRECT);	\
 		fi;								\
@@ -56,7 +56,7 @@ defconfig:
 	@$(MAKE) V=1 -C $(PKG) versatile_defconfig $(REDIRECT)
 
 oldconfig:: $(PKG)/.config
-	@$(MAKE) V=1 -C $(PKG) oldconfig $(REDIRECT)
+	@$(MAKE) V=1 -C $(PKG) oldconfig
 
 saveconfig:
 	@echo -n "  SAVING  "
