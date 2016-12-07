@@ -7,7 +7,8 @@ PKGURL      = $(TROGLOHUB)/$(PKGNAME)/releases/download/$(PKGVER)/$(PKGTAR)
 PKGCFGENV  := CFLAGS="-W -Wall -Wextra"
 PKGCFG     := --host=$(CROSS_TARGET) --prefix= --with-heading="$(OSPRETTY_NAME)"
 PKGCFG     += --enable-inetd-echo-plugin --enable-inetd-time-plugin
-PKGCFG     += --enable-fallback-shell --enable-x11-common-plugin
+PKGCFG     += --enable-x11-common-plugin --enable-inetd-chargen-plugin
+PKGCFG     += --enable-fallback-shell --enable-watchdog
 PKGINSTALL := install-exec
 
 include $(ROOTDIR)/pkg.mk
