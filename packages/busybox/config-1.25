@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # Busybox version: 1.25.0
-# Sun Oct  9 12:14:49 2016
+# Thu Dec  8 22:04:37 2016
 #
 CONFIG_HAVE_DOT_CONFIG=y
 
@@ -351,7 +351,7 @@ CONFIG_CLEAR=y
 # CONFIG_OPENVT is not set
 CONFIG_RESET=y
 CONFIG_RESIZE=y
-CONFIG_FEATURE_RESIZE_PRINT=y
+# CONFIG_FEATURE_RESIZE_PRINT is not set
 # CONFIG_SETCONSOLE is not set
 # CONFIG_FEATURE_SETCONSOLE_LONG_OPTIONS is not set
 # CONFIG_SETFONT is not set

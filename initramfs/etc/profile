@@ -1,0 +1,22 @@
+#!/bin/sh
+
+res()
+{
+      TTY=`tty`
+      [ $TTY = '/dev/ttyS0' -o $TTY = '/dev/ttyAMA0' -o $TTY = '/dev/ttyUSB0' ] && resize
+}
+
+export LANG="en_US.UTF8"
+export LC_ALL="en_US.UTF8"
+export LC_CTYPE="en_US.UTF8"
+
+# export TERM="vt220"
+export PS1="`res`\u@\h:\w \$ "
+export EDITOR=vi
+
+alias ll='ls -l'
+alias la='ls -A'
+alias l='ls -CF'
+
+alias vim=vi
+alias emacs=mg
