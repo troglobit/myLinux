@@ -52,7 +52,7 @@ BUILDLOG          := $(ROOTDIR)/build.log
 PKG_CONFIG_LIBDIR := $(STAGING)/lib/pkgconfig
 SYSROOT           := $(shell $(CROSS)gcc -print-sysroot)
 # usr/lib usr/share usr/bin usr/sbin 
-STAGING_DIRS       = mnt proc sys lib share bin sbin tmp var home
+STAGING_DIRS       = mnt proc sys lib share bin sbin tmp var home host
 export PATH
 
 ifdef V
