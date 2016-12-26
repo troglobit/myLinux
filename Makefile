@@ -13,20 +13,8 @@
 # WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.SUFFIX:
 .PHONY: run staging kernel lib packages romfs ramdisk clean distclean
-
-ARCH              ?= arm
-MACH              ?= versatile
-CROSS_COMPILE     ?= arm-unknown-linux-gnueabi-
-CROSS_TARGET       = $(CROSS_COMPILE:-=)
-
-CC                 = $(CROSS_COMPILE)gcc
-CFLAGS             = -O2
-#CPPFLAGS           = -U_FORTIFY_SOURCE -D_DEFAULT_SOURCE -D_GNU_SOURCE
-CPPFLAGS           = -I$(STAGING)/include -I$(STAGING)/usr/include
-LDLIBS             =
-LDFLAGS            = -L$(STAGING)/lib -L$(STAGING)/usr/lib
-STRIP              = $(CROSS_COMPILE)strip
 
 OSNAME            := TroglOS Linux
 OSRELEASE_ID      := chaos
@@ -41,21 +29,12 @@ SUPPORT_URL       := $(TROGLOHUB)/troglos
 BUG_REPORT_URL    := $(TROGLOHUB)/troglos/issues
 
 ROOTDIR           := $(shell pwd)
-srctree           := $(ROOTDIR)
-PRODDIR           := $(ROOTDIR)/arch/$(ARCH)/$(MACH)
-DOWNLOADS         ?= $(shell bin/xdg-helper DOWNLOAD)
-PERSISTENT        ?= $(shell bin/xdg-helper DOCUMENTS)/TroglOS
 PATH              := $(ROOTDIR)/bin:$(PATH)
-CONFIG            := $(ROOTDIR)/.config
-STAGING            = $(ROOTDIR)/staging
-ROMFS              = $(ROOTDIR)/romfs
-IMAGEDIR           = $(ROOTDIR)/images
 BUILDLOG          := $(ROOTDIR)/build.log
-PKG_CONFIG_LIBDIR := $(STAGING)/lib/pkgconfig
-SYSROOT           := $(shell $(CROSS_COMPILE)gcc -print-sysroot)
+srctree           := $(ROOTDIR)
+
 # usr/lib usr/share usr/bin usr/sbin 
 STAGING_DIRS       = mnt proc sys lib share bin sbin tmp var home
-export PATH
 
 ifdef V
   ifeq ("$(origin V)", "command line")
@@ -73,74 +52,35 @@ MAKEFLAGS          = --silent --no-print-directory
 REDIRECT           = >> $(BUILDLOG) 2>&1
 endif
 
-export ARCH BUILDLOG CROSS_COMPILE CROSS_TARGET
-export CC CFLAGS CPPFLAGS LDLIBS LDFLAGS STRIP
-export OSNAME OSVERSION_ID OSVERSION OSID OSPRETTY_NAME OSHOME_URL
-export TROGLOHUB
-export ROOTDIR srctree PRODDIR DOWNLOADS PERSISTENT
-export PATH CONFIG STAGING ROMFS IMAGEDIR PKG_CONFIG_LIBDIR
+export OSNAME OSRELEASE_ID OSRELEASE OSVERSION_ID OSVERSION
+export OSID OSPRETTY_NAME OSHOME_URL
+export PATH ROOTDIR BUILDLOG srctree
+export TROGLOHUB SUPPORT_URL BUG_REPORT_URL
 export KBUILD_VERBOSE MAKEFLAGS REDIRECT
 
+#include core.mk
 
 all: dep staging kernel lib packages user romfs ramdisk		## Build all the things
 
 dep:								## Use TroglOS defconfig if user forgets to run menuconfig
 	@touch $(BUILDLOG)
-	@test -e $(CONFIG) || $(MAKE) $(MACH)_defconfig
+	@test -e .config || $(MAKE) ARCH=arm versatile_defconfig
 
 # Linux Kconfig, menuconfig et al
 include kconfig/config.mk
 
-run:								## Run Qemu for selected ARCH
-	@make -C arch $@
+run:								## Run Qemu for selected target platform
+	@$(MAKE) -C arch $@
 
 staging:							## Initialize staging area
-	@echo "  STAGING Root file system ..." | tee -a $(BUILDLOG)
-	@mkdir -p $(IMAGEDIR)
-	@mkdir -p $(STAGING)
-	@mkdir -p $(ROMFS)
-	@for dir in $(STAGING_DIRS); do    \
-		mkdir -p $(STAGING)/$$dir; \
-	done
-	@cp -a $(ROOTDIR)/initramfs/* $(STAGING)/
-	@if [ "x$(SYSROOT)" != "x" ]; then 		\
-		cp -fan $(SYSROOT)/* $(STAGING)/;	\
-	fi
-	@chmod -R u+w $(STAGING)
-	@echo "NAME=\"$(OSNAME)\""                     > $(STAGING)/etc/os-release
-	@echo "VERSION=\"$(OSVERSION)\""               >>$(STAGING)/etc/os-release
-	@echo "ID=\"$(OSID)\""                         >>$(STAGING)/etc/os-release
-	@echo "PRETTY_NAME=\"$(OSPRETTY_NAME)\""       >>$(STAGING)/etc/os-release
-	@echo "VERSION_ID=\"$(OSVERSION_ID)\""         >>$(STAGING)/etc/os-release
-	@echo "HOME_URL=\"$(OSHOME_URL)\""             >>$(STAGING)/etc/os-release
-	@echo "SUPPORT_URL=\"$(SUPPORT_URL)\""         >>$(STAGING)/etc/os-release
-	@echo "BUG_REPORT_URL=\"$(BUG_REPORT_URL)\""   >>$(STAGING)/etc/os-release
-	@echo "$(OSVERSION)"                           > $(STAGING)/etc/version
-	@echo "$(OSNAME) $(OSVERSION_ID) \\\\n \\l"    > $(STAGING)/etc/issue
-	@echo "$(OSNAME) $(OSVERSION_ID)"              > $(STAGING)/etc/issue.net
-	@echo "$(OSRELEASE_ID)"                        > $(STAGING)/etc/hostname
-	@sed -i 's/HOSTNAME/$(OSRELEASE_ID)/' $(STAGING)/etc/hosts
+	@$(MAKE) -C arch $@
 
 romfs:								## Create stripped down romfs/ from staging/
-	@echo "  INSTALL C library files from toolchain" | tee -a $(BUILDLOG)
-	@$(CROSS_COMPILE)populate -f -s $(STAGING) -d $(ROMFS) | tee -a $(BUILDLOG)
-	@echo "  PRUNE   Cleaning $(ROMFS)" | tee -a $(BUILDLOG)
-	@rm -rf $(ROMFS)/share/man $(ROMFS)/usr/share/man
-	@rm -rf $(ROMFS)/include   $(ROMFS)/usr/include
-	@find $(ROMFS)/ -name '*.a' -delete
-	@echo "  STRIP   Optimizing $(ROMFS)" | tee -a $(BUILDLOG)
-	@for file in `find romfs/ -executable -type f`; do		\
-		file $$file | grep 'not stripped' 2>&1 >/dev/null;	\
-		if [ $$? -eq 0 ]; then					\
-			continue;					\
-			$(STRIP) $$file;				\
-		fi;							\
-	done
-	@chmod -R u+w $(ROMFS)
+	@$(MAKE) -C arch $@
 
 ramdisk:							## Build ramdisk of staging dir
-	@echo "  INITRD  $(OSNAME) $(CONFIG_LINUX_VERSION)" | tee -a $(BUILDLOG)
-	@touch $(ROMFS)/etc/version
+	@echo "  INITRD  $(OSNAME) $(OSVERSION_ID)" | tee -a $(BUILDLOG)
+	@touch romfs/etc/version
 	@$(MAKE) -f ramdisk.mk $@ $(REDIRECT)
 
 kernel:								## Build configured Linux kernel
@@ -153,7 +93,7 @@ kernel_menuconfig:						## Call Linux menuconfig
 kernel_oldconfig:						## Call Linux oldconfig
 	@$(MAKE) -C kernel oldconfig
 
-kernel_defconfig:						## Call Linux defconfig for the selected ARCH
+kernel_defconfig:						## Call Linux defconfig for the selected target platform
 	@$(MAKE) -C kernel defconfig
 
 kernel_saveconfig:						## Save Linux-VER.REV/.config to kernel/config-VER
@@ -195,7 +135,7 @@ distclean:							## Really clean, as if started from scratch
 		/bin/echo -ne "\033]0;$(PWD) $$dir\007";	\
 		$(MAKE) -C $$dir $@ $(REDIRECT);		\
 	done
-	-@$(RM) -rf $(STAGING) $(ROMFS) $(IMAGEDIR) $(CONFIG) $(BUILDLOG)
+	-@$(RM) -rf .config $(STAGING) $(ROMFS) $(IMAGEDIR) $(BUILDLOG)
 
 .PHONY: help
 help:

@@ -1,0 +1,18 @@
+choice
+	prompt "Select Target Machine"
+	default VERSATILE
+     	depends on ARM
+
+config VERSATILE
+	bool "ARM Versatile-PB"
+
+config RASPBERRY
+	bool "Raspberry Pi 2/3"
+
+endchoice
+
+config MACH
+	string
+	default "versatile" if VERSATILE
+	default "raspberry" if RASPBERRY
+     	depends on ARM

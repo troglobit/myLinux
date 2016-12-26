@@ -4,28 +4,13 @@
 #
 mainmenu "TroglOS Virtual Devboard Configuration"
 
+# Magic marker used by build system
+config DOT_CONFIG
+	bool
+	default y
+
 # This is where all Qemu and toolchain specific settings go
-menu "Target options"
-
-#config SRCARCH
-#	string
-#	option env="SRCARCH"
-
-config ARCH
-	string
-	option env="ARCH"
-
-#source "arch/$SRCARCH/Kconfig"
-
-config CROSS_COMPILE
-	string "Cross-compiler tool prefix"
-	option env="CROSS_COMPILE"
-	help
-	  Same as running 'make CROSS_COMPILE=prefix-' but stored for
-	  default make runs in this kernel build directory.  You don't
-	  need to set this unless you want the configured kernel build
-	  directory to select the cross-compiler automatically.
-endmenu
+source "arch/Kconfig"
 
 # Kernel specifics: version, rc, cmdline
 source "kernel/Kconfig"
@@ -38,3 +23,4 @@ source "packages/Kconfig"
 
 # User defined programs, tools
 source "user/Kconfig"
+

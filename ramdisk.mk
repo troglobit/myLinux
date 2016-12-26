@@ -1,5 +1,7 @@
 .PHONY: ramdisk
 
+include core.mk
+
 ifdef KERNEL_RC
 KERNEL_VERSION := $(KERNEL_VERSION).0$(KERNEL_RC)
 endif

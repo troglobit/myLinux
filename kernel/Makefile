@@ -15,7 +15,7 @@
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .PHONY: all defconfig oldconfig saveconfig headers_install modules_install clean distclean
 
--include $(ROOTDIR)/.config
+include ../core.mk
 
 PKGVER         ?= $(shell echo $(CONFIG_LINUX_VERSION)$(CONFIG_LINUX_RC) | sed 's/"//g')
 PKGBASEVER     := $(shell echo $(PKGVER) | sed 's/\([0-9]*\.[0-9]*\).*/\1/')

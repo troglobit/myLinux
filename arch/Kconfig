@@ -1,0 +1,19 @@
+choice
+	prompt "Select Target Platform"
+	default ARM
+
+config ARM
+	bool "ARM 32-bit"
+
+config PPC
+	bool "PowerPC 32-bit"
+
+endchoice
+
+config ARCH
+	string
+	default "arm" if ARM
+	default "ppc" if PPC
+
+source "arch/arm/Kconfig"
+source "arch/ppc/Kconfig"
