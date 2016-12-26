@@ -1,0 +1,24 @@
+#!/bin/sh
+# Usage:
+#	check-toolchain GCC VERSION
+#
+# Example:
+#	check-toolchain arm-unknown-linux-gnueabi-gcc crosstool-ng-1.22.0-234-g531eab4
+#
+CC=$1
+VER=$2
+
+if [ -z "$CC" -o -z "$VER" ]; then
+   echo "Usage: $0 GCC VERSION"
+   exit 1
+fi
+
+echo "  CHECK   Toolchain version ..."
+
+$CC --version |grep $VER >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+    echo "  FAIL    Wrong toolchain version, should be $VER"
+    exit 1
+fi
+
+exit 1

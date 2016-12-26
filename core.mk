@@ -1,3 +1,6 @@
+
+TOOLCHAIN         := crosstool-ng-1.22.0-234-g531eab4
+
 qstrip             = $(strip $(subst ",,$(1)))
 # "
 noconfig_targets  := menuconfig nconfig gconfig xconfig config oldconfig	\
@@ -50,7 +53,7 @@ SYSROOT           := $(shell $(CROSS_COMPILE)gcc -print-sysroot)
 
 KBUILD_DEFCONFIG   = $(MACH)_defconfig
 
-export ARCH MACH CROSS_COMPILE CROSS_TARGET
+export ARCH MACH CROSS_COMPILE CROSS_TARGET TOOLCHAIN
 export QEMU_MACH QEMU_NIC QEMU_DTB DTB
 export CC CFLAGS CPPFLAGS LDLIBS LDFLAGS STRIP
 export PATH PRODDIR DOWNLOADS STAGING ROMFS IMAGEDIR PKG_CONFIG_LIBDIR SYSROOT

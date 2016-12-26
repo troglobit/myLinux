@@ -65,6 +65,7 @@ all: dep staging kernel lib packages user romfs ramdisk		## Build all the things
 dep:								## Use TroglOS defconfig if user forgets to run menuconfig
 	@touch $(BUILDLOG)
 	@test -e .config || $(MAKE) ARCH=arm versatile_defconfig
+	@make -C arch $@
 
 # Linux Kconfig, menuconfig et al
 include kconfig/config.mk

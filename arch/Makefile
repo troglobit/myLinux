@@ -18,6 +18,9 @@
 # Source configured settings for this arch
 include ../core.mk
 
+dep:
+	@check-toolchain $(CROSS_COMPILE)gcc $(TOOLCHAIN) | tee -a $(BUILDLOG)
+
 run:
 	@echo "  QEMU    Ctrl-a x -- exit | Ctrl-a c -- toggle console/monitor" | tee -a $(BUILDLOG)
 	-@mkdir -p $(PERSISTENT) 2>/dev/null
