@@ -1,18 +1,23 @@
 #
-# TroglOS Virtual Devboard Default Configuration
+# Automatically generated make config: don't edit
+# TroglOS Virtual Devboard Configuration
 #
-
-#
-# Target options
-#
-CONFIG_CROSS_COMPILE=""
+CONFIG_DOT_CONFIG=y
+# CONFIG_ARM is not set
+CONFIG_PPC=y
+CONFIG_ARCH="ppc"
+# CONFIG_VERSATILE is not set
+# CONFIG_RASPBERRY is not set
+CONFIG_MACH="ppce500"
+CONFIG_PPCE500=y
+# CONFIG_PPCE500MC is not set
 
 #
 # Kernel
 #
 CONFIG_LINUX_VERSION="4.8.7"
 # CONFIG_LINUX_TESTING is not set
-CONFIG_LINUX_CMDLINE="root=/dev/ram mem=256M console=ttyAMA0,115200"
+CONFIG_LINUX_CMDLINE="root=/dev/ram mem=256M console=ttyS0,115200"
 
 #
 # Libraries
@@ -51,3 +56,8 @@ CONFIG_MG=y
 # CONFIG_STRACE is not set
 # CONFIG_TETRIS is not set
 CONFIG_WATCHDOGD=y
+
+#
+# User Defined Programs
+#
+# CONFIG_USER_HELLO is not set
