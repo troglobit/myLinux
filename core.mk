@@ -35,12 +35,6 @@ endif
 KERNEL_MODULES     = $(wildcard $(ROMFS)/lib/modules/$(KERNEL_VERSION)*)
 KERNELRELEASE      = $(shell test -d $(KERNEL_MODULES)/build && $(MAKE) -s -C $(KERNEL_MODULES)/build CROSS_COMPILE=$(CROSS_COMPILE) ARCH=$(KERNEL_ARCH) kernelrelease)
 
-ifeq ($(QEMU_DTB),)
-DTB                =
-else
-DTB                = -dtb $(IMAGEDIR)/$(QEMU_DTB)
-endif
-
 include $(ROOTDIR)/arch/$(ARCH)/config.mk
 
 CROSS_TARGET       = $(CROSS_COMPILE:-=)
@@ -56,7 +50,7 @@ PATH              := $(ROOTDIR)/bin:$(PATH)
 PRODDIR            = $(ROOTDIR)/arch/$(ARCH)/$(MACH)
 DOWNLOADS         ?= $(shell xdg-helper DOWNLOAD)
 PERSISTENT        ?= $(shell xdg-helper DOCUMENTS)/TroglOS
-MTD               ?= $(PERSISTENT)/Config.mtd
+MTD               ?= $(PERSISTENT)/Config-$(ARCH).mtd
 STAGING            = $(ROOTDIR)/staging
 ROMFS              = $(ROOTDIR)/romfs
 IMAGEDIR           = $(ROOTDIR)/images

@@ -1,0 +1,42 @@
+#!/bin/sh
+# Usage:
+# 	qemu KERNEL INITRD
+#
+# Environment:
+#       V              = {0, 1} controls kernel quiet flag
+#	MTD            = /path/to/Config.mtd
+#       ARCH           = Qemu arch: ppc, arm, etc.
+#       QEMU_DTB       = Optional device tree to pass along to kernel
+#       QEMU_NIC       = Platform NIC to use
+#       QEMU_MACH      = Qemu machine: ppce500, versatile, etc.
+#       QEMU_EXTRA     = Extra Qemu arguments, e.g. -device virtio-scsi-pci
+#                      => qemu-system-ppc -M ppce500 -device help
+#       KERNEL_CMDLINE = E.g. root=/dev/ram mem=256M console=ttyS0,115200
+#
+
+# Bridge to connect Qemu target to
+BR=virbr0
+
+# Disable pulseaudio warning
+export QEMU_AUDIO_DRV=none
+
+# Set up device tree path
+if [ -n "$QEMU_DTB" ]; then
+    DTB="-dtb $IMAGEDIR/$QEMU_DTB"
+fi
+
+# Build Linux command line
+CMDLINE="$KERNEL_CMDLINE block2mtd.block2mtd=/dev/sda,,Config"
+if [ "$V" != "1" ]; then
+   CMDLINE="$CMDLINE quiet"
+fi
+
+# Start Qemu
+qemu-system-$ARCH -nographic -m 256M -M $QEMU_MACH -usb			\
+	$QEMU_EXTRA -drive if=scsi,file=$MTD,format=raw			\
+	-net bridge,br=$BR,helper=/usr/lib/qemu/qemu-bridge-helper	\
+	-net nic,model=$QEMU_NIC					\
+	-kernel $1 -initrd $2 $DTB -append "$CMDLINE"
+
+# Restore TTY from Qemu target
+stty sane
