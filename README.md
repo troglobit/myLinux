@@ -60,10 +60,10 @@ tested on Ubuntu 16.04 (x86_64):
 
 * build-essential (gcc, make, etc.)
 * automake autoconf libtool pkg-config flex bison wget quilt
-* bc lzop device-tree-compiler
+* bc lzop device-tree-compiler u-boot-tools (mkimage)
 * qemu-system-arm (install libvirt-bin and virt-manager as well!)
 * [arm-unknown-linux-gnueabi][2] toolchain
-* probably more, gzip?, mkimage?
+* probably more, gzip?
 
 
 Qemu Networking
