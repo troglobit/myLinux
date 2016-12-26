@@ -17,7 +17,7 @@
 
 include ../core.mk
 
-PKGVER         ?= $(shell echo $(CONFIG_LINUX_VERSION)$(CONFIG_LINUX_RC) | sed 's/"//g')
+PKGVER         ?= $(KERNEL_VERSION)
 PKGBASEVER     := $(shell echo $(PKGVER) | sed 's/\([0-9]*\.[0-9]*\).*/\1/')
 PKG            := linux-$(PKGVER)
 PKGNAME	       := kernel
@@ -29,35 +29,35 @@ RC_PATH         = testing/
 endif
 PKGURL          = http://ftp.kernel.org/pub/linux/kernel/v4.x/$(RC_PATH)$(PKGTAR)
 CONFIG          = $(PRODDIR)/linux.config-$(PKGBASEVER)
-ZIMAGE          = $(PKG)/arch/$(ARCH)/boot/zImage
+ZIMAGE          = $(PKG)/arch/$(KERNEL_ARCH)/boot/zImage
 
 include $(ROOTDIR)/pkg.mk
 
 $(PKG)/.config::
-	@if [ ! -s $(PKG)/.config ]; then				\
-		echo "  INSTALL $@ from $(CONFIG)" | tee -a $(BUILDLOG);\
-		if [ -f $(CONFIG) ]; then				\
-			cp $(CONFIG) $@;				\
-			$(MAKE) -C $(PKG) oldconfig;			\
-		else							\
-			$(MAKE) -C $(PKG) $(MACH)_defconfig $(REDIRECT);\
-		fi;							\
-		echo "  PREPARE $(PKG)" | tee -a $(BUILDLOG);		\
-		$(MAKE) -C $(PKG) prepare scripts $(REDIRECT);		\
-	else								\
-		echo "  NO-OP   $(PKG)/.config already installed."	\
-					| tee -a $(BUILDLOG); 		\
+	@if [ ! -s $(PKG)/.config ]; then							\
+		echo "  INSTALL $@ from $(CONFIG)" | tee -a $(BUILDLOG);			\
+		if [ -f $(CONFIG) ]; then							\
+			cp $(CONFIG) $@;							\
+			$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) oldconfig;			\
+		else										\
+			$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) $(MACH)_defconfig $(REDIRECT);	\
+		fi;										\
+		echo "  PREPARE $(PKG)" | tee -a $(BUILDLOG);					\
+		$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) prepare scripts $(REDIRECT);		\
+	else											\
+		echo "  NO-OP   $(PKG)/.config already installed."				\
+					| tee -a $(BUILDLOG); 					\
 	fi
 
 $(ZIMAGE): $(PKG)/.config
 	@echo "  BUILD   $(PKG)" | tee -a $(BUILDLOG)
-	+@$(MAKE) -C $(PKG) zImage $(REDIRECT)
+	+@$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) zImage $(REDIRECT)
 
 defconfig:
-	@$(MAKE) -C $(PKG) $(MACH)_defconfig $(REDIRECT)
+	@$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) $(MACH)_defconfig $(REDIRECT)
 
 oldconfig:: $(PKG)/.config
-	@$(MAKE) -C $(PKG) oldconfig
+	@$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) oldconfig
 
 saveconfig:
 	@echo -n "  SAVING  "
@@ -65,11 +65,13 @@ saveconfig:
 
 menuconfig:
 	@echo "  CONFIG  $(PKG)" | tee -a $(BUILDLOG)
-	@$(MAKE) -C $(PKG) menuconfig
+	@$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) menuconfig
 
 dtbinst:
-	@echo "  DTBINST kernel/$(PKG)" | tee -a $(BUILDLOG)
-	INSTALL_DTBS_PATH=$(IMAGEDIR) $(MAKE) -C $(PKG) dtbs dtbs_install $(REDIRECT)
+	@if [ "$(ARCH)" != "ppc" ]; then \
+		echo "  DTBINST kernel/$(PKG)" | tee -a $(BUILDLOG); \
+		INSTALL_DTBS_PATH=$(IMAGEDIR) $(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) dtbs dtbs_install $(REDIRECT); \
+	fi
 
 kernel: $(ZIMAGE)
 	@echo "  INSTALL kernel/$(PKG)" | tee -a $(BUILDLOG)
@@ -77,11 +79,11 @@ kernel: $(ZIMAGE)
 
 modules: kernel
 	@echo "  MODULES $(PKG)" | tee -a $(BUILDLOG)
-	+@$(MAKE) -C $(PKG) modules $(REDIRECT)
+	+@$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) modules $(REDIRECT)
 
 headers_install: kernel
 	@echo "  HEADERS kernel/$(PKG)" | tee -a $(BUILDLOG)
-	+$(MAKE) -C $(PKG) headers_install ARCH=$(ARCH) INSTALL_HDR_PATH=$(STAGING) $(REDIRECT)
+	+$(MAKE) -C $(PKG) headers_install ARCH=$(KERNEL_ARCH) INSTALL_HDR_PATH=$(STAGING) $(REDIRECT)
 
 #modules:
 #	rm -rf modules
@@ -96,7 +98,8 @@ modules_install: modules
 		if [ ! -d $(STAGING)/lib/modules ]; then		\
 			mkdir -p $(STAGING)/lib/modules;		\
 		fi;							\
-		$(MAKE) -C $(PKG) INSTALL_MOD_PATH=$(STAGING)		\
+		$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH)			\
+				  INSTALL_MOD_PATH=$(STAGING)		\
 				  INSTALL_MOD_STRIP=--strip-all		\
 				  modules_install $(REDIRECT);		\
 	fi

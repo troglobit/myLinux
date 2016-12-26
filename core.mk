@@ -24,6 +24,18 @@ KERNEL_CMDLINE     = root=/dev/ram mem=256M console=ttyAMA0,115200
 endif
 
 ifneq ($(QEMU_DTB),)
+# Map Qemu archs (used by TroglOS) to Linux kernel archs
+KERNEL_ARCH       := $(shell echo $(ARCH) | sed	\
+			-e 's/ppc64/powerpc64/'	\
+			-e 's/ppc/powerpc/'	\
+			-e 's/aarch64/arm64/')
+
+ifdef KERNEL_RC
+KERNEL_VERSION     = $(KERNEL_VERSION).0$(KERNEL_RC)
+endif
+KERNEL_MODULES     = $(wildcard $(ROMFS)/lib/modules/$(KERNEL_VERSION)*)
+KERNELRELEASE      = $(shell test -d $(KERNEL_MODULES)/build && $(MAKE) -s -C $(KERNEL_MODULES)/build CROSS_COMPILE=$(CROSS_COMPILE) ARCH=$(KERNEL_ARCH) kernelrelease)
+
 DTB                =
 else
 DTB                = -dtb $(IMAGEDIR)/$(QEMU_DTB)
@@ -57,4 +69,4 @@ export ARCH MACH CROSS_COMPILE CROSS_TARGET TOOLCHAIN
 export QEMU_MACH QEMU_NIC QEMU_DTB DTB
 export CC CFLAGS CPPFLAGS LDLIBS LDFLAGS STRIP
 export PATH PRODDIR DOWNLOADS STAGING ROMFS IMAGEDIR PKG_CONFIG_LIBDIR SYSROOT
-export KERNEL_VERSION KERNEL_CMDLINE MTD
+export KERNEL_ARCH KERNEL_VERSION KERNEL_MODULES KERNELRELEASE KERNEL_CMDLINE MTD
