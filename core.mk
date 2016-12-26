@@ -7,9 +7,9 @@ noconfig_targets  := menuconfig nconfig gconfig xconfig config oldconfig	\
 		     defconfig %_defconfig allyesconfig allnoconfig 		\
 		     distclean
 
-ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
+#ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
 -include $(ROOTDIR)/.config
-endif
+#endif
 
 ifeq ($(CONFIG_DOT_CONFIG),y)
 ARCH               = $(call qstrip, $(CONFIG_ARCH))
