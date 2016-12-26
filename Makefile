@@ -136,7 +136,7 @@ distclean:							## Really clean, as if started from scratch
 		/bin/echo -ne "\033]0;$(PWD) $$dir\007";	\
 		$(MAKE) -C $$dir $@ $(REDIRECT);		\
 	done
-	-@$(RM) -rf .config $(STAGING) $(ROMFS) $(IMAGEDIR) $(BUILDLOG)
+	-@$(RM) -rf .config staging romfs images $(BUILDLOG)
 
 .PHONY: help
 help:

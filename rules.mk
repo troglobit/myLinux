@@ -23,7 +23,7 @@ clean:
 	done
 
 distclean:
-	-@for dir in $(dir_y); do					\
+	-@for dir in $(dir_all); do					\
 		echo "  REMOVE  $(THIS)/$$dir" | tee -a $(BUILDLOG);	\
 		/bin/echo -ne "\033]0;$(PWD) $(THIS)/$$dir\007";	\
 		$(MAKE) -C $$dir $@ $(REDIRECT);			\
