@@ -217,7 +217,7 @@ Cheers!
 -- Joachim
 
 [1]: https://github.com/crosstool-ng/crosstool-ng
-[2]: http://ftp.troglobit.com/pub/Toolchains/arm-unknown-linux-gnueabi-6.1.0-1.tar.xz
+[2]: http://ftp.troglobit.com/pub/Toolchains/arm-unknown-linux-gnueabi-6.2.0-1.tar.xz
 
 <!--
   -- Local Variables:
