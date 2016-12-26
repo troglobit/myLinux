@@ -1,0 +1,8 @@
+.EXPORT_ALL_VARIABLES:
+
+#CONFIG_MACH   := mpc85xx
+CROSS_COMPILE := powerpc-unknown-linux-gnu-
+QEMU_MACH     := ppce500
+QEMU_NIC      := rtl8139
+QEMU_DTB      := none
+
