@@ -23,7 +23,6 @@ KERNEL_VERSION     = 4.8.7
 KERNEL_CMDLINE     = root=/dev/ram mem=256M console=ttyAMA0,115200
 endif
 
-ifneq ($(QEMU_DTB),)
 # Map Qemu archs (used by TroglOS) to Linux kernel archs
 KERNEL_ARCH       := $(shell echo $(ARCH) | sed	\
 			-e 's/ppc64/powerpc64/'	\
@@ -36,6 +35,7 @@ endif
 KERNEL_MODULES     = $(wildcard $(ROMFS)/lib/modules/$(KERNEL_VERSION)*)
 KERNELRELEASE      = $(shell test -d $(KERNEL_MODULES)/build && $(MAKE) -s -C $(KERNEL_MODULES)/build CROSS_COMPILE=$(CROSS_COMPILE) ARCH=$(KERNEL_ARCH) kernelrelease)
 
+ifeq ($(QEMU_DTB),)
 DTB                =
 else
 DTB                = -dtb $(IMAGEDIR)/$(QEMU_DTB)

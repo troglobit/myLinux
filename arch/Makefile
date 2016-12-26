@@ -25,8 +25,8 @@ run:
 	@echo "  QEMU    Ctrl-a x -- exit | Ctrl-a c -- toggle console/monitor" | tee -a $(BUILDLOG)
 	-@mkdir -p $(PERSISTENT) 2>/dev/null
 	-@[ ! -e $(MTD) ] && dd if=/dev/zero of=$(MTD) bs=16384 count=960
-	@QEMU_AUDIO_DRV=none qemu-system-$(CONFIG_ARCH) -nographic -m 256M -M $(QEMU_MACH) -usb		\
-			 -drive if=scsi,file=$(MTD),format=raw						\
+	@QEMU_AUDIO_DRV=none qemu-system-$(ARCH) -nographic -m 256M -M $(QEMU_MACH) -usb		\
+			 $(QEMU_EXTRA) -drive if=scsi,file=$(MTD),format=raw				\
 			 -net bridge,br=virbr0,helper=/usr/lib/qemu/qemu-bridge-helper			\
 			 -net nic,model=$(QEMU_NIC)							\
 			 -kernel $(IMAGEDIR)/zImage -initrd $(IMAGEDIR)/initramfs.gz $(DTB)		\
