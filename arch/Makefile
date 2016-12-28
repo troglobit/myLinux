@@ -19,7 +19,7 @@
 include ../core.mk
 
 dep:
-	@check-toolchain $(CROSS_COMPILE)gcc $(TOOLCHAIN) | tee -a $(BUILDLOG)
+	@check-toolchain $(CROSS_COMPILE)gcc $(TOOLCHAIN)
 
 run:
 	@echo "  QEMU    Ctrl-a x -- exit | Ctrl-a c -- toggle console/monitor" | tee -a $(BUILDLOG)

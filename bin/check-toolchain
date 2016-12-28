@@ -13,12 +13,20 @@ if [ -z "$CC" -o -z "$VER" ]; then
    exit 1
 fi
 
-echo "  CHECK   Toolchain version ..."
-
-$CC --version |grep $VER >/dev/null 2>&1
+which $CC >/dev/null
 if [ $? -ne 0 ]; then
-    echo "  FAIL    Wrong toolchain version, should be $VER"
+    echo "  FAIL    Cannot find a suitable $CROSS_TARGET toolchain!" | tee -a $BUILDLOG
+    echo "          See the README for help on download and set up." | tee -a $BUILDLOG
     exit 1
 fi
 
-exit 1
+printf "  CHECK   Toolchain version ... " | tee -a $BUILDLOG
+$CC --version |grep $VER >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+    printf "FAIL\n" | tee -a $BUILDLOG
+    printf "  FAIL    Wrong toolchain version, should be $VER" | tee -a $BUILDLOG
+    exit 1
+fi
+
+printf "OK\n"
+exit 0
