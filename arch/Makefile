@@ -27,18 +27,27 @@ run:
 	-@[ ! -e $(MTD) ] && dd if=/dev/zero of=$(MTD) bs=16384 count=960
 	@qemu $(IMAGEDIR)/zImage $(IMAGEDIR)/initramfs.gz
 
+# The install phase removes unnecessary files from the sysroot
+# The prune phase removes doc/man/include files and static libraries
+# The strip phase strips libraries and executables
 romfs:
 	@echo "  INSTALL C library files from toolchain" | tee -a $(BUILDLOG)
 	@$(CROSS_COMPILE)populate -f -s $(STAGING) -d $(ROMFS) | tee -a $(BUILDLOG)
+	@rm $(ROMFS)/sbin/sln
+	@rm $(ROMFS)/sbin/ldconfig
+	@rm -rf $(ROMFS)/usr/lib/gconv
+	@rm -rf $(ROMFS)/usr/share/i18n
+	@rm -rf $(ROMFS)/usr/share/locale
 	@echo "  PRUNE   Cleaning $(ROMFS)" | tee -a $(BUILDLOG)
+	@rm -rf $(ROMFS)/share/doc $(ROMFS)/usr/share/doc
 	@rm -rf $(ROMFS)/share/man $(ROMFS)/usr/share/man
 	@rm -rf $(ROMFS)/include   $(ROMFS)/usr/include
-	@find $(ROMFS)/ -name '*.a' -delete
+	@find $(ROMFS)/ -name '*.a'  -delete
+	@find $(ROMFS)/ -name '*.la' -delete
 	@echo "  STRIP   Optimizing $(ROMFS)" | tee -a $(BUILDLOG)
 	@for file in `find $(ROMFS) -executable -type f`; do		\
 		file $$file | grep 'not stripped' 2>&1 >/dev/null;	\
 		if [ $$? -eq 0 ]; then					\
-			continue;					\
 			$(STRIP) $$file;				\
 		fi;							\
 	done
