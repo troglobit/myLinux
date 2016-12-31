@@ -1,5 +1,19 @@
 #!/bin/sh
 
+# Mount standard Linux file systems, not required to be in /etc/fstab
+mount -t proc  proc /proc
+mount -t sysfs sys  /sys
+
+mkdir /dev/pts
+mount -t devpts devpts /dev/pts
+
+mkdir /dev/shm
+mount -t shm shm /dev/shm
+
+# Set up device nodes, scan /sys to populate /dev
+mdev -s
+
+# Mount rest of file systems, listed in /etc/fstab
 mount -a
 mount -o remount,rw /
 
@@ -24,16 +38,17 @@ mkdir -p /dev/pts && \
 # Start kernel logger now that syslogd likely is up
 klogd
 
-cat <<EOF >/etc/httpd.conf
-H:/http
-I:index.html
-/cgi-bin:root:$passwd
-EOF
+# Create basic httpd.conf
+#cat <<EOF >/etc/httpd.conf
+#H:/http
+#I:index.html
+#/cgi-bin:root:$passwd
+#EOF
 
 # Bring up all /etc/network/interfaces
 ifup -a 2>&1 >/dev/null
 
 # Start SNMP daemon
-mini_snmpd -c public -D "TroglOS Linux Virtual Devboard" \
-        -L GitHub -C troglobit@gmail.com -i eth0 -v -t 10 1>/dev/null 2>&1 &
+#mini_snmpd -c public -D "TroglOS Linux Virtual Devboard" \
+#        -L GitHub -C troglobit@gmail.com -i eth0 -v -t 10 1>/dev/null 2>&1 &
 
