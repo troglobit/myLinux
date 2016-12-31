@@ -39,6 +39,7 @@ romfs:
 	@rm -rf $(ROMFS)/usr/share/i18n
 	@rm -rf $(ROMFS)/usr/share/locale
 	@echo "  PRUNE   Cleaning $(ROMFS)" | tee -a $(BUILDLOG)
+	@rm -rf                    $(ROMFS)/usr/share/info
 	@rm -rf $(ROMFS)/share/doc $(ROMFS)/usr/share/doc
 	@rm -rf $(ROMFS)/share/man $(ROMFS)/usr/share/man
 	@rm -rf $(ROMFS)/include   $(ROMFS)/usr/include
