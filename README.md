@@ -49,6 +49,13 @@ No password by default.
 
     make run
 
+For a truly minimal setup, only Busybox and an ARM/Versatile config:
+
+    make distclean
+    cp small.config .config && make oldconfig
+    make
+    make run
+
 Now go have fun! :-)
 
 
@@ -103,7 +110,6 @@ except for some status messages.  If that does not help, try enabling
 verbose mode:
 
     make V=1
-
 This is what you are probably used to from other build systems.  But
 what if you only want to rebuild a single package?
 
