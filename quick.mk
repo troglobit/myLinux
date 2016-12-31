@@ -1,5 +1,3 @@
-include $(ROOTDIR)/core.mk
-
 $(addsuffix -build,$(TARGETS)):
 	@echo "  BUILD   $(patsubst %-build,%,$@)"           | tee -a $(BUILDLOG)
 	+@$(MAKE) -C $(patsubst %-build,%,$@) all            $(REDIRECT)
