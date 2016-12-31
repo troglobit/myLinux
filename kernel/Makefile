@@ -30,7 +30,7 @@ endif
 PKGURL          = http://ftp.kernel.org/pub/linux/kernel/v4.x/$(RC_PATH)$(PKGTAR)
 CONFIG          = $(PRODDIR)/linux.config-$(PKGBASEVER)
 ZIMAGE          = $(PKG)/arch/$(KERNEL_ARCH)/boot/zImage
-
+unexport KBUILD_KCONFIG
 include $(ROOTDIR)/pkg.mk
 
 $(PKG)/.config::
