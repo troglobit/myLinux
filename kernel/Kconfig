@@ -20,7 +20,7 @@ config LINUX_RC
 
 config LINUX_CMDLINE
        string "Kernel command line"
-       default "root=/dev/ram mem=128M console=ttyAMA0,115200 quiet"
+       default "root=/dev/ram console=ttyAMA0,115200 quiet"
        help
          The command line to pass to the kernel at boot.  Here you can control
 	 which init process to start as PID 1, e.g. init=/bin/sh to escape the

@@ -23,8 +23,8 @@ dep:
 
 run:
 	@echo "  QEMU    Ctrl-a x -- exit | Ctrl-a c -- toggle console/monitor" | tee -a $(BUILDLOG)
-	-@mkdir -p $(PERSISTENT) 2>/dev/null
-	-@[ ! -e $(MTD) ] && dd if=/dev/zero of=$(MTD) bs=16384 count=960
+	-@mkdir -p $(QEMU_HOST) 2>/dev/null
+	-@[ ! -e $(QEMU_MNT) ] && dd if=/dev/zero of=$(QEMU_MNT) bs=16384 count=960
 	@qemu $(IMAGEDIR)/zImage $(IMAGEDIR)/initramfs.gz
 
 # The install phase removes unnecessary files from the sysroot
@@ -63,7 +63,7 @@ staging:
 		mkdir -p $(STAGING)/$$dir; \
 	done
 	@cp -a $(ROOTDIR)/initramfs/* $(STAGING)/
-	@if [ "x$(SYSROOT)" != "x" ]; then 		\
+	@if [ "x$(SYSROOT)" != "x" ]; then		\
 		cp -fan $(SYSROOT)/* $(STAGING)/;	\
 	fi
 	@chmod -R u+w $(STAGING)

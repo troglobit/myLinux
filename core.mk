@@ -1,10 +1,9 @@
-
 TOOLCHAIN         := crosstool-ng-1.22.0-234-g531eab4
 
 qstrip             = $(strip $(subst ",,$(1)))
 # "
 noconfig_targets  := menuconfig nconfig gconfig xconfig config oldconfig	\
-		     defconfig %_defconfig allyesconfig allnoconfig 		\
+		     defconfig %_defconfig allyesconfig allnoconfig		\
 		     distclean
 
 #ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
@@ -15,12 +14,12 @@ ifeq ($(CONFIG_DOT_CONFIG),y)
 ARCH               = $(call qstrip, $(CONFIG_ARCH))
 MACH               = $(call qstrip, $(CONFIG_MACH))
 KERNEL_VERSION     = $(call qstrip, $(CONFIG_LINUX_VERSION))
-KERNEL_CMDLINE     = $(call qstrip, $(CONFIG_LINUX_CMDLINE))
+QEMU_APPEND        = $(call qstrip, $(CONFIG_LINUX_CMDLINE))
 else
 ARCH               = arm
 MACH               = versatile
 KERNEL_VERSION     = 4.8.7
-KERNEL_CMDLINE     = root=/dev/ram mem=256M console=ttyAMA0,115200
+QEMU_APPEND        = root=/dev/ram console=ttyAMA0,115200
 endif
 
 # Map Qemu archs (used by TroglOS) to Linux kernel archs
@@ -49,8 +48,8 @@ STRIP              = $(CROSS_COMPILE)strip
 PATH              := $(ROOTDIR)/bin:$(PATH)
 PRODDIR            = $(ROOTDIR)/arch/$(ARCH)/$(MACH)
 DOWNLOADS         ?= $(shell xdg-helper DOWNLOAD)
-PERSISTENT        ?= $(shell xdg-helper DOCUMENTS)/TroglOS
-MTD               ?= $(PERSISTENT)/Config-$(ARCH).mtd
+QEMU_HOST         ?= $(shell xdg-helper DOCUMENTS)/TroglOS
+QEMU_MNT          ?= $(QEMU_HOST)/mnt-$(ARCH).jffs2
 STAGING            = $(ROOTDIR)/staging
 ROMFS              = $(ROOTDIR)/romfs
 IMAGEDIR           = $(ROOTDIR)/images
@@ -60,7 +59,7 @@ SYSROOT           := $(shell $(CROSS_COMPILE)gcc -print-sysroot)
 KBUILD_DEFCONFIG   = $(MACH)_defconfig
 
 export ARCH MACH CROSS_COMPILE CROSS_TARGET TOOLCHAIN
-export QEMU_MACH QEMU_NIC QEMU_DTB DTB
+export QEMU_APPEND QEMU_DTB QEMU_HOST QEMU_MACH QEMU_MNT QEMU_NIC
 export CC CFLAGS CPPFLAGS LDLIBS LDFLAGS STRIP
 export PATH PRODDIR DOWNLOADS STAGING ROMFS IMAGEDIR PKG_CONFIG_LIBDIR SYSROOT
-export KERNEL_ARCH KERNEL_VERSION KERNEL_MODULES KERNELRELEASE KERNEL_CMDLINE MTD
+export KERNEL_ARCH KERNEL_VERSION KERNEL_MODULES KERNELRELEASE
