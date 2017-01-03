@@ -34,7 +34,7 @@ BUILDLOG          := $(ROOTDIR)/build.log
 srctree           := $(ROOTDIR)
 
 # usr/lib usr/share usr/bin usr/sbin 
-STAGING_DIRS       = mnt proc sys lib share bin sbin tmp var home
+STAGING_DIRS       = mnt proc sys lib share bin sbin tmp var home host
 
 ifdef V
   ifeq ("$(origin V)", "command line")
@@ -54,7 +54,7 @@ endif
 
 export OSNAME OSRELEASE_ID OSRELEASE OSVERSION_ID OSVERSION
 export OSID OSPRETTY_NAME OSHOME_URL
-export PATH ROOTDIR BUILDLOG srctree
+export PATH ROOTDIR BUILDLOG srctree STAGING_DIRS
 export TROGLOHUB SUPPORT_URL BUG_REPORT_URL
 export KBUILD_VERBOSE MAKEFLAGS REDIRECT
 
