@@ -15,7 +15,6 @@
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .PHONY: all install clean distclean
 
-include $(ROOTDIR)/.config
 include $(ROOTDIR)/core.mk
 
 exclude                  = Makefile
