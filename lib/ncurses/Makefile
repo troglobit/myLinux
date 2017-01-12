@@ -6,6 +6,7 @@ PKGPATCHES :=
 PKGINSTALL := install.libs install.includes install.data
 PKGSUFFIX  := tar.gz
 PKGURL      = http://ftp.gnu.org/gnu/$(PKGNAME)/$(PKGTAR)
+PKGCFGENV  := CPPFLAGS=-P
 PKGCFG     := --host=$(CROSS_TARGET) --prefix= --program-prefix=
 PKGCFG     += --disable-static --disable-rpath-hack --disable-big-core		\
 	      --enable-termcap --enable-sigwinch  --enable-pc-files		\
@@ -17,7 +18,6 @@ PKGCFG     += --disable-static --disable-rpath-hack --disable-big-core		\
 #	      --with-ticlib --disable-database
 #	      --with-termpath='${sysconfdir}/termcap:${datadir}/misc/termcap'
 #	      --with-terminfo-dirs='${sysconfdir}/terminfo:${datadir}/terminfo' 
-CPPFLAGS   += -P
 
 include $(ROOTDIR)/pkg.mk
 
