@@ -63,7 +63,7 @@ saveconfig:
 	@echo -n "  SAVING  "
 	@cp -v $(PKG)/.config $(CONFIG)
 
-menuconfig:
+menuconfig: $(PKG)/.config
 	@echo "  CONFIG  $(PKG)" | tee -a $(BUILDLOG)
 	@$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) menuconfig
 
