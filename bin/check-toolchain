@@ -28,5 +28,5 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-printf "OK\n"
+printf "OK\n" | tee -a $BUILDLOG
 exit 0
