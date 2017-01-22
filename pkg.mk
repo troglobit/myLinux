@@ -69,7 +69,7 @@ CHECKSUM    = $(shell pwd)/checksums/$(PKGSUM)
 TMPFILE     = $(ROOTDIR)/tmp/$(PKGTAR)
 ARCHIVE     = $(DOWNLOADS)/$(PKGNAME)/$(PKGTAR)
 MIRROR      = $(FTP_MIRROR)/$(PKGNAME)/$(PKGTAR)
-tmpfile    := $(shell mktemp /tmp/troglos.XXXXXX)
+tmpfile     = $(shell mktemp /tmp/troglos.XXXXXX)
 
 all: $(PKGTARGETS)
 
