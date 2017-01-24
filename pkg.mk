@@ -66,7 +66,7 @@ PKGTARGETS ?= build
 PKGINSTALL ?= install
 PKGSUM      = $(PKGTAR).md5
 CHECKSUM    = $(shell pwd)/checksums/$(PKGSUM)
-TMPFILE     = $(ROOTDIR)/tmp/$(PKGTAR)
+TMPTAR      = $(ROOTDIR)/tmp/$(PKGTAR)
 ARCHIVE     = $(DOWNLOADS)/$(PKGNAME)/$(PKGTAR)
 MIRROR      = $(FTP_MIRROR)/$(PKGNAME)/$(PKGTAR)
 tmpfile     = $(shell mktemp /tmp/troglos.XXXXXX)
@@ -77,20 +77,20 @@ $(ARCHIVE):
 ifeq ("$(wildcard $(PKGDEV))","")
 	@mkdir -p $(dir $@)
 	@mkdir -p $(ROOTDIR)/tmp
-	@if [ -e $(TMPFILE) ]; then						\
+	@if [ -e $(TMPTAR) ]; then						\
 		echo "  WARNING Previous download failed, cleaning up ...";	\
-		rm $(TMPFILE);							\
+		rm $(TMPTAR);							\
 	fi
 	@if [ x"$(FTP_MIRROR)" != x ]; then					\
 		echo "  WGET    $(MIRROR) ...";					\
-		$(PKGFETCH) $(TMPFILE) $(MIRROR);				\
+		$(PKGFETCH) $(TMPTAR) $(MIRROR);				\
 	else									\
 		echo "  WGET    $(PKGURL) ...";					\
-		$(PKGFETCH) $(TMPFILE) $(PKGURL);				\
+		$(PKGFETCH) $(TMPTAR) $(PKGURL);				\
 	fi
-	@mv $(TMPFILE) $@
+	@mv $(TMPTAR) $@
 	@if [ $$? -ne 0 ]; then							\
-		rm $(TMPFILE);							\
+		rm $(TMPTAR);							\
 		exit 1;								\
 	fi
 else
