@@ -69,7 +69,6 @@ CHECKSUM    = $(shell pwd)/checksums/$(PKGSUM)
 TMPTAR      = $(ROOTDIR)/tmp/$(PKGTAR)
 ARCHIVE     = $(DOWNLOADS)/$(PKGNAME)/$(PKGTAR)
 MIRROR      = $(FTP_MIRROR)/$(PKGNAME)/$(PKGTAR)
-tmpfile     = $(shell mktemp /tmp/troglos.XXXXXX)
 
 all: $(PKGTARGETS)
 
@@ -130,9 +129,10 @@ unpack: $(PKG)/.unpacked
 # Default rule, override with your own to create Makefile for build step
 # Silly test -s is to check that $PKGCFG is set ...
 $(PKG)/.config:: $(PKG)/.unpacked
-	@echo -n '$(PKGCFG)' > $(tmpfile)
-	@if [ -s $(tmpfile) ]; then						\
-		rm $(tmpfile);							\
+	@tmpfile = $(shell mktemp /tmp/troglos.XXXXXX);				\
+	echo -n '$(PKGCFG)' > $$tmpfile;					\
+	if [ -s $$tmpfile ]; then						\
+		rm $$tmpfile;							\
 		cd $(PKG);							\
 		if [ ! -e configure -a -e autogen.sh ]; then			\
 			echo "  AUTOGEN $(PKG)";				\
@@ -142,7 +142,7 @@ $(PKG)/.config:: $(PKG)/.unpacked
 		$(PKGCFGENV) ./configure $(PKGCFG) $(REDIRECT);			\
 		cd - >/dev/null;						\
 	else									\
-		rm $(tmpfile);							\
+		rm $$tmpfile;							\
 	fi
 	@touch $@
 
