@@ -1,9 +1,11 @@
 # Glue for cross compiling netcalc
+include $(ROOTDIR)/core.mk
 
-PKGVER     := 2.0
+PKGVER     := 2.1.1
 PKG        := netcalc-$(PKGVER)
 PKGURL      = $(TROGLOHUB)/$(PKGNAME)/releases/download/v$(PKGVER)/$(PKGTAR)
-PKGCFG     := --host=$(CROSS_TARGET) --prefix=
+PKGPATCHES :=
+PKGCFG     := --host=$(CROSS_TARGET) --prefix= --disable-ipcalc-symlink
 PKGINSTALL := install-exec
 
 include $(ROOTDIR)/pkg.mk
