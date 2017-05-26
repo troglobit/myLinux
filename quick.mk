@@ -15,7 +15,7 @@ $(addsuffix -clean,$(TARGETS)):
 	-+@$(MAKE) -C $(patsubst %-clean,%,$@) clean         $(REDIRECT)
 
 $(addsuffix -distclean,$(TARGETS)):
-	@echo "  REMOVE  $(patsubst %-distclean,%,$@)"       | tee -a $(BUILDLOG)
+	@echo "  PURGE   $(patsubst %-distclean,%,$@)"       | tee -a $(BUILDLOG)
 	-+@$(MAKE) -C $(patsubst %-distclean,%,$@) distclean $(REDIRECT)
 
 $(addsuffix -dev,$(TARGETS)):
