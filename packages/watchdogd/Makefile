@@ -1,4 +1,5 @@
 # Glue for cross compiling watchdogd
+include $(ROOTDIR)/core.mk
 
 PKGVER     := 3.0-beta1
 PKG        := watchdogd-$(PKGVER)
@@ -9,3 +10,6 @@ PKGCFG     += --disable-test-mode --enable-examples
 PKGINSTALL := install-exec
 
 include $(ROOTDIR)/pkg.mk
+
+$(PKG)/.stamp::
+	@$(MAKE) $(PKGENV) -C $(PKG) install-dev $(REDIRECT)
