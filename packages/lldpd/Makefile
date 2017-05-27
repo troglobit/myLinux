@@ -1,4 +1,5 @@
 # Glue for cross compiling lldpd, IEEE 802.1AB
+include $(ROOTDIR)/core.mk
 
 PKGVER     := 0.9.2
 PKG        := lldpd-$(PKGVER)

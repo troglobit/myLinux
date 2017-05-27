@@ -1,4 +1,5 @@
 # Glue for cross compiling the UDP redirector uredir
+include $(ROOTDIR)/core.mk
 
 PKGVER     := 2.0
 PKG        := uredir-$(PKGVER)

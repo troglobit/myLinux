@@ -1,4 +1,5 @@
 # Glue for cross compiling pimd
+include $(ROOTDIR)/core.mk
 
 PKGVER     := 2.3.2
 PKG        := pimd-$(PKGVER)

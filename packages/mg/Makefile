@@ -1,4 +1,5 @@
 # Glue for cross compiling Mg
+include $(ROOTDIR)/core.mk
 
 PKGVER     := 3.0
 PKG        := mg-$(PKGVER)

@@ -1,4 +1,5 @@
 # Glue for cross compiling the TCP redirector redir
+include $(ROOTDIR)/core.mk
 
 PKGVER     := 3.1
 PKG        := redir-$(PKGVER)

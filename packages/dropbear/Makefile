@@ -1,4 +1,5 @@
 # Glue for cross compiling Dropbear SSH
+include $(ROOTDIR)/core.mk
 
 PKGVER     := 2015.71
 PKG        := dropbear-$(PKGVER)

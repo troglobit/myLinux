@@ -1,4 +1,5 @@
 # Glue for cross compiling Inadyn DDNS client
+include $(ROOTDIR)/core.mk
 
 PKGVER     := 2.0
 PKG        := inadyn-$(PKGVER)

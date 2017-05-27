@@ -1,4 +1,5 @@
 # Glue for cross compiling strace
+include $(ROOTDIR)/core.mk
 
 PKGVER     := 4.11
 PKG        := strace-$(PKGVER)

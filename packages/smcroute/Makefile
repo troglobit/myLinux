@@ -1,4 +1,5 @@
 # Glue for cross compiling SMCRoute
+include $(ROOTDIR)/core.mk
 
 PKGVER     := 2.2.2
 PKG        := smcroute-$(PKGVER)

@@ -1,4 +1,5 @@
 # Glue for cross compiling uftpd
+include $(ROOTDIR)/core.mk
 
 PKGVER     := 2.1
 PKG        := uftpd-$(PKGVER)

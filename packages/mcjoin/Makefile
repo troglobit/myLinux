@@ -1,4 +1,5 @@
 # Glue for cross compiling multicast test tool mcjoin
+include $(ROOTDIR)/core.mk
 
 PKGVER     := 2.2
 PKG        := mcjoin-$(PKGVER)
