@@ -53,6 +53,7 @@ QEMU_MNT          ?= $(QEMU_HOST)/mnt-$(ARCH).jffs2
 STAGING            = $(ROOTDIR)/staging
 ROMFS              = $(ROOTDIR)/romfs
 IMAGEDIR           = $(ROOTDIR)/images
+FINIT_D_AVAILABLE := $(STAGING)/etc/finit.d/available
 PKG_CONFIG_LIBDIR := $(STAGING)/lib/pkgconfig
 SYSROOT           := $(shell $(CROSS_COMPILE)gcc -print-sysroot)
 

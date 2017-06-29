@@ -186,4 +186,8 @@ endif
 install::
 	@echo "  INSTALL $(PKG)"
 	+@$(MAKE) $(PKGENV) -C $(PKG) $(PKGINSTALL) $(REDIRECT)
-
+	@mkdir -p $(FINIT_D_AVAILABLE)
+	@for file in $(wildcard *.conf); do 					\
+		echo "  INSTALL $(PKG)/$$file $(FINIT_D_AVAILABLE)/";		\
+		cp $$file $(FINIT_D_AVAILABLE)/; 				\
+	done
