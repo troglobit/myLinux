@@ -20,3 +20,6 @@ PKGCFG     += --disable-doxygen-doc --without-json --without-xml
 PKGINSTALL := install-exec
 
 include $(ROOTDIR)/pkg.mk
+
+install::
+	@mkdir -p $(STAGING)/etc/lldpd.d
