@@ -183,8 +183,8 @@ ifeq ("$(wildcard $(PKGDEV))","")
 	-@$(RM) -rf $(PKGNAME)-*
 else
 	@unset CLEAN_DIRS
+	-@$(RM) $(PKG)/.stamp $(PKG)/.config
 	-@$(MAKE) -C $(PKG) $@ $(REDIRECT)
-	-@$(RM) $(PKG)/.stamp
 endif
 
 install:: build
