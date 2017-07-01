@@ -187,7 +187,7 @@ else
 	-@$(RM) $(PKG)/.stamp
 endif
 
-install::
+install:: build
 	@echo "  INSTALL $(PKG)"
 	+@$(MAKE) $(PKGENV) -C $(PKG) $(PKGINSTALL) $(REDIRECT)
 	@mkdir -p $(FINIT_D_AVAILABLE)
