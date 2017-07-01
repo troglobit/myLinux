@@ -106,8 +106,8 @@ $(CHECKSUM): $(ARCHIVE)
 
 chksum: $(CHECKSUM)
 
-$(PKG)/.unpacked:: Makefile $(ARCHIVE) $(PKGPATCHES)
 ifeq ("$(wildcard $(PKGDEV))","")
+$(PKG)/.unpacked:: Makefile $(ARCHIVE) $(PKGPATCHES)
 	-@$(RM) -r $(PKG)
 	@(cd $(dir $(ARCHIVE));							\
 	  md5sum -c $(CHECKSUM) $(REDIRECT)					\
@@ -121,6 +121,8 @@ ifeq ("$(wildcard $(PKGDEV))","")
 		 ln -sf ../patches/$(PKGBASEVER) patches;			\
 		 quilt push -qa $(REDIRECT));					\
 	fi
+else
+$(PKG)/.unpacked:: Makefile
 endif
 	@touch $@
 
@@ -166,7 +168,9 @@ dev: $(PKGDEV)
 $(PKG)/.stamp:: $(PKG)/.config
 	@echo "  BUILD   $(PKG)"
 	+@$(MAKE) $(PKGENV) -C $(PKG) $(REDIRECT)
+ifeq ("$(wildcard $(PKGDEV))","")
 	@touch $@
+endif
 
 build: $(PKG)/.stamp
 
