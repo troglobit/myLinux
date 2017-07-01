@@ -23,3 +23,4 @@ include $(ROOTDIR)/pkg.mk
 
 install::
 	@mkdir -p $(STAGING)/etc/lldpd.d
+	@touch    $(STAGING)/etc/lldpd.conf
