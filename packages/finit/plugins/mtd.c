@@ -147,10 +147,9 @@ static int check_overlayfs(void)
 	return created;
 }
 
-static void mount_error(void *UNUSED(arg))
+static void mount_error(void *arg)
 {
 	char dev[10];
-	struct mtd_info_user mtd;
 
 	if (is_mounted("mtd:" MTD_CONFIG_LABEL)) {
 		if (check_overlayfs())

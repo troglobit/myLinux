@@ -1,9 +1,10 @@
 PLUGINS   = mtd.so
+CFLAGS    = -W -Wall -Wextra -Wno-unused-parameter
 CPPFLAGS += -I$(shell pwd)/../$(PKG) -I$(STAGING)/include
 LDFLAGS  += -fPIC -shared
 
 mtd.so: mtd.c
-	@$(CC) $(CPPFLAGS) $(LDFLAGS) -o $@ $< $(LDLIBS)
+	@$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ $< $(LDLIBS)
 
 clean:
 	-@$(RM) $(PLUGINS)
