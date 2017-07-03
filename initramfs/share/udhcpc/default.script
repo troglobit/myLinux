@@ -1,0 +1,44 @@
+#!/bin/sh
+# udhcpc script edited by Tim Riker <Tim@Rikers.org>
+# Reduced verbosity and use logger --Troglobit
+
+RESOLV_CONF="/etc/resolv.conf"
+
+[ -n "$1" ] || { echo "Error: should be called from udhcpc"; exit 1; }
+
+NETMASK=""
+[ -n "$subnet" ] && NETMASK="netmask $subnet"
+BROADCAST="broadcast +"
+[ -n "$broadcast" ] && BROADCAST="broadcast $broadcast"
+
+case "$1" in
+	deconfig)
+		logger -t "udhcpc" -p daemon.info "$interface: Resetting ..."
+		ifconfig $interface 0.0.0.0
+		;;
+
+	renew|bound)
+		logger -t "udhcpc" -p daemon.info "$interface: Set/Renew IP $ip mask $mask $BROADCAST router ${router%% *}"
+		ifconfig $interface $ip $NETMASK $BROADCAST
+
+		if [ -n "$router" ] ; then
+			while route del default gw 0.0.0.0 dev $interface 2>/dev/null; do
+				:
+			done
+
+			metric=0
+			for i in $router ; do
+				route add default gw $i dev $interface metric $((metric++))
+			done
+		fi
+
+		echo -n > $RESOLV_CONF-$$
+		[ -n "$domain" ] && echo "search $domain" >> $RESOLV_CONF-$$
+		for i in $dns ; do
+			echo "nameserver $i" >> $RESOLV_CONF-$$
+		done
+		mv $RESOLV_CONF-$$ $RESOLV_CONF
+		;;
+esac
+
+exit 0
