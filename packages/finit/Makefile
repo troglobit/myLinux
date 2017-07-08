@@ -22,6 +22,7 @@ $(PKG)/.stamp::
 install::
 	@ln -sf finit $(STAGING)/sbin/init
 	@ln -sf sbin/init $(STAGING)/init
+	@ln -sf available/getty.conf $(STAGING)/etc/finit.d/getty.conf
 	@$(MAKE) -C plugins $@
 
 clean::
