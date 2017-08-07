@@ -53,6 +53,14 @@ config NETCALC
 	 
 	 https://github.com/troglobit/netcalc/
 
+config NTPCLIENT
+       bool "ntpclient - Simple NTP client"
+       help
+         This is a slightly enhanced version of Larry Doolittle's ntpclient.
+	 It features daemon support, including use of syslog, and IPv6.
+	 
+	 https://github.com/troglobit/ntpclient/
+
 config OMPING
        bool "omping - Open Multicast Ping"
        help

@@ -29,6 +29,7 @@ dir_$(CONFIG_MG)         += mg
 dir_$(CONFIG_MINI_SNMPD) += mini-snmpd
 dir_$(CONFIG_MROUTED)    += mrouted
 dir_$(CONFIG_NETCALC)    += netcalc
+dir_$(CONFIG_NTPCLIENT)  += ntpclient
 dir_$(CONFIG_OMPING)     += omping
 dir_$(CONFIG_MCJOIN)     += mcjoin
 dir_$(CONFIG_PIMD)       += pimd
