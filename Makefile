@@ -1,6 +1,6 @@
 # Top level Makefile
 #
-# Copyright (c) 2014-2016  Joachim Nilsson <troglobit@gmail.com>
+# Copyright (c) 2014-2017  Joachim Nilsson <troglobit@gmail.com>
 #
 # Permission to use, copy, modify, and/or distribute this software for
 # any purpose with or without fee is hereby granted, provided that the
@@ -57,8 +57,6 @@ export OSID OSPRETTY_NAME OSHOME_URL
 export PATH ROOTDIR BUILDLOG srctree STAGING_DIRS
 export TROGLOHUB SUPPORT_URL BUG_REPORT_URL
 export KBUILD_VERBOSE MAKEFLAGS REDIRECT
-
-#include core.mk
 
 all: dep staging boot kernel lib packages user romfs ramdisk	## Build all the things
 
@@ -129,7 +127,6 @@ clean:								## Clean build tree, excluding menuconfig
 		$(MAKE) -C $$dir $@ $(REDIRECT);		\
 	done
 
-# @$(RM) `find kconfig -name '*~'`
 distclean:							## Really clean, as if started from scratch
 	@for dir in kconfig boot kernel lib packages user; do	\
 		echo "  REMOVE  $$dir" | tee -a $(BUILDLOG);	\
@@ -140,7 +137,9 @@ distclean:							## Really clean, as if started from scratch
 
 .PHONY: help
 help:
-	@grep -hP '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+	@grep -hP '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST)	\
+	| sort | awk 'BEGIN {FS = ":.*?## "}; 			\
+			    {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 	@echo
 	@echo 'Briefly, after `git clone`: make all; make run'
 	@echo

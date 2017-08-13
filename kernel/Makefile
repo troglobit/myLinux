@@ -83,7 +83,7 @@ modules: kernel
 
 headers_install: kernel
 	@echo "  HEADERS kernel/$(PKG)" | tee -a $(BUILDLOG)
-	+$(MAKE) -C $(PKG) headers_install ARCH=$(KERNEL_ARCH) INSTALL_HDR_PATH=$(STAGING) $(REDIRECT)
+	+$(MAKE) -C $(PKG) $@ ARCH=$(KERNEL_ARCH) INSTALL_HDR_PATH=$(STAGING) $(REDIRECT)
 
 #modules:
 #	rm -rf modules
@@ -101,7 +101,7 @@ modules_install: modules
 		$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH)			\
 				  INSTALL_MOD_PATH=$(STAGING)		\
 				  INSTALL_MOD_STRIP=--strip-all		\
-				  modules_install $(REDIRECT);		\
+				  $@ $(REDIRECT);			\
 	fi
 
 distclean::
