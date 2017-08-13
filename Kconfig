@@ -12,6 +12,9 @@ config DOT_CONFIG
 # This is where all Qemu and toolchain specific settings go
 source "arch/Kconfig"
 
+# Bootloaders, e.g. for Raspbery Pi builds
+source "boot/Kconfig"
+
 # Kernel specifics: version, rc, cmdline
 source "kernel/Kconfig"
 

@@ -14,7 +14,7 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .SUFFIX:
-.PHONY: run staging kernel lib packages romfs ramdisk clean distclean
+.PHONY: run staging boot kernel lib packages romfs ramdisk clean distclean
 
 OSNAME            := TroglOS Linux
 OSRELEASE_ID      := chaos
@@ -60,7 +60,7 @@ export KBUILD_VERBOSE MAKEFLAGS REDIRECT
 
 #include core.mk
 
-all: dep staging kernel lib packages user romfs ramdisk		## Build all the things
+all: dep staging boot kernel lib packages user romfs ramdisk	## Build all the things
 
 dep:								## Use TroglOS defconfig if user forgets to run menuconfig
 	@touch $(BUILDLOG)
@@ -109,7 +109,7 @@ packages: lib
 # We don't know anything about user programs, we build them last
 user: packages lib
 
-user packages lib:						## Build packages or libraries
+boot user packages lib:						## Build packages or libraries
 	@$(MAKE) -j5 -C $@ all
 	@$(MAKE) -j5 -C $@ install
 
@@ -123,7 +123,7 @@ TARGETS=$(shell find user -maxdepth 1 -mindepth 1 -type d)
 include quick.mk
 
 clean:								## Clean build tree, excluding menuconfig
-	@for dir in kernel lib packages user; do		\
+	@for dir in boot kernel lib packages user; do		\
 		echo "  CLEAN   $$dir" | tee -a $(BUILDLOG);	\
 		/bin/echo -ne "\033]0;$(PWD) $$dir\007";	\
 		$(MAKE) -C $$dir $@ $(REDIRECT);		\
@@ -131,7 +131,7 @@ clean:								## Clean build tree, excluding menuconfig
 
 # @$(RM) `find kconfig -name '*~'`
 distclean:							## Really clean, as if started from scratch
-	@for dir in kconfig kernel lib packages user; do	\
+	@for dir in kconfig boot kernel lib packages user; do	\
 		echo "  REMOVE  $$dir" | tee -a $(BUILDLOG);	\
 		/bin/echo -ne "\033]0;$(PWD) $$dir\007";	\
 		$(MAKE) -C $$dir $@ $(REDIRECT);		\

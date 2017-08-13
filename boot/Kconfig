@@ -1,0 +1,11 @@
+menu "Boot Loaders"
+
+config UBOOT
+       bool "u-boot - Das U-Boot"
+       help
+	 Das U-Boot (or just "U-Boot" for short) is Open Source Firmware for
+	 Embedded Power Architecture®, ARM, MIPS, x86 and other processors.
+	 
+	 http://www.denx.de/wiki/U-Boot/
+
+endmenu
