@@ -5,7 +5,6 @@ PKGVER     := 2017.07
 PKG	   := u-boot-$(PKGVER)
 PKGSUFFIX  := tar.bz2
 PKGURL      = ftp://ftp.denx.de/pub/u-boot/$(PKGTAR)
-PKGPATCHES :=
 PKGENV     := CROSS_COMPILE=$(CROSS_COMPILE) ARCH=$(ARCH)
 
 include $(ROOTDIR)/pkg.mk
