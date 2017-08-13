@@ -3,7 +3,7 @@
 include core.mk
 
 # images/initramfs-$(KERNELRELEASE).img images/initramfs-$(KERNELRELEASE).uImage
-RAMDISK        := images/initramfs-$(KERNELRELEASE).gz
+RAMDISK := images/initramfs-$(KERNELRELEASE).gz images/initramfs-$(KERNELRELEASE).img
 
 ramdisk: $(RAMDISK)
 	@ln -sf `basename $(RAMDISK)` images/initramfs.gz
@@ -18,8 +18,8 @@ images/initramfs-$(KERNELRELEASE).gz: images/initramfs-$(KERNELRELEASE).cpio
 images/initramfs-$(KERNELRELEASE).lzo: images/initramfs-$(KERNELRELEASE).cpio
 	@lzop -9 -o $@ $<
 
-images/initramfs-$(KERNELRELEASE).img: images/initramfs-$(KERNELRELEASE).gz
-	@mkimage -T ramdisk -A arm -C none -d $< $@
+images/initramfs-$(KERNELRELEASE).img: images/initramfs-$(KERNELRELEASE).cpio
+	@mkimage -T ramdisk -A arm -C none -n uInitrd -d $< $@
 
 images/initramfs-$(KERNELRELEASE).cpio: $(ROMFS)/etc/version
 	@(cat initramfs.devnodes; \
