@@ -1,6 +1,6 @@
 # Extensible build recipe for package/library/kernel
 #
-# Copyright (c) 2015-2016  Joachim Nilsson <troglobit@gmail.com
+# Copyright (c) 2015-2017  Joachim Nilsson <troglobit@gmail.com
 #
 # Assumes PKG, PKGVER, and PKGURL being set in the including Makefile.
 # See below for possibilities to override and extend both variables and
@@ -63,56 +63,56 @@ PKGENV     ?= DESTDIR=$(STAGING) prefix=
 PKGTARGETS ?= build
 PKGINSTALL ?= install
 PKGSUM      = $(PKGTAR).md5
-CHECKSUM    = $(shell pwd)/checksums/$(PKGSUM)
-TMPTAR      = $(ROOTDIR)/tmp/$(PKGTAR)
-ARCHIVE     = $(DOWNLOADS)/$(PKGNAME)/$(PKGTAR)
-MIRROR      = $(FTP_MIRROR)/$(PKGNAME)/$(PKGTAR)
+PKGCKSUM    = $(shell pwd)/checksums/$(PKGSUM)
+PKGTMP      = $(ROOTDIR)/tmp/$(PKGTAR)
+PKGARCHIVE  = $(DOWNLOADS)/$(PKGNAME)/$(PKGTAR)
+PKGMIRROR   = $(FTP_MIRROR)/$(PKGNAME)/$(PKGTAR)
 
 all: $(PKGTARGETS)
 
-$(ARCHIVE):
+$(PKGARCHIVE):
 ifeq ("$(wildcard $(PKGDEV))","")
 	@mkdir -p $(dir $@)
 	@mkdir -p $(ROOTDIR)/tmp
-	@if [ -e $(TMPTAR) ]; then						\
+	@if [ -e $(PKGTMP) ]; then						\
 		echo "  WARNING Previous download failed, cleaning up ...";	\
-		rm $(TMPTAR);							\
+		rm $(PKGTMP);							\
 	fi
 	@if [ x"$(FTP_MIRROR)" != x ]; then					\
-		echo "  WGET    $(MIRROR) ...";					\
-		$(PKGFETCH) $(TMPTAR) $(MIRROR);				\
+		echo "  WGET    $(PKGMIRROR) ...";				\
+		$(PKGFETCH) $(PKGTMP) $(PKGMIRROR);				\
 	else									\
 		echo "  WGET    $(PKGURL) ...";					\
-		$(PKGFETCH) $(TMPTAR) $(PKGURL);				\
+		$(PKGFETCH) $(PKGTMP) $(PKGURL);				\
 	fi
-	@mv $(TMPTAR) $@
+	@mv $(PKGTMP) $@
 	@if [ $$? -ne 0 ]; then							\
-		rm $(TMPTAR);							\
+		rm $(PKGTMP);							\
 		exit 1;								\
 	fi
 else
 	@true
 endif
 
-download: $(ARCHIVE)
+download: $(PKGARCHIVE)
 
-$(CHECKSUM): $(ARCHIVE)
+$(PKGCKSUM): $(PKGARCHIVE)
 	@echo "  CHKSUM  $(PKGTAR)"
 	@mkdir -p checksums
-	@(cd $(dir $(ARCHIVE)); md5sum $(PKGTAR)) > $@
+	@(cd $(dir $(PKGARCHIVE)); md5sum $(PKGTAR)) > $@
 	@git add -f $@
 
-chksum: $(CHECKSUM)
+chksum: $(PKGCKSUM)
 
 ifeq ("$(wildcard $(PKGDEV))","")
-$(PKG)/.unpacked:: Makefile $(ARCHIVE) $(PKGPATCHES)
+$(PKG)/.unpacked:: Makefile $(PKGARCHIVE) $(PKGPATCHES)
 	-@$(RM) -r $(PKG)
-	@(cd $(dir $(ARCHIVE));							\
-	  md5sum -c $(CHECKSUM) $(REDIRECT)					\
+	@(cd $(dir $(PKGARCHIVE));							\
+	  md5sum -c $(PKGCKSUM) $(REDIRECT)					\
 	  || { echo "  FAILED  Verifying $(PKGTAR) checksum!"; exit 1; })
 	@echo "  VRFY    $(PKG) checksum OK"
 	@echo "  UNPACK  $(PKG)"
-	@tar xf $(ARCHIVE)
+	@tar xf $(PKGARCHIVE)
 	@if [ -d patches/$(PKGBASEVER) ]; then					\
 		echo "  PATCH   $(PKG)";					\
 		(cd $(PKG);							\
