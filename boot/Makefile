@@ -19,6 +19,7 @@ include $(ROOTDIR)/core.mk
 
 exclude                   = Makefile
 dir_y                     =
+dir_$(CONFIG_RPI_BLOBS)  += rpi-firmware
 dir_$(CONFIG_UBOOT)      += u-boot
 dir_n                     =
 dir_                      =

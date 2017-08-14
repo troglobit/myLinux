@@ -11,8 +11,9 @@ CONFIG_RASPBERRY=y
 CONFIG_MACH="raspberry"
 
 #
-# Boot Loaders
+# Boot Loaders and Firmware
 #
+CONFIG_RPI_BLOBS=y
 CONFIG_UBOOT=y
 
 #
