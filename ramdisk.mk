@@ -3,10 +3,12 @@
 include core.mk
 
 # images/initramfs-$(KERNELRELEASE).img images/initramfs-$(KERNELRELEASE).uImage
-RAMDISK := images/initramfs-$(KERNELRELEASE).gz images/initramfs-$(KERNELRELEASE).img
+RAMDISK := images/initramfs-$(KERNELRELEASE).gz
+RAMIMG  := images/initramfs-$(KERNELRELEASE).img
 
-ramdisk: $(RAMDISK)
-	@ln -sf `basename $(RAMDISK)` images/initramfs.gz
+ramdisk: $(RAMDISK) $(RAMIMG)
+	@ln -f $(RAMDISK) images/initramfs.gz
+	@ln -f $(RAMIMG)  images/initramfs.img
 
 # http://free-electrons.com/blog/uncompressed-linux-kernel-on-arm/
 images/initramfs-$(KERNELRELEASE).uImage:
