@@ -77,6 +77,9 @@ staging:							## Initialize staging area
 romfs:								## Create stripped down romfs/ from staging/
 	@$(MAKE) -C arch $@
 
+sdcard:								## Create Raspberry Pi SD card
+	@$(MAKE) -C arch $@
+
 ramdisk:							## Build ramdisk of staging dir
 	@echo "  INITRD  $(OSNAME) $(OSVERSION_ID)" | tee -a $(BUILDLOG)
 	@touch romfs/etc/version

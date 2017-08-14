@@ -75,8 +75,8 @@ echo "   $DEVP2"
 echo
 
 echo "Creating file systems ... "
-mkfs.vfat $DEVP1
-mkfs.ext4 $DEVP2
+mkfs.vfat -n BOOT    $DEVP1
+mkfs.ext4 -L ROOT -q $DEVP2
 
 echo
 echo "All done."

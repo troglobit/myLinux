@@ -80,3 +80,7 @@ staging:
 	@echo "$(OSNAME) $(OSVERSION_ID)"              > $(STAGING)/etc/issue.net
 	@echo "$(OSRELEASE_ID)"                        > $(STAGING)/etc/hostname
 	@sed -i 's/HOSTNAME/$(OSRELEASE_ID)/' $(STAGING)/etc/hosts
+
+sdcard:
+	@$(MAKE) -C $(ARCH)/$(MACH) $@
+
