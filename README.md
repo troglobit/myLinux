@@ -29,8 +29,9 @@ it as a reference to other embedded Linux build systems.  TroglOS is
 relatively clean and vanilla, the intent is to keep it as close to
 upstream sources as possible.
 
-Currently TroglOS targets an *ARM Versatile PB* devboard with Qemu and
-is only tested on a Ubuntu 64-bit build host, using a [crosstool-NG][1]
+Currently TroglOS supports an *ARM Versatile PB* devboard with Qemu, a
+Freescale e500 PowerPC, also with Qemu, and Raspberry Pi 2, BCM2836. It
+has only been tested on a Ubuntu 64-bit host, with a [crosstool-NG][1]
 based [toolchain][2].  Pull requests for more targets are most welcome!
 :)
 
