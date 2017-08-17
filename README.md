@@ -20,7 +20,8 @@ Introduction
 ------------
 
 TroglOS is a playful, but working, example of how to create a virtual
-devboard from components like Qemu, Linux and BusyBox.
+devboard from components like Qemu, Linux and BusyBox.  It can also run
+on actual HW, currently Raspberry Pi.
 
 Use the build framework in TroglOS to test your embedded applications
 before the actual hardware arrives.  Or as a stable reference when said
@@ -30,7 +31,7 @@ relatively clean and vanilla, the intent is to keep it as close to
 upstream sources as possible.
 
 Currently TroglOS supports an *ARM Versatile PB* devboard with Qemu, a
-Freescale e500 PowerPC, also with Qemu, and Raspberry Pi 2, BCM2836. It
+Freescale e500 PowerPC, also with Qemu, and Raspberry Pi 2, BCM2836.  It
 has only been tested on a Ubuntu 64-bit host, with a [crosstool-NG][1]
 based [toolchain][2].  Pull requests for more targets are most welcome!
 :)
