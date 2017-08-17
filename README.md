@@ -7,6 +7,7 @@ Table of Contents
 -----------------
 
 * [Introduction](#introduction)
+* [Building](#building)
 * [Requirements](#requirements)
 * [Qemu Networking](#qemu-networking)
 * [Upgrading Linux](#upgrading-linux)
@@ -35,6 +36,10 @@ Freescale e500 PowerPC, also with Qemu, and Raspberry Pi 2, BCM2836.  It
 has only been tested on a Ubuntu 64-bit host, with a [crosstool-NG][1]
 based [toolchain][2].  Pull requests for more targets are most welcome!
 :)
+
+
+Building
+--------
 
 To try it out, simply clone this repository, install the dependencies
 listed in the Requirements section, then type:
