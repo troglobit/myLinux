@@ -9,6 +9,13 @@ config VERSATILE
 config RASPBERRY
 	bool "Raspberry Pi 2/3"
 
+config SDCARD
+	string "SD card device for Raspberry Pi"
+	default "/dev/mmcblk0"
+	help
+	   The device to use for `make sdcard`
+	depends on RASPBERRY
+
 endchoice
 
 config MACH
