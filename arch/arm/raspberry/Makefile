@@ -13,7 +13,7 @@ sdcard:
 	@cp -v $(IMAGEDIR)/zImage mnt/
 	@cp -v $(IMAGEDIR)/*.dtb  mnt/
 	@cp -v $(IMAGEDIR)/u-boot.bin mnt/kernel.img
-	@cp -v $(IMAGEDIR)/initramfs.img mnt/uInitrd
+	@cp -v $(IMAGEDIR)/initramfs.img mnt/
 	@umount mnt
 	@rmdir mnt
 
