@@ -213,8 +213,11 @@ Test SSH from your host simply by: <kbd>ssh example@192.0.2.42</kbd>
 Using Telnet
 ------------
 
-Currently `telnetd` is started by default in TroglOS, this will change
-in the future, but it will still be available.
+The Busybox `telnetd` is available in TroglOS, but you have to enable
+the service to start it:
+
+    initctl enable telnetd
+    initctl reload
 
 Test it from your host by simply calling <kbd>telnet 192.0.2.42</kbd>
 
