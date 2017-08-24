@@ -160,6 +160,9 @@ TroglOS use [mini-snmpd](https://github.com/troglobit/mini-snmpd) as its
 SNMP agent.  It is very small and therefore also very limited in
 functionality, but it is enough to monitor TroglOS by remote if needed.
 
+    initctl enable snmpd
+    initctl reload
+
 To test it you need an SNMP client.  The following command installs
 `snmpset`, `snmpget`, `snmpwalk`, base MIBs and all standard MIBs
 needed.  You may also be interested in a more graphical alternative,
@@ -203,9 +206,12 @@ The most common embedded SSH daemon in use on embedded Linux systems
 today is [Dropbear](https://matt.ucc.asn.au/dropbear/dropbear.html) by
 the incredibly humble [Matt Johnston](https://matt.ucc.asn.au/).
 
-Dropbear is started by default in TroglOS.  It currently allows `root`
-access, but we recommend disabling this and instead setting up another
-user: <kbd>adduser example</kbd>
+No services are enabled by default in TroglOS, so Dropbear has to be
+enabled first.  It currently allows `root` access, but we recommend
+disabling this and set up another user: <kbd>adduser example</kbd>
+
+    initctl enable sshd
+    initctl reload
 
 Test SSH from your host simply by: <kbd>ssh example@192.0.2.42</kbd>
 
