@@ -117,6 +117,7 @@ except for some status messages.  If that does not help, try enabling
 verbose mode:
 
     make V=1
+
 This is what you are probably used to from other build systems.  But
 what if you only want to rebuild a single package?
 
