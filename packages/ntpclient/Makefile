@@ -1,7 +1,7 @@
 # Glue for cross compiling netcalc
 include $(ROOTDIR)/core.mk
 
-PKGVER     := 2017_217
+PKGVER     := 2017_246
 PKG        := ntpclient-$(PKGVER)
 PKGSUFFIX  := tar.xz
 PKGURL      = $(TROGLOHUB)/$(PKGNAME)/releases/download/$(PKGVER)/$(PKGTAR)
