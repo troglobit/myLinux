@@ -21,6 +21,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <finit/finit.h>
+#include <finit/log.h>
 #include <finit/plugin.h>
 
 static pid_t pid = 0;
@@ -165,6 +166,9 @@ static int logo_show(int center)
 
 static void logo_start(void *arg)
 {
+	if (log_is_debug())
+		return;
+
 	pid = fork();
 	if (pid)
 		return;
@@ -176,6 +180,9 @@ static void logo_start(void *arg)
 
 static void logo_stop(void *arg)
 {
+	if (!pid)
+		return;
+
 	kill(pid, 9);
 	waitpid(pid, NULL, WNOHANG);
 }
