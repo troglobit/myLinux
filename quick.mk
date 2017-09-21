@@ -6,9 +6,9 @@ $(addsuffix -install,$(TARGETS)):
 	@echo "  INSTALL $(patsubst %-install,%,$@)"         | tee -a $(BUILDLOG)
 	+@$(MAKE) -C $(patsubst %-install,%,$@) install      $(REDIRECT)
 
-$(addsuffix -chksum,$(TARGETS)):
-	@echo "  CHKSUM  $(patsubst %-chksum,%,$@)"          | tee -a $(BUILDLOG)
-	+@$(MAKE) -C $(patsubst %-chksum,%,$@) chksum        $(REDIRECT)
+# $(addsuffix -chksum,$(TARGETS)):
+# 	@echo "  CHKSUM  $(patsubst %-chksum,%,$@)"          | tee -a $(BUILDLOG)
+# 	+@$(MAKE) -C $(patsubst %-chksum,%,$@) chksum        $(REDIRECT)
 
 $(addsuffix -clean,$(TARGETS)):
 	@echo "  CLEAN   $(patsubst %-clean,%,$@)"           | tee -a $(BUILDLOG)
@@ -18,9 +18,9 @@ $(addsuffix -distclean,$(TARGETS)):
 	@echo "  PURGE   $(patsubst %-distclean,%,$@)"       | tee -a $(BUILDLOG)
 	-+@$(MAKE) -C $(patsubst %-distclean,%,$@) distclean $(REDIRECT)
 
-$(addsuffix -dev,$(TARGETS)):
-	@echo "  DEV     $(patsubst %-dev,%,$@)"             | tee -a $(BUILDLOG)
-	+@$(MAKE) -C $(patsubst %-dev,%,$@) dev              $(REDIRECT)
+# $(addsuffix -dev,$(TARGETS)):
+# 	@echo "  DEV     $(patsubst %-dev,%,$@)"             | tee -a $(BUILDLOG)
+# 	+@$(MAKE) -C $(patsubst %-dev,%,$@) dev              $(REDIRECT)
 
 $(addsuffix -menuconfig,$(TARGETS)):
 	@echo "  CONFIG  $(patsubst %-menuconfig,%,$@)"      | tee -a $(BUILDLOG)
