@@ -24,7 +24,7 @@ printf "  CHECK   Toolchain version ... " | tee -a $BUILDLOG
 $CC --version |grep $VER >/dev/null 2>&1
 if [ $? -ne 0 ]; then
     printf "FAIL\n" | tee -a $BUILDLOG
-    printf "  FAIL    Wrong toolchain version, should be $VER" | tee -a $BUILDLOG
+    printf "  FAIL    Wrong toolchain version, should be $VER\n" | tee -a $BUILDLOG
     exit 1
 fi
 
