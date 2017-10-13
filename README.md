@@ -1,10 +1,7 @@
 TroglOS Linux | A Virtual Devboard
 ==================================
 
-![Image of TroglOS Example Run](example.png "Virtual devboard in action!")
-
-Table of Contents
------------------
+<img align="right" src="example.png" alt="Image of TroglOS Example Run">
 
 * [Introduction](#introduction)
 * [Building](#building)
