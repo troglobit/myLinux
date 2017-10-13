@@ -73,7 +73,7 @@ tested on Ubuntu 16.04 (x86_64):
 * automake autoconf libtool pkg-config flex bison wget quilt
 * bc lzop device-tree-compiler u-boot-tools (mkimage)
 * qemu-system-arm (install libvirt-bin and virt-manager as well!)
-* [arm-unknown-linux-gnueabi][2] toolchain
+  * [arm-unknown-linux-gnueabi][2] toolchain, which requires gawk
 * probably more, gzip?
 
 
