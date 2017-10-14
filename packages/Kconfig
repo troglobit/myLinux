@@ -183,6 +183,13 @@ config FINIT
 	 
 	 http://troglobit.com/finit.html
 
+config FINIT_BOOT_ANIMATION
+	bool "ASCII boot animation instead of traditional Finit progress"
+	depends on FINIT
+	help
+	  Selecting this enables an ASCII art boot animation instead of
+	  the traditional Finit progress.
+
 config MG
        bool "mg - A Micro Emacs clone similar to GNU Emacs"
        help

@@ -1,4 +1,7 @@
-PLUGINS   = mtd.so logo.so
+PLUGINS   = mtd.so
+ifdef CONFIG_FINIT_BOOT_ANIMATION
+PLUGINS  += logo.so
+endif
 CFLAGS    = -W -Wall -Wextra -Wno-unused-parameter
 CPPFLAGS += -I$(shell pwd)/../$(PKG) -I$(STAGING)/include
 LDFLAGS  += -fPIC -shared
