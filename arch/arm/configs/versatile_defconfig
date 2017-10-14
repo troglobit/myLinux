@@ -1,11 +1,19 @@
 #
 # TroglOS Virtual Devboard Default Configuration
 #
+CONFIG_DOT_CONFIG=y
+CONFIG_ARM=y
+# CONFIG_PPC is not set
+CONFIG_ARCH="arm"
+CONFIG_VERSATILE=y
+# CONFIG_RASPBERRY is not set
+CONFIG_MACH="versatile"
 
 #
-# Target options
+# Boot Loaders and Firmware
 #
-CONFIG_CROSS_COMPILE=""
+# CONFIG_RPI_BLOBS is not set
+# CONFIG_UBOOT is not set
 
 #
 # Kernel
@@ -34,6 +42,7 @@ CONFIG_MERECAT=y
 CONFIG_MINI_SNMPD=y
 # CONFIG_MROUTED is not set
 # CONFIG_NETCALC is not set
+# CONFIG_NTPCLIENT is not set
 # CONFIG_OMPING is not set
 CONFIG_MCJOIN=y
 # CONFIG_PIMD is not set
@@ -47,7 +56,13 @@ CONFIG_UREDIR=y
 #
 CONFIG_BUSYBOX=y
 CONFIG_FINIT=y
+# CONFIG_FINIT_BOOT_ANIMATION is not set
 CONFIG_MG=y
 # CONFIG_STRACE is not set
 # CONFIG_TETRIS is not set
 CONFIG_WATCHDOGD=y
+
+#
+# User Defined Programs
+#
+# CONFIG_USER_HELLO is not set

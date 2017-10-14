@@ -13,6 +13,12 @@ CONFIG_PPCE500=y
 # CONFIG_PPCE500MC is not set
 
 #
+# Boot Loaders and Firmware
+#
+# CONFIG_RPI_BLOBS is not set
+# CONFIG_UBOOT is not set
+
+#
 # Kernel
 #
 CONFIG_LINUX_VERSION="4.8.7"
@@ -39,6 +45,7 @@ CONFIG_MERECAT=y
 CONFIG_MINI_SNMPD=y
 # CONFIG_MROUTED is not set
 # CONFIG_NETCALC is not set
+# CONFIG_NTPCLIENT is not set
 # CONFIG_OMPING is not set
 CONFIG_MCJOIN=y
 # CONFIG_PIMD is not set
@@ -52,6 +59,7 @@ CONFIG_UREDIR=y
 #
 CONFIG_BUSYBOX=y
 CONFIG_FINIT=y
+# CONFIG_FINIT_BOOT_ANIMATION is not set
 CONFIG_MG=y
 # CONFIG_STRACE is not set
 # CONFIG_TETRIS is not set
