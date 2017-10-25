@@ -121,6 +121,7 @@ $(PKG)/.unpacked:: Makefile $(PKGARCHIVE) $(PKGPATCHES)
 	fi
 else
 $(PKG)/.unpacked:: Makefile
+	-@rm $(PKG)/.config
 endif
 	@touch $@
 
@@ -170,7 +171,15 @@ ifeq ("$(wildcard $(PKGDEV))","")
 	@touch $@
 endif
 
+ifeq ("$(wildcard $(PKGDEV))","")
 build: $(PKG)/.stamp
+else
+check:
+	-@if [ ! -e $(PKG)/configure -o ! -e $(PKG)/Makefile ]; then		\
+		rm $(PKG)/.stamp $(PKG)/.config $(PKG)/.unpacked 2>/dev/null;	\
+	fi
+build: check $(PKG)/.stamp
+endif
 
 clean::
 	-@$(MAKE) -C $(PKG) clean $(REDIRECT)
