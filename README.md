@@ -60,6 +60,14 @@ For a truly minimal setup, only Busybox and an ARM/Versatile config:
     make
     make run
 
+As an alternative, which can be useful for scripting, the menuconfig
+step can be skipped using an arch-specific defconfig:
+
+    make distclean
+    ARCH=ppc make ppce500_defconfig
+    make
+    make run
+
 Now go have fun! :-)
 
 
