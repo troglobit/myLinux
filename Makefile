@@ -85,6 +85,8 @@ ramdisk:							## Build ramdisk of staging dir
 	@touch romfs/etc/version
 	@$(MAKE) -f ramdisk.mk $@ $(REDIRECT)
 
+image: romfs ramdisk
+
 kernel:								## Build configured Linux kernel
 	@$(MAKE) -j5 -C kernel all
 	@$(MAKE) kernel_install
