@@ -66,7 +66,9 @@ dtb_args()
 
 mnt_args()
 {
-    echo -n "-drive if=scsi,file=${QEMU_MNT},format=raw"
+    echo -n "-device virtio-scsi-pci,id=scsi0 "
+    echo -n "-drive file=${QEMU_MNT},if=none,format=raw,discard=unmap,id=drive0 "
+    echo -n "-device scsi-hd,bus=scsi0.0,drive=drive0 "
 }
 
 host_args()
