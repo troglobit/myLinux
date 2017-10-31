@@ -96,6 +96,7 @@ fi
 export QEMU_AUDIO_DRV=none
 
 # Start Qemu
+#	    -watchdog i6300esb
 qemu-system-${ARCH} -nographic -m 256M -M ${QEMU_MACH} ${QEMU_EXTRA}	\
 	    -kernel ${1} -initrd ${2} -append "$(append_args)"		\
 	    -rtc base=utc,clock=rt \
