@@ -1,1 +1,2 @@
 mtd2block-custom-label.patch
+ppc-silence-setup-arch-progress.patch

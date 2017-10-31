@@ -1,0 +1,13 @@
+Index: linux-4.8.7/arch/powerpc/platforms/85xx/qemu_e500.c
+===================================================================
+--- linux-4.8.7.orig/arch/powerpc/platforms/85xx/qemu_e500.c
++++ linux-4.8.7/arch/powerpc/platforms/85xx/qemu_e500.c
+@@ -41,7 +41,7 @@ void __init qemu_e500_pic_init(void)
+ 
+ static void __init qemu_e500_setup_arch(void)
+ {
+-	ppc_md.progress("qemu_e500_setup_arch()", 0);
++//	ppc_md.progress("qemu_e500_setup_arch()", 0);
+ 
+ 	fsl_pci_assign_primary();
+ 	swiotlb_detect_4g();
