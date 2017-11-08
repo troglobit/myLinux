@@ -6,7 +6,7 @@ PKG        := watchdogd-$(PKGVER)
 PKGSUFFIX  := tar.xz
 PKGURL      = $(TROGLOHUB)/$(PKGNAME)/releases/download/$(PKGVER)/$(PKGTAR)
 PKGCFG     := --host=$(CROSS_TARGET) --prefix=
-PKGCFG     += --disable-test-mode --enable-examples
+PKGCFG     += --disable-test-mode --disable-builtin-tests --enable-examples
 PKGINSTALL := install-exec
 
 include $(ROOTDIR)/pkg.mk
