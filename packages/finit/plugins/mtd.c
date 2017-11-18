@@ -26,7 +26,11 @@
 #include <finit/plugin.h>
 
 #define MTD_CONFIG_LABEL  "Config"
-#define MTD_OVERLAY_DIRS  { "/mnt/etc", "/mnt/var", "/mnt/home", "/mnt/.tmp", NULL }
+#define MTD_OVERLAY_DIRS  {			\
+		"/mnt/etc",  "/mnt/.etc",	\
+		"/mnt/var",  "/mnt/.var",	\
+		"/mnt/home", "/mnt/.home",	\
+		NULL }
 
 static int match_line(char *needle, char *line, size_t len, FILE *fp)
 {
