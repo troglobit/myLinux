@@ -18,7 +18,7 @@ CONFIG_MACH="versatile"
 #
 # Kernel
 #
-CONFIG_LINUX_VERSION="4.13.12"
+CONFIG_LINUX_VERSION="4.14.1"
 # CONFIG_LINUX_TESTING is not set
 CONFIG_LINUX_CMDLINE="root=/dev/ram mem=256M console=ttyAMA0,115200"
 
