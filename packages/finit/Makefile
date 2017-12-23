@@ -1,7 +1,7 @@
 # Glue for cross compiling Finit SysV init replacement
 include $(ROOTDIR)/core.mk
 
-PKGVER     := 3.0
+PKGVER     := 3.1-rc1
 PKG        := finit-$(PKGVER)
 PKGSUFFIX  := tar.xz
 PKGURL      = $(TROGLOHUB)/$(PKGNAME)/releases/download/$(PKGVER)/$(PKGTAR)
