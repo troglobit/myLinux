@@ -1,7 +1,7 @@
 # Glue for cross compiling Inadyn DDNS client
 include $(ROOTDIR)/core.mk
 
-PKGVER     := 2.2
+PKGVER     := 2.3
 PKG        := inadyn-$(PKGVER)
 PKGSUFFIX  := tar.xz
 PKGURL      = $(TROGLOHUB)/$(PKGNAME)/releases/download/v$(PKGVER)/$(PKGTAR)
