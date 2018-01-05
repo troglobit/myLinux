@@ -1,7 +1,7 @@
 # Glue for cross compiling netcalc
 include $(ROOTDIR)/core.mk
 
-PKGVER     := 2.1.1
+PKGVER     := 2.1.3
 PKG        := netcalc-$(PKGVER)
 PKGURL      = $(TROGLOHUB)/$(PKGNAME)/releases/download/v$(PKGVER)/$(PKGTAR)
 PKGPATCHES :=
