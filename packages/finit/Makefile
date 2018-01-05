@@ -11,7 +11,7 @@ PKGCFG     += --enable-inetd-echo-plugin --enable-inetd-time-plugin
 PKGCFG     += --enable-x11-common-plugin --enable-inetd-chargen-plugin
 PKGCFG     += --enable-fallback-shell --enable-watchdog
 ifndef CONFIG_FINIT_BOOT_ANIMATION
-PKGCFG     += --enable-progress
+#PKGCFG     += --enable-progress
 endif
 PKGINSTALL := install-exec
 
