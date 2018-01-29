@@ -1,0 +1,26 @@
+diff --git a/src/service.c b/src/service.c
+index 53accce..0dcfe30 100644
+--- a/src/service.c
++++ b/src/service.c
+@@ -869,15 +869,18 @@ void service_unregister(svc_t *svc)
+ 	 */
+ 	if (!svc_is_inetd_conn(svc))
+ 		service_stop(svc);
+-
+-	if (svc_is_inetd(svc)) {
++	else {
++		/* inetd connection, if UDP unblock parent */
+ 		if (svc_is_busy(svc->inetd.svc)) {
+ 			svc_unblock(svc->inetd.svc);
+ 			service_step(svc->inetd.svc);
+ 		}
++	}
+ 
++#ifdef INETD_ENABLED
++	if (svc_is_inetd(svc))
+ 		inetd_del(&svc->inetd);
+-	}
++#endif
+ 
+ 	svc_del(svc);
+ }
