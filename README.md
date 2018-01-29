@@ -17,21 +17,21 @@ TroglOS Linux | A Virtual Devboard
 Introduction
 ------------
 
-TroglOS is a playful, but working, example of how to create a virtual
-devboard from components like Qemu, Linux and BusyBox.  It can also run
+TroglOS is  a playful, but working,  example of how to  create a virtual
+devboard from components like Qemu, Linux  and BusyBox.  It can also run
 on actual HW, currently Raspberry Pi.
 
-Use the build framework in TroglOS to test your embedded applications
-before the actual hardware arrives.  Or as a stable reference when said
-hardware starts acting up -- as it invariably does ... you can even use
-it as a reference to other embedded Linux build systems.  TroglOS is
-relatively clean and vanilla, the intent is to keep it as close to
+Use the  build framework in  TroglOS to test your  embedded applications
+before the actual hardware arrives.  Or  as a stable reference when said
+hardware starts acting up -- as it  invariably does ... you can even use
+it as  a reference to  other embedded  Linux build systems.   TroglOS is
+relatively  clean and  vanilla, the  intent is  to keep  it as  close to
 upstream sources as possible.
 
-Currently TroglOS supports an *ARM Versatile PB* devboard with Qemu, a
+Currently TroglOS supports  an *ARM Versatile PB* devboard  with Qemu, a
 Freescale e500 PowerPC, also with Qemu, and Raspberry Pi 2, BCM2836.  It
-has only been tested on a Ubuntu 64-bit host, with a [crosstool-NG][1]
-based [toolchain][2].  Pull requests for more targets are most welcome!
+has only been  tested on a Ubuntu 64-bit host,  with a [crosstool-NG][1]
+based [toolchain][2].  Pull requests for  more targets are most welcome!
 :)
 
 
@@ -94,36 +94,36 @@ you may need to do the following to your host system:
     sudo chmod 4755 /usr/lib/qemu/qemu-bridge-helper
     sudo dpkg-statoverride --add root root 4755 /usr/lib/qemu/qemu-bridge-helper
 
-The first command makes the Qemu helper "suid root", which means we're
-allowed to manipulate the network to gain external network access.  The
-last command is for Debian/Ubuntu systems, it makes sure to record your
-change so that any Qemu package upgrades will *not* overwrite our mode
+The first command  makes the Qemu helper "suid root",  which means we're
+allowed to manipulate the network  to gain external network access.  The
+last command is for Debian/Ubuntu systems,  it makes sure to record your
+change so that  any Qemu package upgrades will *not*  overwrite our mode
 change.
 
-Now you need to tell Qemu what bridges in the system you are allowed to
+Now you need to tell Qemu what  bridges in the system you are allowed to
 connect to, edit/create the file `/etc/qemu/bridge.conf` and add:
 
     allow virbr0
 
-Assuming you have a `virbr0` interface in your system.  If you've run
-anything in [virt-manager](http://virt-manager.org/) prior to this then
+Assuming you  have a `virbr0` interface  in your system.  If  you've run
+anything in [virt-manager](http://virt-manager.org/)  prior to this then
 you're set, otherwise you're unfortunately on your own.
 
 
 Troubleshooting
 ---------------
 
-TroglOS builds silent.  You will not see any compiler output, warnings
-or such by default.  When something does not work this can be slightly
+TroglOS builds silent.   You will not see any  compiler output, warnings
+or such by  default.  When something does not work  this can be slightly
 annoying, so there are several shortcuts and other tricks to help you!
 
-First, check the file `build.log`, everything is redirected there,
-except for some status messages.  If that does not help, try enabling
+First,  check  the file  `build.log`,  everything  is redirected  there,
+except for  some status messages.  If  that does not help,  try enabling
 verbose mode:
 
     make V=1
 
-This is what you are probably used to from other build systems.  But
+This is  what you are  probably used to  from other build  systems.  But
 what if you only want to rebuild a single package?
 
     make V=1 packages/busybox-build
@@ -148,7 +148,7 @@ readable! :-)
 Upgrading Linux
 ---------------
 
-Change the Linux kernel version using `make menuconfig`.  If the kernel
+Change the Linux kernel version  using `make menuconfig`.  If the kernel
 is just a minor patch release, you're done.
 
 If it is a major kernel upgrade, copy the latest `kernel/config-X.YY` to
@@ -163,15 +163,15 @@ Testing SNMP
 ------------
 
 TroglOS use [mini-snmpd](https://github.com/troglobit/mini-snmpd) as its
-SNMP agent.  It is very small and therefore also very limited in
+SNMP  agent.  It  is  very  small and  therefore  also  very limited  in
 functionality, but it is enough to monitor TroglOS by remote if needed.
 
     initctl enable snmpd
     initctl reload
 
-To test it you need an SNMP client.  The following command installs
-`snmpset`, `snmpget`, `snmpwalk`, base MIBs and all standard MIBs
-needed.  You may also be interested in a more graphical alternative,
+To test  it you  need an  SNMP client.   The following  command installs
+`snmpset`,  `snmpget`,  `snmpwalk`,  base  MIBs and  all  standard  MIBs
+needed.  You  may also  be interested in  a more  graphical alternative,
 [snmpB](http://sourceforge.net/projects/snmpb/)
 
 <kbd>$ sudo apt-get install snmp libsnmp-base snmp-mibs-downloader</kbd>
