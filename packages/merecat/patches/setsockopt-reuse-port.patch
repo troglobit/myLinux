@@ -1,0 +1,16 @@
+Index: merecat-2.31/src/libhttpd.c
+===================================================================
+--- merecat-2.31.orig/src/libhttpd.c
++++ merecat-2.31/src/libhttpd.c
+@@ -382,6 +382,11 @@ static int initialize_listen_socket(http
+ 	if (setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&on, sizeof(on)) < 0)
+ 		syslog(LOG_CRIT, "setsockopt SO_REUSEADDR: %s", strerror(errno));
+ 
++#ifdef SO_REUSEPORT
++	if (setsockopt(listen_fd, SOL_SOCKET, SO_REUSEPORT, (char *)&on, sizeof(on)) < 0)
++		syslog(LOG_CRIT, "setsockopt SO_REUSEPORT: %s", strerror(errno));
++#endif
++
+ 	/* Bind to it. */
+ 	if (bind(listen_fd, &saP->sa, sockaddr_len(saP)) < 0) {
+ 		syslog(LOG_CRIT, "bind %s: %s", httpd_ntoa(saP), strerror(errno));
