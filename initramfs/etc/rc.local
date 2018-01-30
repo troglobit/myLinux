@@ -1,0 +1,3 @@
+#!/bin/sh
+
+echo "rc.local has run" >/tmp/hello-rc.local
