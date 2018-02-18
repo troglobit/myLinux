@@ -1,0 +1,14 @@
+choice
+	prompt "Select Target Machine"
+	default X86_64
+     	depends on X86
+
+config X86_64
+	bool "AMD/Intel x86 64-bit"
+
+endchoice
+
+config MACH
+	string
+	default "x86_64" if X86_64
+     	depends on X86

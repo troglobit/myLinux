@@ -79,10 +79,15 @@ tested on Ubuntu 16.04 (x86_64):
 
 * build-essential (gcc, make, etc.)
 * automake autoconf libtool pkg-config flex bison wget quilt
-* bc lzop device-tree-compiler u-boot-tools (mkimage)
+* bc lzop device-tree-compiler u-boot-tools (mkimage) libelf-dev (x86)
 * qemu-system-arm (install libvirt-bin and virt-manager as well!)
   * [arm-unknown-linux-gnueabi][2] toolchain, which requires gawk
 * probably more, gzip?
+
+For x86_64 you may want to enable KVM.  For this to work as a regular
+user, add yourself to the kvm group and log out/in again:
+
+    sudo adduser $LOGNAME kvm
 
 
 Qemu Networking

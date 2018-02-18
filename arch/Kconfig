@@ -8,12 +8,17 @@ config ARM
 config PPC
 	bool "PowerPC 32-bit"
 
+config X86
+        bool "AMD/Intel x86"
+
 endchoice
 
 config ARCH
 	string
 	default "arm" if ARM
 	default "ppc" if PPC
+	default "x86" if X86
 
 source "arch/arm/Kconfig"
 source "arch/ppc/Kconfig"
+source "arch/x86/Kconfig"
