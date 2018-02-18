@@ -7,8 +7,8 @@ Usage:
 
 Environment variables that impact qemu:
 
-    ARCH - QEMU arch
-	     *: Launch QEMU as qemu-system-\${ARCH}
+    QEMU_ARCH - QEMU arch
+	     *: Launch QEMU as qemu-system-\${QEMU_ARCH}
        default: None, mandatory
 
     V - Show kernel boot messages
@@ -101,9 +101,9 @@ export QEMU_AUDIO_DRV=none
 
 # Start Qemu
 #	    -watchdog i6300esb
-qemu-system-${ARCH} -nographic -m 256M -M ${QEMU_MACH} ${QEMU_EXTRA}	\
-	    -kernel ${1} -initrd ${2} -append "$(append_args)"		\
-	    -rtc base=utc,clock=rt \
+qemu-system-${QEMU_ARCH} -m 256M -M ${QEMU_MACH} ${QEMU_EXTRA}	\
+	    -kernel ${1} -initrd ${2} -append "$(append_args)"	\
+	    -rtc base=utc,clock=rt -nographic \
 	    $(dtb_args) $(mnt_args) $(host_args) $(net_args)
 
 # Restore TTY from Qemu target
