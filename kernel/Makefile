@@ -29,7 +29,7 @@ RC_PATH         = testing/
 endif
 PKGURL          = http://cdn.kernel.org/pub/linux/kernel/v4.x/$(RC_PATH)$(PKGTAR)
 CONFIG          = $(PRODDIR)/linux.config-$(PKGBASEVER)
-ZIMAGE          = $(PKG)/arch/$(KERNEL_ARCH)/boot/zImage
+ZIMAGE          = $(PKG)/arch/$(KERNEL_ARCH)/boot/$(KERNEL_IMG)
 unexport KBUILD_KCONFIG
 include $(ROOTDIR)/pkg.mk
 
@@ -51,7 +51,7 @@ $(PKG)/.config::
 
 $(ZIMAGE): $(PKG)/.config
 	@echo "  BUILD   $(PKG)" | tee -a $(BUILDLOG)
-	+@$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) zImage $(REDIRECT)
+	+@$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) $(KERNEL_IMG) $(REDIRECT)
 
 defconfig:
 	@$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) $(MACH)_defconfig $(REDIRECT)

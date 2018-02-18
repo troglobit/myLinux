@@ -25,7 +25,7 @@ run:
 	@echo "  QEMU    Ctrl-a x -- exit | Ctrl-a c -- toggle console/monitor" | tee -a $(BUILDLOG)
 	-@mkdir -p $(QEMU_HOST) 2>/dev/null
 	-@[ ! -e $(QEMU_MNT) ] && dd if=/dev/zero of=$(QEMU_MNT) bs=16384 count=960
-	@qemu $(IMAGEDIR)/zImage $(IMAGEDIR)/initramfs.gz
+	@qemu $(IMAGEDIR)/$(KERNEL_IMG) $(IMAGEDIR)/initramfs.gz
 
 # The install phase removes unnecessary files from the sysroot
 # The prune phase removes doc/man/include files and static libraries
