@@ -68,7 +68,7 @@ menuconfig: $(PKG)/.config
 	@$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) menuconfig
 
 dtbinst:
-	@if [ "$(ARCH)" != "ppc" ]; then \
+	@if [ "$(ARCH)" = "arm" ]; then \
 		echo "  DTBINST kernel/$(PKG)" | tee -a $(BUILDLOG); \
 		INSTALL_DTBS_PATH=$(IMAGEDIR) $(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) dtbs dtbs_install $(REDIRECT); \
 	fi
