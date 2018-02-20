@@ -1,4 +1,4 @@
-TOOLCHAIN         := crosstool-ng-1.22.0-234-g531eab4
+TOOLCHAIN         := crosstool-ng-1.23.0-319-gaca85cb
 
 qstrip             = $(strip $(subst ",,$(1)))
 # "
