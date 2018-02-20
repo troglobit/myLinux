@@ -1,0 +1,14 @@
+choice
+	prompt "Select Target Machine"
+	default GENERIC
+     	depends on ARM64
+
+config GENERIC
+	bool "Generic ARM64 target, with Cortex A57 for qemu"
+
+endchoice
+
+config MACH
+	string
+	default "generic" if GENERIC
+     	depends on ARM64

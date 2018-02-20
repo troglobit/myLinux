@@ -5,6 +5,9 @@ choice
 config ARM
 	bool "ARM 32-bit"
 
+config ARM64
+	bool "ARM 64-bit"
+
 config PPC
 	bool "PowerPC 32-bit"
 
@@ -16,9 +19,11 @@ endchoice
 config ARCH
 	string
 	default "arm" if ARM
+	default "arm64" if ARM64
 	default "ppc" if PPC
 	default "x86" if X86
 
 source "arch/arm/Kconfig"
+source "arch/arm64/Kconfig"
 source "arch/ppc/Kconfig"
 source "arch/x86/Kconfig"

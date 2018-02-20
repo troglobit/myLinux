@@ -1,0 +1,69 @@
+#
+# TroglOS Virtual Devboard Default Configuration
+#
+CONFIG_DOT_CONFIG=y
+# CONFIG_ARM is not set
+CONFIG_ARM64=y
+CONFIG_GENERIC=y
+# CONFIG_PPC is not set
+# CONFIG_X86 is not set
+CONFIG_ARCH="arm64"
+CONFIG_MACH="generic"
+
+#
+# Boot Loaders and Firmware
+#
+# CONFIG_RPI_BLOBS is not set
+# CONFIG_UBOOT is not set
+
+#
+# Kernel
+#
+CONFIG_LINUX_VERSION="4.15.4"
+# CONFIG_LINUX_TESTING is not set
+CONFIG_LINUX_CMDLINE="root=/dev/ram mem=256M console=hvc0 console=ttyAMA0,115200"
+
+#
+# Libraries
+#
+CONFIG_CONFUSE=y
+CONFIG_LIBITE=y
+CONFIG_LIBUEV=y
+# CONFIG_LIPIFY is not set
+CONFIG_NCURSES=y
+CONFIG_ZLIB=y
+
+#
+# Networking packages
+#
+CONFIG_DROPBEAR=y
+# CONFIG_INADYN is not set
+# CONFIG_LLDPD is not set
+# CONFIG_MERECAT is not set
+# CONFIG_MINI_SNMPD is not set
+# CONFIG_MROUTED is not set
+# CONFIG_NETCALC is not set
+# CONFIG_NTPCLIENT is not set
+# CONFIG_OMPING is not set
+# CONFIG_MCJOIN is not set
+# CONFIG_PIMD is not set
+# CONFIG_REDIR is not set
+# CONFIG_SMCROUTE is not set
+# CONFIG_UFTPD is not set
+# CONFIG_UREDIR is not set
+
+#
+# System packages
+#
+CONFIG_BUSYBOX=y
+CONFIG_FINIT=y
+# CONFIG_FINIT_BOOT_ANIMATION is not set
+# CONFIG_MG is not set
+# CONFIG_STRACE is not set
+# CONFIG_TETRIS is not set
+CONFIG_WATCHDOGD=y
+
+#
+# User Defined Programs
+#
+# CONFIG_USER_HELLO is not set
