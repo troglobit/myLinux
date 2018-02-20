@@ -83,12 +83,14 @@ host_args()
 
 net_args()
 {
-    echo -n "-net nic,model=${QEMU_NIC} "
-
     case $(default bridge "${QEMU_NET}") in
 	bridge) echo -n "-net bridge,br=virbr0" ;;
 	tap)    echo -n "-net tap,ifname=qtap"  ;;
     esac
+
+    if [ ! -z ${QEMU_NIC} ]; then
+	echo -n " -net nic,model=${QEMU_NIC} "
+    fi
 }
 
 if [ ${#} != 2 ]; then
