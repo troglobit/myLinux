@@ -21,7 +21,7 @@ images/initramfs-$(KERNELRELEASE).lzo: images/initramfs-$(KERNELRELEASE).cpio
 	@lzop -9 -o $@ $<
 
 images/initramfs-$(KERNELRELEASE).img: images/initramfs-$(KERNELRELEASE).cpio
-	@mkimage -T ramdisk -A arm -C none -n uInitrd -d $< $@
+	@mkimage -T ramdisk -A $(ARCH) -C none -n uInitrd -d $< $@
 
 images/initramfs-$(KERNELRELEASE).cpio: $(ROMFS)/etc/version
 	@(cat initramfs.devnodes; \
