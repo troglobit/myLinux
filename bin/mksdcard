@@ -55,12 +55,13 @@ fi
 echo "Creating new partition table ..."
 parted -s $DEV \
        mklabel msdos \
-       mkpart primary fat32 1M 30M \
-       mkpart primary ext4 30M 100%
+       mkpart primary fat32 1M 128M \
+       mkpart primary ext4 128M 100%
 if [ $? -ne 0 ]; then
     "ERROR: Failed excuting parted, it is requried to run this script."
     exit 1
 fi
+sleep 1
 
 DEVP1=`ls $DEV*1`
 DEVP2=`ls $DEV*2`
