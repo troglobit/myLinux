@@ -6,6 +6,7 @@ config DROPBEAR
 	 Embedded friendly SSH daemon, client, and scp tool.
 	 
 	 https://matt.ucc.asn.au/dropbear/dropbear.html
+       depends on ZLIB
 
 config INADYN
        bool "inadyn - Dynamic DNS (DDNS) Client"
