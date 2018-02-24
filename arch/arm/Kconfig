@@ -15,7 +15,6 @@ config SDCARD
 	help
 	   The device to use for `make sdcard`
 	depends on RASPBERRY
-
 endchoice
 
 config MACH
