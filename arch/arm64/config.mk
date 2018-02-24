@@ -1,7 +1,7 @@
 .EXPORT_ALL_VARIABLES:
 
 CROSS_COMPILE := aarch64-unknown-linux-gnu-
-KERNEL_IMG    := Image.gz
+KERNEL_IMG    := Image
 QEMU_ARCH     := aarch64
 # vexpress-a15
 QEMU_MACH     := virt
