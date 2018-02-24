@@ -24,6 +24,7 @@ dir_$(CONFIG_DROPBEAR)   += dropbear
 dir_$(CONFIG_FINIT)      += finit
 dir_$(CONFIG_INADYN)     += inadyn
 dir_$(CONFIG_LLDPD)      += lldpd
+dir_$(CONFIG_LXC)        += lxc
 dir_$(CONFIG_MERECAT)    += merecat
 dir_$(CONFIG_MG)         += mg
 dir_$(CONFIG_MINI_SNMPD) += mini-snmpd

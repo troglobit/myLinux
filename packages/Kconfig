@@ -191,6 +191,16 @@ config FINIT_BOOT_ANIMATION
 	  Selecting this enables an ASCII art boot animation instead of
 	  the traditional Finit progress.
 
+config LXC
+       bool "lxc - Linux Containers (LXC)"
+       help
+         Linux Containers (LXC), provides the ability to group and
+	 isolate of a set of processes in a jail by virtualizing and
+	 accounting the kernel resources.  It is similar to the more
+	 famous Docker and OpenVZ.
+         
+	 https://linuxcontainers.org/
+
 config MG
        bool "mg - A Micro Emacs clone similar to GNU Emacs"
        help
