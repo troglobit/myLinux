@@ -6,9 +6,19 @@ choice
 config GENERIC
 	bool "Generic ARM64 target, with Cortex A57 for qemu"
 
+config MCBIN
+	bool "Marvell MACCHIATObin, ARMADA 8040 SoC"
+
+config SDCARD
+	string "SD card device for Marvell MACCHIATObin"
+	default "/dev/mmcblk0"
+	help
+	   The device to use for `make sdcard`
+	depends on MCBIN
 endchoice
 
 config MACH
 	string
 	default "generic" if GENERIC
+	default "mcbin" if MCBIN
      	depends on ARM64
