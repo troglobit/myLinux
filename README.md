@@ -77,11 +77,16 @@ Requirements
 The build environment currently requires at least the following tools,
 tested on Ubuntu 16.04 (x86_64):
 
-* build-essential (gcc, make, etc.)
+* build-essential (gcc, make, etc.) libssl-dev (to build kernel)
 * automake autoconf libtool pkg-config flex bison wget quilt
-* bc lzop device-tree-compiler u-boot-tools (mkimage) libelf-dev (x86)
+* bc lzop device-tree-compiler (arm + powerpc) u-boot-tools (mkimage)
+* libelf-dev (x86)
 * qemu-system-arm (install libvirt-bin and virt-manager as well!)
-  * [arm-unknown-linux-gnueabi][2] toolchain, which requires gawk
+* Toolchains, which requires gawk:
+  * [arm-unknown-linux-gnueabi][2]
+  * [aarch64-unknown-linux-gnu][2]
+  * [powerpc-unknown-linux-gnu][2]
+  * [x86_64-unknown-linux-gnu][2]
 * probably more, gzip?
 
 For x86_64 you may want to enable KVM.  For this to work as a regular
