@@ -70,14 +70,14 @@ dtb_args()
 
 mnt_args()
 {
-    echo -n "-device virtio-scsi-device,id=scsi0 "
+    echo -n "-device ${QEMU_SCSI},id=scsi0 "
     echo -n "-drive file=${QEMU_MNT},if=none,format=raw,discard=unmap,id=drive0 "
     echo -n "-device scsi-hd,bus=scsi0.0,drive=drive0 "
 }
 
 host_args()
 {
-    echo -n "-device virtio-9p-device,fsdev=hostfs,mount_tag=hostfs "
+    echo -n "-device ${QEMU_9P},fsdev=hostfs,mount_tag=hostfs "
     echo -n "-fsdev local,id=hostfs,path=${QEMU_HOST},security_model=none"
 }
 
