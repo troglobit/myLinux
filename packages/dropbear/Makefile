@@ -1,7 +1,7 @@
 # Glue for cross compiling Dropbear SSH
 include $(ROOTDIR)/core.mk
 
-PKGVER     := 2015.71
+PKGVER     := 2017.75
 PKG        := dropbear-$(PKGVER)
 PKGSUFFIX  := tar.bz2
 PKGURL      = http://matt.ucc.asn.au/dropbear/releases/$(PKGTAR)
