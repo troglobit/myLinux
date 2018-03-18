@@ -139,7 +139,10 @@ distclean:							## Really clean, as if started from scratch
 		/bin/echo -ne "\033]0;$(PWD) $$dir\007";	\
 		$(MAKE) -C $$dir $@ $(REDIRECT);		\
 	done
-	-@$(RM) -rf .config staging romfs images $(BUILDLOG)
+	-@for file in .config staging romfs images $(BUILDLOG); do \
+		echo "  REMOVE  $$file" | tee -a $(BUILDLOG);	   \
+		$(RM) -rf $$file;				   \
+	done
 
 .PHONY: help
 help:
