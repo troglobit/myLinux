@@ -58,7 +58,7 @@ export PATH ROOTDIR BUILDLOG srctree STAGING_DIRS
 export TROGLOHUB SUPPORT_URL BUG_REPORT_URL
 export KBUILD_VERBOSE MAKEFLAGS REDIRECT
 
-all: dep staging boot kernel lib packages user romfs ramdisk	## Build all the things
+all: dep staging boot kernel lib packages user romfs image	## Build all the things
 
 dep:								## Use TroglOS defconfig if user forgets to run menuconfig
 	@touch $(BUILDLOG)
@@ -80,12 +80,13 @@ romfs:								## Create stripped down romfs/ from staging/
 sdcard:								## Create Raspberry Pi SD card
 	@$(MAKE) -C arch $@
 
-ramdisk:							## Build ramdisk of staging dir
+ramdisk: romfs							## Build ramdisk of staging dir
 	@echo "  INITRD  $(OSNAME) $(OSVERSION_ID)" | tee -a $(BUILDLOG)
 	@touch romfs/etc/version
 	@$(MAKE) -f ramdisk.mk $@ $(REDIRECT)
 
-image: romfs ramdisk
+image:
+	@$(MAKE) -C arch $@
 
 kernel:								## Build configured Linux kernel
 	@$(MAKE) -j5 -C kernel all

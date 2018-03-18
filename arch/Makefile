@@ -25,12 +25,18 @@ run:
 	@echo "  QEMU    Ctrl-a x -- exit | Ctrl-a c -- toggle console/monitor" | tee -a $(BUILDLOG)
 	-@mkdir -p $(QEMU_HOST) 2>/dev/null
 	-@[ ! -e $(QEMU_MNT) ] && dd if=/dev/zero of=$(QEMU_MNT) bs=16384 count=960
-	@qemu $(IMAGEDIR)/$(KERNEL_IMG) $(IMAGEDIR)/initramfs.gz
+	@qemu $(IMAGEDIR)/$(KERNEL_IMG) $(IMAGEDIR)/troglos.img
+
+$(IMAGEDIR)/troglos.img: $(ROMFS)/.stamp
+	@echo "  SQUASH  Creating TroglOS SquasFS image" | tee -a $(BUILDLOG)
+	@mksquashfs $(ROMFS)/* $@ -noappend -nopad -no-xattrs -comp xz -all-root -b 128k > $(BUILDLOG)
+
+image: $(IMAGEDIR)/troglos.img
 
 # The install phase removes unnecessary files from the sysroot
 # The prune phase removes doc/man/include files and static libraries
 # The strip phase strips libraries and executables
-romfs:
+$(ROMFS)/.stamp:
 	@echo "  INSTALL C library files from toolchain" | tee -a $(BUILDLOG)
 	@$(CROSS_COMPILE)populate -f -s $(STAGING) -d $(ROMFS) | tee -a $(BUILDLOG)
 	@rm $(ROMFS)/sbin/sln
@@ -53,6 +59,9 @@ romfs:
 		fi;							\
 	done
 	@chmod -R u+w $(ROMFS)
+	@touch $@
+
+romfs: $(ROMFS)/.stamp
 
 staging:
 	@echo "  STAGING Root file system ..." | tee -a $(BUILDLOG)
