@@ -107,7 +107,7 @@ chksum: $(PKGCKSUM)
 ifeq ("$(wildcard $(PKGDEV))","")
 $(PKG)/.unpacked:: Makefile $(PKGARCHIVE) $(PKGPATCHES)
 	-@$(RM) -r $(PKG)
-	@(cd $(dir $(PKGARCHIVE));							\
+	@(cd $(dir $(PKGARCHIVE));						\
 	  md5sum -c $(PKGCKSUM) $(REDIRECT)					\
 	  || { echo "  FAILED  Verifying $(PKGTAR) checksum!"; exit 1; })
 	@echo "  VRFY    $(PKG) checksum OK"
