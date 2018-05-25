@@ -99,16 +99,12 @@ Qemu Networking
 ---------------
 
 TroglOS uses Qemu to run the resulting kernel + image.  For networking
-you may need to do the following to your host system:
+to work you can either `sudo make run`, which is a level of access to
+your system you likely do not want to give a random Makefile from the
+Internet.  Instead you can use capabilities:
 
-    sudo chmod 4755 /usr/lib/qemu/qemu-bridge-helper
-    sudo dpkg-statoverride --add root root 4755 /usr/lib/qemu/qemu-bridge-helper
-
-The first command  makes the Qemu helper "suid root",  which means we're
-allowed to manipulate the network  to gain external network access.  The
-last command is for Debian/Ubuntu systems,  it makes sure to record your
-change so that  any Qemu package upgrades will *not*  overwrite our mode
-change.
+    sudo /sbin/setcap cap_net_raw,cap_net_raw+ep /usr/lib/qemu/qemu-bridge-helper
+    sudo /sbin/setcap cap_net_raw,cap_net_raw+ep /usr/bin/qemu-system-arm
 
 Now you need to tell Qemu what  bridges in the system you are allowed to
 connect to, edit/create the file `/etc/qemu/bridge.conf` and add:
