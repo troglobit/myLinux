@@ -13,7 +13,7 @@
 # WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-.PHONY: run
+.PHONY: run romfs
 
 # Source configured settings for this arch
 include ../core.mk
@@ -27,7 +27,7 @@ run:
 	-@[ ! -e $(QEMU_MNT) ] && dd if=/dev/zero of=$(QEMU_MNT) bs=16384 count=960
 	@qemu $(IMAGEDIR)/$(KERNEL_IMG) $(IMAGEDIR)/troglos.img
 
-$(IMAGEDIR)/troglos.img: $(ROMFS)/.stamp
+$(IMAGEDIR)/troglos.img: romfs
 	@echo "  SQUASH  Creating TroglOS SquasFS image" | tee -a $(BUILDLOG)
 	@mksquashfs $(ROMFS)/* $@ -noappend -nopad -no-xattrs -comp xz -all-root -b 128k > $(BUILDLOG)
 
@@ -36,7 +36,7 @@ image: $(IMAGEDIR)/troglos.img
 # The install phase removes unnecessary files from the sysroot
 # The prune phase removes doc/man/include files and static libraries
 # The strip phase strips libraries and executables
-$(ROMFS)/.stamp:
+romfs:
 	@echo "  INSTALL C library files from toolchain" | tee -a $(BUILDLOG)
 	@$(CROSS_COMPILE)populate -f -s $(STAGING) -d $(ROMFS) | tee -a $(BUILDLOG)
 	@rm $(ROMFS)/sbin/sln
@@ -60,8 +60,6 @@ $(ROMFS)/.stamp:
 	done
 	@chmod -R u+w $(ROMFS)
 	@touch $@
-
-romfs: $(ROMFS)/.stamp
 
 staging:
 	@echo "  STAGING Root file system ..." | tee -a $(BUILDLOG)
