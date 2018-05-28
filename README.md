@@ -187,11 +187,11 @@ To test  it you  need an  SNMP client.   The following  command installs
 needed.  You  may also  be interested in  a more  graphical alternative,
 [snmpB](http://sourceforge.net/projects/snmpb/)
 
-<kbd>$ sudo apt-get install snmp libsnmp-base snmp-mibs-downloader</kbd>
+<kbd>sudo apt-get install snmp libsnmp-base snmp-mibs-downloader</kbd>
 
 When done you should be able to do the following:
 
-<kbd>$ snmpwalk -v2c -c public 192.0.2.42</kbd>
+<kbd>snmpwalk -v2c -c public 192.0.2.42</kbd>
 
     SNMPv2-MIB::sysDescr.0 = STRING: TroglOS Linux Virtual Devboard
     SNMPv2-MIB::sysObjectID.0 = OID: SNMPv2-SMI::enterprises
@@ -213,7 +213,7 @@ When done you should be able to do the following:
     IF-MIB::ifOutErrors.1 = Counter32: 0
     SNMPv2-SMI::mib-2.25.1.1.0 = Timeticks: (71983) 0:11:59.83
     
-<kbd>$ snmpget -c public -v 2c 192.0.2.42 system.sysUpTime.0</kbd>
+<kbd>snmpget -c public -v 2c 192.0.2.42 system.sysUpTime.0</kbd>
 
     SNMPv2-MIB::sysUpTime.0 = Timeticks: (2344) 0:00:23.44
 
