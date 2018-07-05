@@ -1,7 +1,7 @@
 # Glue for cross compiling watchdogd
 include $(ROOTDIR)/core.mk
 
-PKGVER     := 3.0
+PKGVER     := 3.1
 PKG        := watchdogd-$(PKGVER)
 PKGSUFFIX  := tar.xz
 PKGURL      = $(TROGLOHUB)/$(PKGNAME)/releases/download/$(PKGVER)/$(PKGTAR)
