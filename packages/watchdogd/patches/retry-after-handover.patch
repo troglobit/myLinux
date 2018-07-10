@@ -1,0 +1,41 @@
+commit f2e91a593a4e6f5e0b5b963e6995d8287f55d65c
+Author: Joachim Nilsson <troglobit@gmail.com>
+Date:   Mon Jul 9 23:16:07 2018 +0200
+
+    Retry if open(WDT) fails after handover from Finit
+    
+    Signed-off-by: Joachim Nilsson <troglobit@gmail.com>
+
+diff --git a/src/finit.c b/src/finit.c
+index a5d9a51..4a1f848 100644
+--- a/src/finit.c
++++ b/src/finit.c
+@@ -83,11 +83,27 @@ err:
+  */
+ int wdt_handover(const char *devnode)
+ {
++	int retries = 3;
++	int rc = -1;
++
+ 	DEBUG("Attempting WDT handover with Finit ...");
+ 	if (wdt_register())
+ 		return -1;
+ 
+-	return open(devnode, O_WRONLY);
++	/*
++	 * Don't give up immediately, give the current
++	 * daemon time to exit and the kernel time to
++	 * close the WDT device.
++	 */
++	while (rc < 0 && retries--) {
++		rc = open(devnode, O_WRONLY);
++		if (rc >= 0)
++			break;
++
++		sleep(1);
++	}
++
++	return rc;
+ }
+ 
+ /**
