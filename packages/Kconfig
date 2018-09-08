@@ -31,6 +31,13 @@ config MERECAT
          
 	 https://github.com/troglobit/merecat/
 
+config MDNSD
+       bool "mdnsd - Embeddable mDNS-SD daemon"
+       help
+         A small mDNS-SD daemon.
+         
+         https://github.com/troglobit/mdnsd/
+
 config MINI_SNMPD
        bool "mini-snmpd - Mini SNMP Daemon"
        help

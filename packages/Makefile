@@ -26,6 +26,7 @@ dir_$(CONFIG_INADYN)     += inadyn
 dir_$(CONFIG_LLDPD)      += lldpd
 dir_$(CONFIG_LXC)        += lxc
 dir_$(CONFIG_MERECAT)    += merecat
+dir_$(CONFIG_MDNSD)      += mdnsd
 dir_$(CONFIG_MG)         += mg
 dir_$(CONFIG_MINI_SNMPD) += mini-snmpd
 dir_$(CONFIG_MROUTED)    += mrouted
