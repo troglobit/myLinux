@@ -1,7 +1,7 @@
 # Glue for cross compiling BusyBox
 include $(ROOTDIR)/core.mk
 
-PKGVER     := 1.25.0
+PKGVER     := 1.29.3
 PKG	   := busybox-$(PKGVER)
 PKGSUFFIX  := tar.bz2
 PKGURL      = http://busybox.net/downloads/$(PKGTAR)

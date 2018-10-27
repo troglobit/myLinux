@@ -1,7 +1,8 @@
-diff -ru busybox-1.21.0/networking/httpd.c busybox-1.21.0-httpd_upload_auth/networking/httpd.c
---- busybox-1.21.0/networking/httpd.c	2013-01-14 01:22:06.000000000 +0100
-+++ busybox-1.21.0-httpd_upload_auth/networking/httpd.c	2013-03-05 11:04:34.096713816 +0100
-@@ -900,13 +900,14 @@
+Index: busybox-1.29.3/networking/httpd.c
+===================================================================
+--- busybox-1.29.3.orig/networking/httpd.c
++++ busybox-1.29.3/networking/httpd.c
+@@ -1019,13 +1019,14 @@ static void log_and_exit(void)
  {
  	/* Paranoia. IE said to be buggy. It may send some extra data
  	 * or be confused by us just exiting without SHUT_WR. Oh well. */
