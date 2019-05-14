@@ -110,11 +110,17 @@ to work you can either `sudo make run`, which is a level of access to
 your system you likely do not want to give a random Makefile from the
 Internet.  Instead you can use capabilities:
 
-    sudo /sbin/setcap cap_net_raw,cap_net_raw+ep /usr/lib/qemu/qemu-bridge-helper
-    sudo /sbin/setcap cap_net_raw,cap_net_raw+ep /usr/bin/qemu-system-arm
+    sudo /sbin/setcap cap_net_raw,cap_net_admin+ep /usr/lib/qemu/qemu-bridge-helper
+    sudo /sbin/setcap cap_net_raw,cap_net_admin+ep /usr/bin/qemu-system-arm
+    sudo /sbin/setcap cap_net_raw,cap_net_admin+ep /usr/bin/qemu-system-aarch64
+    ...
 
-Now you need to tell Qemu what  bridges in the system you are allowed to
-connect to, edit/create the file `/etc/qemu/bridge.conf` and add:
+Remember, your `$LOGNAME` must be listead  as a known user of both above
+capabilities in `/etc/security/capability.conf`.
+
+What remains  now is to  tell Qemu what bridges  in your system  you are
+allowed to connect to,  edit/create the file `/etc/qemu/bridge.conf` and
+add:
 
     allow virbr0
 
