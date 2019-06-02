@@ -1,7 +1,7 @@
 # Glue for cross compiling uftpd
 include $(ROOTDIR)/core.mk
 
-PKGVER     := 2.6
+PKGVER     := 2.8
 PKG        := uftpd-$(PKGVER)
 PKGSUFFIX  := tar.xz
 PKGPATCHES :=
