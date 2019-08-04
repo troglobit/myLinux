@@ -77,8 +77,7 @@ mnt_args()
 
 host_args()
 {
-    echo -n "-device ${QEMU_9P},fsdev=hostfs,mount_tag=hostfs "
-    echo -n "-fsdev local,id=hostfs,path=${QEMU_HOST},security_model=none"
+    echo -n "-virtfs local,id=hosfts,path=${QEMU_HOST},security_model=none,mount_tag=hostfs "
 }
 
 net_args()
