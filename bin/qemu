@@ -102,9 +102,8 @@ export QEMU_AUDIO_DRV=none
 
 # Start Qemu
 #	    -watchdog i6300esb
-qemu-system-${QEMU_ARCH} -m 256M -M ${QEMU_MACH} ${QEMU_EXTRA}	\
+qemu-system-${QEMU_ARCH} -nographic -m 256M -M ${QEMU_MACH} ${QEMU_EXTRA} \
 	    -kernel ${1} -initrd ${2} -append "$(append_args)"	\
-	    -rtc base=utc,clock=rt -nographic \
 	    $(dtb_args) $(mnt_args) $(host_args) $(net_args)
 
 # Restore TTY from Qemu target
