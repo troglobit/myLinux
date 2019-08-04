@@ -1,6 +1,6 @@
 # To be included by top-level Makefile
 # Set ARCH=ppc when calling make to get a ppc *_defconfig
-ARCH           ?= arm
+#ARCH           ?= arm
 kcfg           := $(ROOTDIR)/kconfig
 KBUILD_KCONFIG := $(ROOTDIR)/Kconfig
 

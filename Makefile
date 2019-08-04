@@ -62,7 +62,7 @@ all: dep staging boot kernel lib packages user romfs image	## Build all the thin
 
 dep:								## Use TroglOS defconfig if user forgets to run menuconfig
 	@touch $(BUILDLOG)
-	@test -e .config || $(MAKE) ARCH=arm versatile_defconfig
+#	@test -e .config || $(MAKE) $(DEFCONFIG)
 	@make -C arch $@
 
 # Linux Kconfig, menuconfig et al

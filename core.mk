@@ -16,17 +16,18 @@ MACH               = $(call qstrip, $(CONFIG_MACH))
 KERNEL_VERSION     = $(call qstrip, $(CONFIG_LINUX_VERSION))
 QEMU_APPEND        = $(call qstrip, $(CONFIG_LINUX_CMDLINE))
 else
-ARCH               = arm
-MACH               = versatile
-KERNEL_VERSION     = 4.8.7
-QEMU_APPEND        = root=/dev/ram console=ttyAMA0,115200
+#ARCH              ?= arm
+#MACH              ?= versatile
+#KERNEL_VERSION     = 4.8.7
+#QEMU_APPEND        = root=/dev/ram console=ttyAMA0,115200
 endif
 
 # Map Qemu archs (used by TroglOS) to Linux kernel archs
 KERNEL_ARCH       := $(shell echo $(ARCH) | sed	\
 			-e 's/ppc64/powerpc64/'	\
 			-e 's/ppc/powerpc/'	\
-			-e 's/aarch64/arm64/')
+			-e 's/aarch64/arm64/'   \
+			-e 's/x86_64/x86/')
 
 ifdef KERNEL_RC
 KERNEL_VERSION     = $(KERNEL_VERSION).0$(KERNEL_RC)
