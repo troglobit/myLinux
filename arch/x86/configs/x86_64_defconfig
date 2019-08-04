@@ -20,7 +20,7 @@ CONFIG_MACH="x86_64"
 #
 CONFIG_LINUX_VERSION="4.15.4"
 # CONFIG_LINUX_TESTING is not set
-CONFIG_LINUX_CMDLINE="root=/dev/ram0 mem=256M console=hvc0 console=ttyS0,115200"
+CONFIG_LINUX_CMDLINE="root=/dev/ram mem=256M console=hvc0 console=ttyS0,115200"
 
 #
 # Libraries
