@@ -1,5 +1,5 @@
 /tmp		/tmp	tmpfs		size=4M,noatime,nodiratime,nosuid				0	0
-hostfs		/host	9p		trans=virtio,version=9p2000.L,posixacl,cache=loose		0	0
+hostfs		/host	9p		trans=virtio,version=9p2000.L,posixacl				0	0
 mtd:Config	/mnt	jffs2		sync,noatime,nodiratime						0	0
 overlay		/home	overlay		lowerdir=/home,upperdir=/mnt/home,workdir=/mnt/.home,index=off	0	0
 overlay		/var	overlay		lowerdir=/var,upperdir=/mnt/var,workdir=/mnt/.var,index=off	0	0
