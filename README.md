@@ -91,9 +91,9 @@ tested on Ubuntu 16.04 (x86_64):
 * qemu-system-arm (install libvirt-bin and virt-manager as well!)
 * Toolchains, which requires gawk:
   * [arm-unknown-linux-gnueabi][2]
-  * [aarch64-unknown-linux-gnu][2]
-  * [powerpc-unknown-linux-gnu][2]
-  * [x86_64-unknown-linux-gnu][2]
+  * [aarch64-unknown-linux-gnu][3]
+  * [powerpc-unknown-linux-gnu][4]
+  * [x86_64-unknown-linux-gnu][5]
 * probably more, gzip?
 
 For x86_64 you may want to enable KVM.  For this to work as a regular
@@ -265,3 +265,6 @@ Cheers!
 
 [1]: https://github.com/crosstool-ng/crosstool-ng
 [2]: http://ftp.troglobit.com/pub/Toolchains/arm-unknown-linux-gnueabi-7.3.0-1.tar.xz
+[3]: http://ftp.troglobit.com/pub/Toolchains/aarch64-unknown-linux-gnu-7.3.0-1.tar.xz
+[4]: http://ftp.troglobit.com/pub/Toolchains/powerpc-unknown-linux-gnu-7.3.0-1.tar.xz
+[5]: http://ftp.troglobit.com/pub/Toolchains/x86_64-unknown-linux-gnu-7.3.0-1.tar.xz
