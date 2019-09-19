@@ -15,6 +15,16 @@ config INADYN
 	 
 	 http://troglobit.com/inadyn.html
 
+config IPROUTE2
+       bool "iproute2 - next generation ifconfig et al"
+       help
+         iproute2 is a collection of userspace utilities for controlling
+         and monitoring various aspects of networking in the Linux
+         kernel, including routing, network interfaces, tunnels, traffic
+         control, and network-related device drivers.
+	 
+	 https://wiki.linuxfoundation.org/networking/iproute2
+
 config LLDPD
        bool "lldpd - IEEE 802.1ab LLDP Daemon"
        help
