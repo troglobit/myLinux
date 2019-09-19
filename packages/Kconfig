@@ -245,6 +245,16 @@ config TETRIS
 	 
 	 http://troglobit.com/tetris.html
 
+CONFIG_TCPDUMP
+       bool "tcpdump - Monitor network traffic"
+       help
+	 tcpdump is a packet analyzer that runs from the command line.
+	 It allows the user to display TCP/IP and other packets being
+	 transmitted or received over a network to which the system is
+	 attached.
+	 
+	 http://www.tcpdump.org
+
 config WATCHDOGD
        bool "watchdogd - Advanced Watchdog Daemon"
        help
