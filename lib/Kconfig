@@ -45,6 +45,13 @@ config LIBMNL
 	 
 	 https://www.netfilter.org/projects/libmnl/
 
+config LIBPCAP
+       bool "libpcap, the standard packet capture library"
+       help
+         Used by tcpdump and other tools to dissect network packets.
+	 
+	 http://www.tcpdump.org
+
 config NCURSES
        bool "Ncurses"
        help
