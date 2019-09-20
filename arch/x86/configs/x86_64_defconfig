@@ -1,13 +1,15 @@
 #
-# TroglOS Virtual Devboard Default Configuration
+# Automatically generated make config: don't edit
+# TroglOS Virtual Devboard Configuration
 #
 CONFIG_DOT_CONFIG=y
 # CONFIG_ARM is not set
+# CONFIG_ARM64 is not set
 # CONFIG_PPC is not set
 CONFIG_X86=y
 CONFIG_ARCH="x86"
-CONFIG_X86_64=y
 CONFIG_MACH="x86_64"
+CONFIG_X86_64=y
 
 #
 # Boot Loaders and Firmware
@@ -28,8 +30,9 @@ CONFIG_LINUX_CMDLINE="root=/dev/ram mem=256M console=hvc0 console=ttyS0,115200"
 CONFIG_CONFUSE=y
 CONFIG_LIBITE=y
 CONFIG_LIBUEV=y
-CONFIG_LIBMNL=y
 # CONFIG_LIPIFY is not set
+CONFIG_LIBMNL=y
+CONFIG_LIBPCAP=y
 CONFIG_NCURSES=y
 CONFIG_ZLIB=y
 
@@ -38,8 +41,10 @@ CONFIG_ZLIB=y
 #
 CONFIG_DROPBEAR=y
 # CONFIG_INADYN is not set
+CONFIG_IPROUTE2=y
 # CONFIG_LLDPD is not set
 # CONFIG_MERECAT is not set
+# CONFIG_MDNSD is not set
 # CONFIG_MINI_SNMPD is not set
 # CONFIG_MROUTED is not set
 # CONFIG_NETCALC is not set
@@ -58,9 +63,11 @@ CONFIG_DROPBEAR=y
 CONFIG_BUSYBOX=y
 CONFIG_FINIT=y
 # CONFIG_FINIT_BOOT_ANIMATION is not set
-# CONFIG_MG is not set
+# CONFIG_LXC is not set
+CONFIG_MG=y
 # CONFIG_STRACE is not set
 # CONFIG_TETRIS is not set
+CONFIG_TCPDUMP=y
 CONFIG_WATCHDOGD=y
 
 #
