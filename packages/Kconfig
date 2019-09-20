@@ -255,7 +255,7 @@ config TETRIS
 	 
 	 http://troglobit.com/tetris.html
 
-CONFIG_TCPDUMP
+config TCPDUMP
        bool "tcpdump - Monitor network traffic"
        help
 	 tcpdump is a packet analyzer that runs from the command line.
