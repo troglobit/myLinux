@@ -77,7 +77,7 @@ staging:							## Initialize staging area
 romfs:								## Create stripped down romfs/ from staging/
 	@$(MAKE) -C arch $@
 
-sdcard:								## Create Raspberry Pi SD card
+sdcard:							## Create Raspberry Pi SD card
 	@$(MAKE) -C arch $@
 
 ramdisk: romfs							## Build ramdisk of staging dir
@@ -88,7 +88,7 @@ ramdisk: romfs							## Build ramdisk of staging dir
 image:
 	@$(MAKE) -C arch $@
 
-kernel:								## Build configured Linux kernel
+kernel:							## Build configured Linux kernel
 	@$(MAKE) -j5 -C kernel all
 	@$(MAKE) kernel_install
 
@@ -104,7 +104,7 @@ kernel_defconfig:						## Call Linux defconfig for the selected target platform
 kernel_saveconfig:						## Save Linux-VER.REV/.config to kernel/config-VER
 	@$(MAKE) -C kernel saveconfig
 
-kernel_install:							## Install Linux device tree
+kernel_install:						## Install Linux device tree
 	@$(MAKE) -C kernel dtbinst
 
 # Packages may depend on libraries, so we build libs first
@@ -113,7 +113,7 @@ packages: lib
 # We don't know anything about user programs, we build them last
 user: packages lib
 
-boot user packages lib:						## Build packages or libraries
+boot user packages lib:					## Build packages or libraries
 	@$(MAKE) -j5 -C $@ all
 	@$(MAKE) -j5 -C $@ install
 
