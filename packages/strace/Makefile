@@ -1,12 +1,13 @@
 # Glue for cross compiling strace
 include $(ROOTDIR)/core.mk
 
-PKGVER     := 4.23
+PKGVER     := 5.2
 PKG        := strace-$(PKGVER)
 PKGSUFFIX  := tar.xz
 PKGURL      = https://strace.io/files/$(PKGVER)/$(PKGTAR)
 PKGPATCHES :=
-PKGCFG     := --host=$(CROSS_TARGET) --prefix= --without-libunwind
+PKGCFG     := --host=$(CROSS_TARGET) --prefix=
+PKGCFG     += --without-libunwind
 PKGINSTALL := install-exec
 
 include $(ROOTDIR)/pkg.mk
