@@ -58,7 +58,7 @@ export PATH ROOTDIR BUILDLOG srctree STAGING_DIRS
 export TROGLOHUB SUPPORT_URL BUG_REPORT_URL
 export KBUILD_VERBOSE MAKEFLAGS REDIRECT
 
-all: dep staging boot kernel lib packages user romfs image	## Build all the things
+all: dep staging boot kernel lib packages user image		## Build all the things
 
 dep:								## Use TroglOS defconfig if user forgets to run menuconfig
 	@touch $(BUILDLOG)
