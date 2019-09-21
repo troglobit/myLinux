@@ -71,7 +71,7 @@ As an alternative, which can be useful for scripting, the menuconfig
 step can be skipped using an arch-specific defconfig:
 
     make distclean
-    ARCH=ppc make ppce500_defconfig
+    ARCH=x86_64 make x86_64_defconfig
     make
     make run
 
@@ -264,7 +264,7 @@ Cheers!
 -- Joachim
 
 [1]: https://github.com/crosstool-ng/crosstool-ng
-[2]: http://ftp.troglobit.com/pub/Toolchains/arm-unknown-linux-gnueabi-7.3.0-1.tar.xz
-[3]: http://ftp.troglobit.com/pub/Toolchains/aarch64-unknown-linux-gnu-7.3.0-1.tar.xz
-[4]: http://ftp.troglobit.com/pub/Toolchains/powerpc-unknown-linux-gnu-7.3.0-1.tar.xz
-[5]: http://ftp.troglobit.com/pub/Toolchains/x86_64-unknown-linux-gnu-7.3.0-1.tar.xz
+[2]: https://ftp.troglobit.com/pub/Toolchains/arm-unknown-linux-gnueabi-7.3.0-1.tar.xz
+[3]: https://ftp.troglobit.com/pub/Toolchains/aarch64-unknown-linux-gnu-7.3.0-1.tar.xz
+[4]: https://ftp.troglobit.com/pub/Toolchains/powerpc-unknown-linux-gnu-7.3.0-1.tar.xz
+[5]: https://ftp.troglobit.com/pub/Toolchains/x86_64-unknown-linux-gnu-7.3.0-1.tar.xz
