@@ -5,8 +5,22 @@
 # Example:
 #	check-toolchain arm-unknown-linux-gnueabi-gcc crosstool-ng-1.22.0-234-g531eab4
 #
+# Create the file `.strict` in the top/root directory of the build system
+# to fail the check with error status if toolchain has wrong version.  By
+# default this script only warns.
+#
 CC=$1
 VER=$2
+
+if [ -e $ROOTDIR/.strict ]; then
+    mesg="incorrect, bailing out!"
+    warn="FAIL"
+    rc=1
+else
+    mesg="not verified, unsupported!"
+    warn="WARN"
+    rc=0
+fi
 
 if [ -z "$CC" -o -z "$VER" ]; then
    echo "Usage: $0 GCC VERSION"
@@ -23,9 +37,9 @@ fi
 printf "  CHECK   Toolchain version ... " | tee -a $BUILDLOG
 $CC --version |grep $VER >/dev/null 2>&1
 if [ $? -ne 0 ]; then
-    printf "FAIL\n" | tee -a $BUILDLOG
-    printf "  FAIL    Wrong toolchain version, should be $VER\n" | tee -a $BUILDLOG
-    exit 1
+    printf "$mesg\n" | tee -a $BUILDLOG
+    printf "  $warn    Wrong toolchain version, should be $VER\n" | tee -a $BUILDLOG
+    exit $rc
 fi
 
 printf "OK\n" | tee -a $BUILDLOG
