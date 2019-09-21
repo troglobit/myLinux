@@ -34,13 +34,22 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-printf "  CHECK   Toolchain version ... " | tee -a $BUILDLOG
+print()
+{
+    if [ $rc -eq 0 ]; then
+	printf "$*"       >> $BUILDLOG
+    else
+	printf "$*" | tee -a $BUILDLOG
+    fi
+}
+
+print "  CHECK   Toolchain version ... "
 $CC --version |grep $VER >/dev/null 2>&1
 if [ $? -ne 0 ]; then
-    printf "$mesg\n" | tee -a $BUILDLOG
-    printf "  $warn    Wrong toolchain version, should be $VER\n" | tee -a $BUILDLOG
+    print "$mesg\n"
+    print "  $warn    Wrong toolchain version, should be $VER\n"
     exit $rc
 fi
 
-printf "OK\n" | tee -a $BUILDLOG
+print "OK\n"
 exit 0
