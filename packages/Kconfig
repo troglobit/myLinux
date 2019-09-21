@@ -235,7 +235,7 @@ config MG
 	  https://github.com/troglobit/mg/
 
 config SOCAT
-       bool "socat - socket cat, a multipurpose relay (netcat++)
+       bool "socat - socket cat, a multipurpose relay (netcat++)"
        help
          Socat is a command line based utility that establishes two
 	 bidirectional byte streams and transfers data between them.
