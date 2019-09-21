@@ -37,7 +37,7 @@ image: $(IMAGEDIR)/troglos.img
 # The prune phase removes doc/man/include files and static libraries
 # The strip phase strips libraries and executables
 romfs:
-	@echo "  INSTALL C library files from toolchain" | tee -a $(BUILDLOG)
+	@echo "  POPUL8  Creating root filesystem from $(STAGING)" | tee -a $(BUILDLOG)
 	@$(CROSS_COMPILE)populate -f -s $(STAGING) -d $(ROMFS) | tee -a $(BUILDLOG)
 	@rm $(ROMFS)/sbin/sln
 	@rm $(ROMFS)/sbin/ldconfig
