@@ -234,6 +234,18 @@ config MG
 	  
 	  https://github.com/troglobit/mg/
 
+config SOCAT
+       bool "socat - socket cat, a multipurpose relay (netcat++)
+       help
+         Socat is a command line based utility that establishes two
+	 bidirectional byte streams and transfers data between them.
+	 Because the streams can be constructed from a large set of
+	 different types of data sinks and sources (see address types),
+	 and because lots of address options may be applied to the
+	 streams, socat can be used for many different purposes.
+	 
+	 http://www.dest-unreach.org/socat/
+
 config STRACE
        bool "strace - Trace system calls and signals in an application"
        help

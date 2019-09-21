@@ -38,6 +38,7 @@ dir_$(CONFIG_MCJOIN)     += mcjoin
 dir_$(CONFIG_PIMD)       += pimd
 dir_$(CONFIG_REDIR)      += redir
 dir_$(CONFIG_SMCROUTE)   += smcroute
+dir_$(CONFIG_SOCAT)      += socat
 dir_$(CONFIG_STRACE)     += strace
 dir_$(CONFIG_TETRIS)     += tetris
 dir_$(CONFIG_TCPDUMP)    += tcpdump
