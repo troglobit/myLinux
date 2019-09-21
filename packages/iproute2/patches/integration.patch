@@ -1,15 +1,25 @@
---- a/Makefile
-+++ b/Makefile
-@@ -49,7 +49,7 @@ ADDLIB+=ipx_ntop.o ipx_pton.o
+Index: iproute2-5.2.0/Makefile
+===================================================================
+--- iproute2-5.2.0.orig/Makefile
++++ iproute2-5.2.0/Makefile
+@@ -29,7 +29,7 @@ BASH_COMPDIR?=$(DATADIR)/bash-completion
+ # Path to db_185.h include
+ DBM_INCLUDE:=$(DESTDIR)/usr/include
+ 
+-SHARED_LIBS = y
++SHARED_LIBS = n
+ 
+ DEFINES= -DRESOLVE_HOSTNAMES -DLIBDIR=\"$(LIBDIR)\"
+ ifneq ($(SHARED_LIBS),y)
+@@ -43,7 +43,6 @@ DEFINES+=-DCONFDIR=\"$(CONFDIR)\" \
  #options for mpls
  ADDLIB+=mpls_ntop.o mpls_pton.o
  
 -CC := gcc
-+CC ?= gcc
  HOSTCC ?= $(CC)
  DEFINES += -D_GNU_SOURCE
  # Turn on transparent support for LFS
-@@ -61,7 +61,7 @@ WFLAGS += -Wmissing-declarations -Wold-s
+@@ -55,7 +54,7 @@ WFLAGS += -Wmissing-declarations -Wold-s
  CFLAGS := $(WFLAGS) $(CCOPTS) -I../include -I../include/uapi $(DEFINES) $(CFLAGS)
  YACCFLAGS = -d -t -v
  

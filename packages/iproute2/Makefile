@@ -1,7 +1,7 @@
 # Glue for cross compiling iproute2
 include $(ROOTDIR)/core.mk
 
-PKGVER     := 4.19.0
+PKGVER     := 5.2.0
 PKG        := iproute2-$(PKGVER)
 PKGSUFFIX  := tar.xz
 PKGURL      = https://www.kernel.org/pub/linux/utils/net/iproute2/$(PKGTAR)
