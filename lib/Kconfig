@@ -45,6 +45,20 @@ config LIBMNL
 	 
 	 https://www.netfilter.org/projects/libmnl/
 
+config LIBNET
+       bool "libnet, low-level network packet writing and handling"
+       help
+
+          libnet features portable packet creation interfaces at the IP
+          layer and link layer, as well as a host of supplementary
+          functionality.
+	  
+	  Using libnet, quick and simple packet assembly applications
+	  can be whipped up with little effort.  With a bit more time,
+	  more complex programs can be written.  One example is Nemeis.
+	  
+	  https://github.com/libnet/libnet
+
 config LIBPCAP
        bool "libpcap, the standard packet capture library"
        help
