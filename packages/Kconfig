@@ -63,6 +63,18 @@ config MROUTED
 	 
 	 http://troglobit.com/mrouted.html
 
+config NEMESIS
+       bool "nemesis - packet crafting & injection"
+       help
+         The Nemesis Project is designed to be a command line based,
+         portable human IP stack for UNIX-like and Windows systems. The
+         suite is broken down by protocol, and should allow for useful
+         scripting of injected packets from simple shell scripts.
+	 
+	 Nemesis is built on top of libnet.
+	 
+	 https://github.com/troglobit/nemesis/
+
 config NETCALC
        bool "netcalc - Simple subnet calculator"
        help
