@@ -33,6 +33,7 @@ dir_$(CONFIG_MINI_SNMPD) += mini-snmpd
 dir_$(CONFIG_MROUTED)    += mrouted
 dir_$(CONFIG_NEMESIS)    += nemesis
 dir_$(CONFIG_NETCALC)    += netcalc
+dir_$(CONFIG_NETSNIFF)   += netsniff
 dir_$(CONFIG_NTPCLIENT)  += ntpclient
 dir_$(CONFIG_OMPING)     += omping
 dir_$(CONFIG_MCJOIN)     += mcjoin
@@ -51,4 +52,3 @@ dir_                      =
 dir_all                   = $(filter-out $(exclude), $(notdir $(wildcard *)))
 
 include ../rules.mk
-
