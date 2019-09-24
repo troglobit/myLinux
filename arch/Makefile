@@ -59,7 +59,6 @@ romfs:
 		fi;							\
 	done
 	@chmod -R u+w $(ROMFS)
-	@touch $@
 
 staging:
 	@echo "  STAGING Root file system ..." | tee -a $(BUILDLOG)
