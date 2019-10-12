@@ -42,6 +42,7 @@ dir_$(CONFIG_REDIR)      += redir
 dir_$(CONFIG_SMCROUTE)   += smcroute
 dir_$(CONFIG_SOCAT)      += socat
 dir_$(CONFIG_STRACE)     += strace
+dir_$(CONFIG_SYSKLOGD)   += sysklogd
 dir_$(CONFIG_TETRIS)     += tetris
 dir_$(CONFIG_TCPDUMP)    += tcpdump
 dir_$(CONFIG_UFTPD)      += uftpd

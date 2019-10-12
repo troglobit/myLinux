@@ -288,6 +288,15 @@ config STRACE
 	  
 	  http://strace.sourceforge.net       
 
+config SYSKLOGD
+       bool "sysklogd - Traditional syslogd with klogd"
+       help
+         This package includes the traditional Berkeley syslog daemon
+         and a small kernel log daemon.  It has built-in log rotation
+         and can both receive from and send to remote syslog servers.
+          
+         https://github.com/troglobit/sysklogd/
+
 config TETRIS
        bool "tetris - Micro Tetris"
        help
