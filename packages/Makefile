@@ -41,6 +41,7 @@ dir_$(CONFIG_PIMD)       += pimd
 dir_$(CONFIG_REDIR)      += redir
 dir_$(CONFIG_SMCROUTE)   += smcroute
 dir_$(CONFIG_SOCAT)      += socat
+dir_$(CONFIG_SSDPD)      += ssdp-responder
 dir_$(CONFIG_STRACE)     += strace
 dir_$(CONFIG_SYSKLOGD)   += sysklogd
 dir_$(CONFIG_TETRIS)     += tetris

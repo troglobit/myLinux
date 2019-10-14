@@ -179,6 +179,15 @@ config SMCROUTE
 	 
 	 http://troglobit.com/smcroute.html
 
+config SSDPD
+       bool "ssdp-responder - SSDP discovery agent"
+       help
+         Simple Service Discovery Protocol daemon (SSDP) for networked Linux
+         devices.  Useful for small and embedded systems that want to announce
+         themselves to systems running Windows.
+         
+         https://github.com/troglobit/ssdp-responder
+
 config UFTPD
        bool "uftpd - TFTP/FTP Daemon That Just Works"
        help
