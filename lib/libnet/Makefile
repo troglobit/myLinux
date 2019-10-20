@@ -1,7 +1,7 @@
 # Glue for cross compiling libnet
 include $(ROOTDIR)/core.mk
 
-PKGVER     := 1.2-rc4
+PKGVER     := 1.2
 PKG        := libnet-$(PKGVER)
 PKGSUFFIX  := tar.gz
 PKGURL      = https://github.com/libnet/libnet/releases/download/v$(PKGVER)/$(PKG).$(PKGSUFFIX)
