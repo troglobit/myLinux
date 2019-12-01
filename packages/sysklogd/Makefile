@@ -1,7 +1,7 @@
 # Glue for cross compiling sysklogd
 include $(ROOTDIR)/core.mk
 
-PKGVER     := 2.0.1
+PKGVER     := 2.0.3
 PKG        := sysklogd-$(PKGVER)
 PKGSUFFIX  := tar.gz
 PKGURL      = $(TROGLOHUB)/$(PKGNAME)/releases/download/v$(PKGVER)/$(PKGTAR)
