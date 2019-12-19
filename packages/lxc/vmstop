@@ -1,0 +1,10 @@
+#!/bin/sh
+
+lxc-info -n $1 |grep RUNNING >/dev/null
+if [ $? -ne 0 ]; then
+   echo "Container $1 is not running."
+   exit 1
+fi
+
+lxc-destroy -n $1 -f
+
