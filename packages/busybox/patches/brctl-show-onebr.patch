@@ -1,0 +1,40 @@
+--- a/networking/brctl.c
++++ b/networking/brctl.c
+@@ -49,7 +49,7 @@
+ //usage:       "Manage ethernet bridges\n"
+ //usage:     "\nCommands:"
+ //usage:	IF_FEATURE_BRCTL_SHOW(
+-//usage:     "\n	show			Show a list of bridges"
++//usage:     "\n	show [BRIDGE]		Show a list of bridges"
+ //usage:	)
+ //usage:     "\n	addbr BRIDGE		Create BRIDGE"
+ //usage:     "\n	delbr BRIDGE		Delete BRIDGE"
+@@ -223,7 +223,7 @@ int brctl_main(int argc UNUSED_PARAM, ch
+ 	int fd;
+ 	smallint key;
+ 	struct ifreq ifr;
+-	char *br, *brif;
++	char *br = NULL, *brif;
+ 
+ 	argv++;
+ 	while (*argv) {
+@@ -244,6 +244,10 @@ int brctl_main(int argc UNUSED_PARAM, ch
+ 			char brname[IFNAMSIZ];
+ 			int bridx[MAX_PORTS];
+ 			int i, num;
++
++			if (*argv)
++				br = *argv++;
++
+ 			arm_ioctl(args, BRCTL_GET_BRIDGES,
+ 						(unsigned long) bridx, MAX_PORTS);
+ 			num = xioctl(fd, SIOCGIFBR, args);
+@@ -256,6 +260,8 @@ int brctl_main(int argc UNUSED_PARAM, ch
+ 
+ 				if (!if_indextoname(bridx[i], brname))
+ 					bb_perror_msg_and_die("can't get bridge name for index %d", i);
++				if (br && strcmp(br, brname))
++					continue;
+ 				strncpy_IFNAMSIZ(ifr.ifr_name, brname);
+ 
+ 				arm_ioctl(args, BRCTL_GET_BRIDGE_INFO,

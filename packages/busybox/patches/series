@@ -3,3 +3,4 @@
 syslogd-delay-pidfile.patch
 login-update-utmp-before-fork.patch
 ifupdown-bridge-support1.patch
+brctl-show-onebr.patch
