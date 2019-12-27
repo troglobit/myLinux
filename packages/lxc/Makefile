@@ -14,7 +14,4 @@ PKGCFG     += --disable-capabilities --disable-python --disable-lua
 include $(ROOTDIR)/pkg.mk
 
 install::
-	@cp vmimport $(STAGING)/sbin/
-	@cp vmstart  $(STAGING)/sbin/
-	@cp vmstop   $(STAGING)/sbin/
-	@cp vmattach $(STAGING)/sbin/
+	@cp vm $(STAGING)/sbin/

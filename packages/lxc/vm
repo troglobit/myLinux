@@ -1,0 +1,224 @@
+#!/bin/sh
+#
+# Copyright (c) 2019  Joachim Nilsson <troglobit@gmail.com>
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+statedir=/var/lib/lxc
+
+usage()
+{
+    echo "usage: vm command [args]"
+    echo
+    echo "       vm attach  name"
+    echo "       vm create  name"
+    echo "       vm import  container[.squashfs] [name]"
+    echo "       vm start   name"
+    echo "       vm stop    name"
+    echo "       vm show   [name]"
+    echo "       vm top"
+    echo
+
+    exit 1
+}
+
+check_args()
+{
+    if [ $# -lt 1 ]; then
+	usage
+    fi
+}
+
+check_exist()
+{
+    if [ ! -e $statedir/$1/config ]; then
+	echo "Container $1 does not exist."
+	exit 1
+    fi
+}
+
+check_not_exist()
+{
+    if [ -e $statedir/$1/config ]; then
+	echo "Container $1 already exists, delete it first."
+	exit 1
+    fi
+}
+
+attach()
+{
+    check_args $*
+
+    lxc-info -n $1 |grep RUNNING >/dev/null
+    if [ $? -ne 0 ]; then
+	echo "Container $1 is not running."
+	exit 1
+    fi
+
+    lxc-console -n $1 -e '^p' -t 0
+}
+
+# Creates a container based on the host's rootfs
+create()
+{
+    dir=$statedir/$1
+
+    check_args $*
+    check_not_exist $1
+
+    # create rootfs
+    mkdir -p $dir/rootfs
+    cd $dir/rootfs
+    mkdir bin
+    mkdir home
+    mkdir lib
+    #mkdir lib64
+    ln -s lib lib64
+    mkdir opt
+    mkdir proc
+    mkdir root
+    mkdir sbin
+    mkdir sys
+    mkdir tmp
+    mkdir usr
+    mkdir -p var/lib
+    mkdir run
+    ln -s /run var/run
+    #cp -a /etc .
+    mkdir etc
+    #cp -a /dev .
+    mkdir dev
+    rm -fr dev/pts
+    mkdir dev/pts
+    rm -fr dev/shm
+    mkdir dev/shm
+    cd ..
+
+    # create lxc configuration
+    cat > config << EOF
+lxc.uts.name    = $1
+lxc.pty.max     = 1024
+lxc.rootfs.path = $dir/rootfs
+lxc.mount.auto  = cgroup:mixed proc:mixed sys:mixed
+lxc.mount.entry = /lib lib none ro,bind 0 0
+lxc.mount.entry = /bin bin none ro,bind 0 0
+lxc.mount.entry = /etc etc none ro,bind 0 0
+lxc.mount.entry = /usr usr none ro,bind 0 0
+lxc.mount.entry = /sbin sbin none ro,bind 0 0
+lxc.mount.entry = /lib lib none ro,bind 0 0
+lxc.mount.entry = proc /proc proc nodev,noexec,nosuid 0 0
+lxc.mount.entry = tmpfs /dev/shm tmpfs  defaults 0 0
+EOF
+
+    # show instructions
+    cd
+    echo "Virtual machine created, start it with:"
+    echo "  vm start $1 -- /bin/sh"
+    echo
+}
+
+show()
+{
+    if [ "x$1" != "x" ]; then
+	check_exist $1
+    fi
+    lxc-ls -f $1
+}
+
+start()
+{
+    check_args *$
+    check_exist $1
+
+    lxc-start -n $*
+}
+
+stop()
+{
+    check_args $*
+
+    lxc-info -n $1 |grep RUNNING >/dev/null
+    if [ $? -ne 0 ]; then
+	echo "Container $1 is not running."
+	exit 1
+    fi
+
+    lxc-stop -n $*
+}
+
+# Import a squashfs based container
+import()
+{
+    check_args $*
+
+    path=$1
+    file=`basename $1`
+
+    if [ $# -eq 2 ]; then
+	nm=$2
+    else
+	nm=${file%.*}
+    fi
+
+    if [ ! -e $path -o -z $nm ]; then
+	usage
+    fi
+
+    check_not_exist $nm
+
+    # Create container directory and lxc config
+    dir=$statedir/$nm
+    mkdir -p $dir/rootfs
+
+    cat > $dir/config << EOF
+lxc.uts.name = $nm
+lxc.rootfs.path = $path
+lxc.rootfs.mount = $dir/rootfs
+lxc.rootfs.options = -t squashfs
+lxc.mount.auto = cgroup:mixed proc:mixed sys:mixed
+lxc.mount.entry=run run tmpfs rw,nodev,relatime,mode=755 0 0
+lxc.mount.entry=shm dev/shm tmpfs rw,nodev,noexec,nosuid,relatime,mode=1777,create=dir 0 0
+lxc.tty.max = 4
+lxc.pty.max=1024
+EOF
+}
+
+cmd=$1
+shift
+
+case $cmd in
+    attach)
+	attach $*
+	;;
+    create)
+	create $*
+	;;
+    import)
+	import $*
+	;;
+    show)
+	show $*
+	;;
+    start)
+	start $*
+	;;
+    stop)
+	stop $*
+	;;
+    top)
+	lxc-top
+	;;
+    *)
+	usage
+	;;
+esac

@@ -1,7 +1,0 @@
-#!/bin/sh
-if [ ! -e /var/lib/lxc/$1/config ]; then
-   echo "Container $1 does not exist."
-   exit 1
-fi
-
-lxc-start -n $1
