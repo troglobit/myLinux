@@ -35,6 +35,13 @@ srctree           := $(ROOTDIR)
 # usr/lib usr/share usr/bin usr/sbin
 STAGING_DIRS       = mnt proc sys lib share bin sbin tmp var home host
 
+# Include .config variables, unless calling Kconfig
+noconfig_targets  := menuconfig nconfig gconfig xconfig config oldconfig	\
+		     defconfig %_defconfig allyesconfig allnoconfig
+ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
+include $(ROOTDIR)/.config
+endif
+
 ifdef V
   ifeq ("$(origin V)", "command line")
     KBUILD_VERBOSE = $(V)

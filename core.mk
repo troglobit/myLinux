@@ -2,13 +2,6 @@ TOOLCHAIN         := crosstool-ng-1.23.0-319-gaca85cb
 
 qstrip             = $(strip $(subst ",,$(1)))
 # "
-noconfig_targets  := menuconfig nconfig gconfig xconfig config oldconfig	\
-		     defconfig %_defconfig allyesconfig allnoconfig		\
-		     distclean
-
-#ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
--include $(ROOTDIR)/.config
-#endif
 
 ifeq ($(CONFIG_DOT_CONFIG),y)
 ARCH               = $(call qstrip, $(CONFIG_ARCH))

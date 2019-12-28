@@ -23,6 +23,9 @@ config: $(kcfg)/conf						## Update current config utilising a line-oriented pro
 oldconfig: $(kcfg)/conf						## Update current config utilising a provided .config as base
 	@$< --$@ $(Kconfig)
 
+saveconfig:							## Save current config as $ARCH defconfig
+	@cp -v $(ROOTDIR)/.config arch/$(CONFIG_ARCH)/configs/$(KBUILD_DEFCONFIG)
+
 silentoldconfig: $(kcfg)/conf					## Same as oldconfig, but quietly, additionally update deps
 	@mkdir -p include/generated
 	@$< --$@ $(Kconfig)
