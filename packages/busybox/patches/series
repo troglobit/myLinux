@@ -2,5 +2,5 @@
 110-ntpd-syslog-support.patch
 syslogd-delay-pidfile.patch
 login-update-utmp-before-fork.patch
-ifupdown-bridge-support1.patch
+ifupdown-bridge-support.patch
 brctl-show-onebr.patch

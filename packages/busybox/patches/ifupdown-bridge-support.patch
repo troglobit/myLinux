@@ -1,5 +1,23 @@
---- a/networking/ifupdown.c
-+++ b/networking/ifupdown.c
+networking: ifupdown: Basic support for setting up bridges, static/manual/dhcp
+
+This patch adds basic support to ifupdown for setting up bridges using
+the bridge_ports directive in a 'iface foo inet static/manual/dhcp'
+stanza.
+
+The major new functions are bridge_up() and bridge_down(), encapsualated
+in the two new manual_up() and manual_down() functions that are called
+by all other functions.
+
+Unfortunately some changes to the error handling in dhcp_up() had to be
+done to make this work.  Otoh, the changes make dhcp_up() and static_up()
+more similar.
+
+Signed-off-by: Joachim Nilsson <troglobit@gmail.com>
+
+Index: busybox-1.29.3/networking/ifupdown.c
+===================================================================
+--- busybox-1.29.3.orig/networking/ifupdown.c
++++ busybox-1.29.3/networking/ifupdown.c
 @@ -138,6 +138,7 @@
  //usage:     "\n	-v	Print out what would happen before doing it"
  //usage:     "\n	-f	Force deconfiguration"
@@ -8,7 +26,7 @@
  #include <net/if.h>
  #include "libbb.h"
  #include "common_bufsiz.h"
-@@ -457,6 +458,143 @@ static int execute(const char *command,
+@@ -457,6 +458,142 @@ static int execute(const char *command,
  
  #endif /* FEATURE_IFUPDOWN_IPV4 || FEATURE_IFUPDOWN_IPV6 */
  
@@ -68,15 +86,14 @@
 +	if (!ports)
 +		return 0;
 +
-+	if (if_nametoindex(ifd->iface)) {
-+# if ENABLE_FEATURE_IFUPDOWN_IP
-+		result += execute("ip link set %iface% up", ifd, exec);
-+# else
-+		result += execute("ifconfig %iface% up", ifd, exec);
-+# endif
-+	} else {
++	if (!if_nametoindex(ifd->iface))
 +		result += execute("brctl addbr %iface%", ifd, exec);
-+	}
++
++# if ENABLE_FEATURE_IFUPDOWN_IP
++	result += execute("ip link set %iface% up", ifd, exec);
++# else
++	result += execute("ifconfig %iface% up", ifd, exec);
++# endif
 +
 +	if (!strcmp(ports, "none"))
 +		return 0;
@@ -152,7 +169,7 @@
  
  #if ENABLE_FEATURE_IFUPDOWN_IPV6
  
-@@ -481,14 +619,22 @@ static int FAST_FUNC loopback_down6(stru
+@@ -481,14 +618,22 @@ static int FAST_FUNC loopback_down6(stru
  # endif
  }
  
@@ -177,7 +194,7 @@
  # if ENABLE_FEATURE_IFUPDOWN_IP
  	result = execute("ip addr add %address%/%netmask% dev %iface%[[ label %label%]]", ifd, exec);
  	result += execute("ip link set[[ mtu %mtu%]][[ addr %hwaddress%]] %iface% up", ifd, exec);
-@@ -504,13 +650,20 @@ static int FAST_FUNC static_up6(struct i
+@@ -504,13 +649,20 @@ static int FAST_FUNC static_up6(struct i
  
  static int FAST_FUNC static_down6(struct interface_defn_t *ifd, execfn *exec)
  {
@@ -200,7 +217,7 @@
  }
  
  # if ENABLE_FEATURE_IFUPDOWN_IP
-@@ -537,7 +690,7 @@ static const struct method_t methods6[]
+@@ -537,7 +689,7 @@ static const struct method_t methods6[]
  	{ "v4tunnel" , v4tunnel_up     , v4tunnel_down   , },
  # endif
  	{ "static"   , static_up6      , static_down6    , },
@@ -209,7 +226,7 @@
  	{ "loopback" , loopback_up6    , loopback_down6  , },
  };
  
-@@ -576,25 +729,38 @@ static int FAST_FUNC loopback_down(struc
+@@ -576,25 +728,38 @@ static int FAST_FUNC loopback_down(struc
  # endif
  }
  
@@ -253,7 +270,7 @@
  # endif
  }
  
-@@ -617,7 +783,9 @@ static int FAST_FUNC static_down(struct
+@@ -617,7 +782,9 @@ static int FAST_FUNC static_down(struct
  	result = 1;
  	result += execute("ifconfig %iface% down", ifd, exec);
  # endif
@@ -264,28 +281,59 @@
  }
  
  # if ENABLE_FEATURE_IFUPDOWN_EXTERNAL_DHCP
-@@ -652,6 +820,10 @@ static const struct dhcp_client_t ext_dh
+@@ -652,43 +819,47 @@ static const struct dhcp_client_t ext_dh
  static int FAST_FUNC dhcp_up(struct interface_defn_t *ifd, execfn *exec)
  {
  	unsigned i;
 +
-+	if (manual_up(ifd, exec))
-+		return 1;
++	/* Bring up interface, may be a bridge */
++	manual_up(ifd, exec);
 +
  #  if ENABLE_FEATURE_IFUPDOWN_IP
  	/* ip doesn't up iface when it configures it (unlike ifconfig) */
- 	if (!execute("ip link set[[ addr %hwaddress%]] %iface% up", ifd, exec))
-@@ -671,6 +843,9 @@ static int FAST_FUNC dhcp_up(struct inte
+-	if (!execute("ip link set[[ addr %hwaddress%]] %iface% up", ifd, exec))
+-		return 0;
++	execute("ip link set[[ addr %hwaddress%]] %iface% up", ifd, exec);
+ #  else
+ 	/* needed if we have hwaddress on dhcp iface */
+-	if (!execute("ifconfig %iface%[[ hw %hwaddress%]] up", ifd, exec))
+-		return 0;
++	execute("ifconfig %iface%[[ hw %hwaddress%]] up", ifd, exec);
+ #  endif
+ 	for (i = 0; i < ARRAY_SIZE(ext_dhcp_clients); i++) {
+-		if (executable_exists(ext_dhcp_clients[i].name))
+-			return execute(ext_dhcp_clients[i].startcmd, ifd, exec);
++		if (executable_exists(ext_dhcp_clients[i].name)) {
++			result += execute(ext_dhcp_clients[i].startcmd, ifd, exec);
+ 	}
++
+ 	bb_error_msg("no dhcp clients found");
+ 	return 0;
+ }
  # elif ENABLE_UDHCPC
  static int FAST_FUNC dhcp_up(struct interface_defn_t *ifd, execfn *exec)
  {
-+	if (manual_up(ifd, exec))
-+		return 1;
++	/* Bring up interface, may be a bridge */
++	manual_up(ifd, exec);
 +
  #  if ENABLE_FEATURE_IFUPDOWN_IP
  	/* ip doesn't up iface when it configures it (unlike ifconfig) */
- 	if (!execute("ip link set[[ addr %hwaddress%]] %iface% up", ifd, exec))
-@@ -688,7 +863,7 @@ static int FAST_FUNC dhcp_up(struct inte
+-	if (!execute("ip link set[[ addr %hwaddress%]] %iface% up", ifd, exec))
+-		return 0;
++	execute("ip link set[[ addr %hwaddress%]] %iface% up", ifd, exec);
+ #  else
+ 	/* needed if we have hwaddress on dhcp iface */
+-	if (!execute("ifconfig %iface%[[ hw %hwaddress%]] up", ifd, exec))
+-		return 0;
++	execute("ifconfig %iface%[[ hw %hwaddress%]] up", ifd, exec);
+ #  endif
+ 	return execute("udhcpc " UDHCPC_CMD_OPTIONS " -p /var/run/udhcpc.%iface%.pid "
+-			"-i %iface%[[ -x hostname:%hostname%]][[ -c %client%]][[ -s %script%]][[ %udhcpc_opts%]]",
+-			ifd, exec);
++		       "-i %iface%[[ -x hostname:%hostname%]][[ -c %client%]][[ -s %script%]][[ %udhcpc_opts%]]",
++		       ifd, exec);
+ }
+ # else
  static int FAST_FUNC dhcp_up(struct interface_defn_t *ifd UNUSED_PARAM,
  		execfn *exec UNUSED_PARAM)
  {
@@ -294,7 +342,7 @@
  }
  # endif
  
-@@ -713,7 +888,9 @@ static int FAST_FUNC dhcp_down(struct in
+@@ -713,7 +884,9 @@ static int FAST_FUNC dhcp_down(struct in
  	   and it may come back up because udhcpc is still shutting down */
  	usleep(100000);
  	result += static_down(ifd, exec);
@@ -305,7 +353,7 @@
  }
  # elif ENABLE_UDHCPC
  static int FAST_FUNC dhcp_down(struct interface_defn_t *ifd, execfn *exec)
-@@ -730,21 +907,18 @@ static int FAST_FUNC dhcp_down(struct in
+@@ -730,21 +903,18 @@ static int FAST_FUNC dhcp_down(struct in
  	   and it may come back up because udhcpc is still shutting down */
  	usleep(100000);
  	result += static_down(ifd, exec);
@@ -331,7 +379,7 @@
  static int FAST_FUNC bootp_up(struct interface_defn_t *ifd, execfn *exec)
  {
  	return execute("bootpc[[ --bootfile %bootfile%]] --dev %iface%"
-@@ -775,7 +949,7 @@ static int FAST_FUNC wvdial_down(struct
+@@ -775,7 +945,7 @@ static int FAST_FUNC wvdial_down(struct
  }
  
  static const struct method_t methods[] = {
