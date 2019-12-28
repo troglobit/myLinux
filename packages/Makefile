@@ -17,7 +17,7 @@
 
 include $(ROOTDIR)/core.mk
 
-exclude                   = Makefile
+exclude                   = Makefile Kconfig $(wildcard *~)
 dir_y                     =
 dir_$(CONFIG_BUSYBOX)    += busybox
 dir_$(CONFIG_DROPBEAR)   += dropbear

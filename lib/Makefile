@@ -17,7 +17,7 @@
 
 include $(ROOTDIR)/core.mk
 
-exclude                  = Makefile
+exclude                  = Makefile Kconfig $(wildcard *~)
 dir_y                    =
 dir_$(CONFIG_CONFUSE)   += confuse
 dir_$(CONFIG_LIBITE)    += libite

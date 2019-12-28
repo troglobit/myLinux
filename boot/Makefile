@@ -17,7 +17,7 @@
 
 include $(ROOTDIR)/core.mk
 
-exclude                   = Makefile
+exclude                   = Makefile Kconfig $(wildcard *~)
 dir_y                     =
 dir_$(CONFIG_RPI_BLOBS)  += rpi-firmware
 dir_$(CONFIG_UBOOT)      += u-boot
