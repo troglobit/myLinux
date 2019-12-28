@@ -29,7 +29,7 @@ run:
 
 $(IMAGEDIR)/troglos.img: romfs
 	@echo "  SQUASH  Creating TroglOS SquasFS image"
-	@mksquashfs $(ROMFS)/* $@ -noappend -nopad -no-xattrs -comp xz -all-root -b 128k
+	@mksquashfs $(ROMFS)/* $@ -noappend -no-xattrs -comp xz -all-root -b 128k
 
 image: $(IMAGEDIR)/troglos.img
 
