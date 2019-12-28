@@ -43,6 +43,7 @@ endif
 ifndef KBUILD_VERBOSE
   KBUILD_VERBOSE   = 0
 endif
+KBUILD_DEFCONFIG   = defconfig
 ifeq ($(KBUILD_VERBOSE),1)
 MAKEFLAGS          =
 else
