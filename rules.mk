@@ -3,28 +3,24 @@ THIS := $(notdir $(shell pwd))
 
 all:
 	@for dir in $(dir_y); do					\
-		echo "  BUILD   $(THIS)/$$dir" | tee -a $(BUILDLOG);	\
-		/bin/echo -ne "\033]0;$(PWD) $(THIS)/$$dir\007";	\
-		$(MAKE) -C $$dir $@ $(REDIRECT) || exit 1;		\
+		echo "  BUILD   $(THIS)/$$dir";				\
+		$(MAKE) -C $$dir $@ || exit 1;				\
 	done
 
 install:
 	@for dir in $(dir_y); do					\
-		echo "  INSTALL $(THIS)/$$dir" | tee -a $(BUILDLOG);	\
-		/bin/echo -ne "\033]0;$(PWD) $(THIS)/$$dir\007";	\
-		$(MAKE) -C $$dir $@ $(REDIRECT) || exit 1;		\
+		echo "  INSTALL $(THIS)/$$dir";				\
+		$(MAKE) -C $$dir $@ || exit 1;				\
 	done
 
 clean: 
 	-@for dir in $(dir_y); do					\
-		echo "  CLEAN   $(THIS)/$$dir" | tee -a $(BUILDLOG);	\
-		/bin/echo -ne "\033]0;$(PWD) $(THIS)/$$dir\007";	\
-		$(MAKE) -C $$dir $@ $(REDIRECT);			\
+		echo "  CLEAN   $(THIS)/$$dir";				\
+		$(MAKE) -C $$dir $@;					\
 	done
 
 distclean:
 	-@for dir in $(dir_all); do					\
-		echo "  REMOVE  $(THIS)/$$dir" | tee -a $(BUILDLOG);	\
-		/bin/echo -ne "\033]0;$(PWD) $(THIS)/$$dir\007";	\
-		$(MAKE) -C $$dir $@ $(REDIRECT);			\
+		echo "  REMOVE  $(THIS)/$$dir";				\
+		$(MAKE) -C $$dir $@;					\
 	done

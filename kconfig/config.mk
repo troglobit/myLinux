@@ -45,8 +45,8 @@ else
 endif
 
 %_defconfig: $(kcfg)/conf
-	@echo "  CONFIG  $(ARCH)/configs/$@ ..." | tee -a $(BUILDLOG)
-	@$< --defconfig=arch/$(ARCH)/configs/$@ $(Kconfig) $(REDIRECT)
+	@echo "  CONFIG  $(ARCH)/configs/$@ ..."
+	@$< --defconfig=arch/$(ARCH)/configs/$@ $(Kconfig)
 
 $(kcfg)/conf:
 	@$(MAKE) -C $(kcfg) conf

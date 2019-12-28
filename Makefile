@@ -30,7 +30,6 @@ BUG_REPORT_URL    := $(TROGLOHUB)/troglos/issues
 
 ROOTDIR           := $(shell pwd)
 PATH              := $(ROOTDIR)/bin:$(PATH)
-BUILDLOG          := $(ROOTDIR)/build.log
 srctree           := $(ROOTDIR)
 
 # usr/lib usr/share usr/bin usr/sbin
@@ -46,22 +45,19 @@ ifndef KBUILD_VERBOSE
 endif
 ifeq ($(KBUILD_VERBOSE),1)
 MAKEFLAGS          =
-REDIRECT           = 2>&1 | teepee $(BUILDLOG)
 else
 MAKEFLAGS          = --silent --no-print-directory
-REDIRECT           = >> $(BUILDLOG) 2>&1
 endif
 
 export OSNAME OSRELEASE_ID OSRELEASE OSVERSION_ID OSVERSION
 export OSID OSPRETTY_NAME OSHOME_URL
-export PATH ROOTDIR BUILDLOG srctree STAGING_DIRS
+export PATH ROOTDIR srctree STAGING_DIRS
 export TROGLOHUB SUPPORT_URL BUG_REPORT_URL
-export KBUILD_VERBOSE MAKEFLAGS REDIRECT
+export KBUILD_VERBOSE MAKEFLAGS
 
 all: dep staging boot kernel lib packages user image		## Build all the things
 
 dep:								## Use TroglOS defconfig if user forgets to run menuconfig
-	@touch $(BUILDLOG)
 #	@test -e .config || $(MAKE) $(DEFCONFIG)
 	@make -C arch $@
 
@@ -81,9 +77,9 @@ sdcard:								## Create Raspberry Pi SD card
 	@$(MAKE) -C arch $@
 
 ramdisk: romfs							## Build ramdisk of staging dir
-	@echo "  INITRD  $(OSNAME) $(OSVERSION_ID)" | tee -a $(BUILDLOG)
+	@echo "  INITRD  $(OSNAME) $(OSVERSION_ID)"
 	@touch romfs/etc/version
-	@$(MAKE) -f ramdisk.mk $@ $(REDIRECT)
+	@$(MAKE) -f ramdisk.mk $@
 
 image:
 	@$(MAKE) -C arch $@
@@ -128,20 +124,18 @@ include quick.mk
 
 clean:								## Clean build tree, excluding menuconfig
 	@for dir in boot kernel lib packages user; do		\
-		echo "  CLEAN   $$dir" | tee -a $(BUILDLOG);	\
-		/bin/echo -ne "\033]0;$(PWD) $$dir\007";	\
-		$(MAKE) -C $$dir $@ $(REDIRECT);		\
+		echo "  CLEAN   $$dir";				\
+		$(MAKE) -C $$dir $@;				\
 	done
 
 distclean:							## Really clean, as if started from scratch
 	@for dir in kconfig boot kernel lib packages user; do	\
-		echo "  REMOVE  $$dir" | tee -a $(BUILDLOG);	\
-		/bin/echo -ne "\033]0;$(PWD) $$dir\007";	\
-		$(MAKE) -C $$dir $@ $(REDIRECT);		\
+		echo "  REMOVE  $$dir";				\
+		$(MAKE) -C $$dir $@;				\
 	done
-	-@for file in .config staging romfs images $(BUILDLOG); do \
-		echo "  REMOVE  $$file" | tee -a $(BUILDLOG);	   \
-		$(RM) -rf $$file;				   \
+	-@for file in .config staging romfs images; do 		\
+		echo "  REMOVE  $$file";	   		\
+		$(RM) -rf $$file;				\
 	done
 
 .PHONY: help

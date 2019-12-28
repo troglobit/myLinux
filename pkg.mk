@@ -108,7 +108,7 @@ ifeq ("$(wildcard $(PKGDEV))","")
 $(PKG)/.unpacked:: Makefile $(PKGARCHIVE) $(PKGPATCHES)
 	-@$(RM) -r $(PKG)
 	@(cd $(dir $(PKGARCHIVE));						\
-	  md5sum -c $(PKGCKSUM) $(REDIRECT)					\
+	  md5sum -c $(PKGCKSUM)	2>&1 >/dev/null					\
 	  || { echo "  FAILED  Verifying $(PKGTAR) checksum!"; exit 1; })
 	@echo "  VRFY    $(PKG) checksum OK"
 	@echo "  UNPACK  $(PKG)"
@@ -117,7 +117,7 @@ $(PKG)/.unpacked:: Makefile $(PKGARCHIVE) $(PKGPATCHES)
 		echo "  PATCH   $(PKG)";					\
 		(cd $(PKG);							\
 		 ln -sf ../patches/$(PKGBASEVER) patches;			\
-		 quilt push -qa $(REDIRECT));					\
+		 quilt push -qa);						\
 	fi
 else
 $(PKG)/.unpacked:: Makefile
@@ -140,7 +140,7 @@ $(PKG)/.config:: $(PKG)/.unpacked
 			./autogen.sh;						\
 		fi;								\
 		echo "  CONFIG  $(PKG)";					\
-		$(PKGCFGENV) ./configure $(PKGCFG) $(REDIRECT);			\
+		$(PKGCFGENV) ./configure $(PKGCFG);				\
 		cd - >/dev/null;						\
 	else									\
 		rm $$tmpfile;							\
@@ -166,7 +166,7 @@ dev: $(PKGDEV)
 
 $(PKG)/.stamp:: $(PKG)/.config
 	@echo "  BUILD   $(PKG)"
-	+@$(MAKE) $(PKGENV) -C $(PKG) $(REDIRECT)
+	+@$(MAKE) $(PKGENV) -C $(PKG)
 ifeq ("$(wildcard $(PKGDEV))","")
 	@touch $@
 endif
@@ -182,7 +182,7 @@ build: check $(PKG)/.stamp
 endif
 
 clean::
-	-@$(MAKE) -C $(PKG) clean $(REDIRECT)
+	-@$(MAKE) -C $(PKG) clean
 	-@$(RM) $(PKG)/.stamp
 
 distclean::
@@ -191,12 +191,12 @@ ifeq ("$(wildcard $(PKGDEV))","")
 else
 	@unset CLEAN_DIRS
 	-@$(RM) $(PKG)/.stamp $(PKG)/.config
-	-@$(MAKE) -C $(PKG) $@ $(REDIRECT)
+	-@$(MAKE) -C $(PKG) $@
 endif
 
 install:: build
 	@echo "  INSTALL $(PKG)"
-	+@$(MAKE) $(PKGENV) -C $(PKG) $(PKGINSTALL) $(REDIRECT)
+	+@$(MAKE) $(PKGENV) -C $(PKG) $(PKGINSTALL)
 ifdef CONFIG_FINIT
 	@mkdir -p $(FINIT_D_AVAILABLE)
 	@for file in $(wildcard finit.d/*.conf); do 				\

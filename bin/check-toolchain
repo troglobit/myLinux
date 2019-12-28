@@ -29,27 +29,18 @@ fi
 
 which $CC >/dev/null
 if [ $? -ne 0 ]; then
-    echo "  FAIL    Cannot find a suitable $CROSS_TARGET toolchain!" | tee -a $BUILDLOG
-    echo "          See the README for help on download and set up." | tee -a $BUILDLOG
+    echo "  FAIL    Cannot find a suitable $CROSS_TARGET toolchain!"
+    echo "          See the README for help on download and set up."
     exit 1
 fi
 
-print()
-{
-    if [ $rc -eq 0 ]; then
-	printf "$*"       >> $BUILDLOG
-    else
-	printf "$*" | tee -a $BUILDLOG
-    fi
-}
-
-print "  CHECK   Toolchain version ... "
+printf "  CHECK   Toolchain version ... "
 $CC --version |grep $VER >/dev/null 2>&1
 if [ $? -ne 0 ]; then
-    print "$mesg\n"
-    print "  $warn    Wrong toolchain version, should be $VER\n"
+    printf "$mesg\n"
+    printf "  $warn    Wrong toolchain version, should be $VER\n"
     exit $rc
 fi
 
-print "OK\n"
+printf "OK\n"
 exit 0

@@ -8,7 +8,7 @@ sdcard:
 		echo "$(MAKE) $@ requires root perimissions, try sudo";	\
 		exit 1;							\
 	fi
-	@echo "  SDCARD  $(CONFIG_MACH)" | tee -a $(BUILDLOG)
+	@echo "  SDCARD  $(CONFIG_MACH)"
 	@mksdcard $(CONFIG_SDCARD)
 	-@mkdir mnt
 	-@mount $(CONFIG_SDCARD)p1 mnt

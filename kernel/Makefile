@@ -35,26 +35,25 @@ include $(ROOTDIR)/pkg.mk
 
 $(PKG)/.config::
 	@if [ ! -s $(PKG)/.config ]; then							\
-		echo "  INSTALL $@ from $(CONFIG)" | tee -a $(BUILDLOG);			\
+		echo "  INSTALL $@ from $(CONFIG)";						\
 		if [ -f $(CONFIG) ]; then							\
 			cp $(CONFIG) $@;							\
 			$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) oldconfig;			\
 		else										\
-			$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) $(MACH)_defconfig $(REDIRECT);	\
+			$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) $(MACH)_defconfig;		\
 		fi;										\
-		echo "  PREPARE $(PKG)" | tee -a $(BUILDLOG);					\
-		$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) prepare scripts $(REDIRECT);		\
+		echo "  PREPARE $(PKG)";							\
+		$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) prepare scripts;				\
 	else											\
-		echo "  NO-OP   $(PKG)/.config already installed."				\
-					| tee -a $(BUILDLOG); 					\
+		echo "  NO-OP   $(PKG)/.config already installed.";				\
 	fi
 
 $(ZIMAGE): $(PKG)/.config
-	@echo "  BUILD   $(PKG)" | tee -a $(BUILDLOG)
-	+@$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) $(KERNEL_IMG) $(REDIRECT)
+	@echo "  BUILD   $(PKG)"
+	+@$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) $(KERNEL_IMG)
 
 defconfig:
-	@$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) $(MACH)_defconfig $(REDIRECT)
+	@$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) $(MACH)_defconfig
 
 oldconfig:: $(PKG)/.config
 	@$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) oldconfig
@@ -64,26 +63,27 @@ saveconfig:
 	@cp -v $(PKG)/.config $(CONFIG)
 
 menuconfig: $(PKG)/.config
-	@echo "  CONFIG  $(PKG)" | tee -a $(BUILDLOG)
+	@echo "  CONFIG  $(PKG)"
 	@$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) menuconfig
 
 dtbinst:
-	@if [ "$(ARCH)" = "arm" -o "$(ARCH)" = "arm64" ]; then \
-		echo "  DTBINST kernel/$(PKG)" | tee -a $(BUILDLOG); \
-		INSTALL_DTBS_PATH=$(IMAGEDIR) $(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) dtbs dtbs_install $(REDIRECT); \
+	@if [ "$(ARCH)" = "arm" -o "$(ARCH)" = "arm64" ]; then		\
+		echo "  DTBINST kernel/$(PKG)";				\
+		INSTALL_DTBS_PATH=$(IMAGEDIR) ARCH=$(KERNEL_ARCH) 	\
+			$(MAKE) -C $(PKG) dtbs dtbs_install; 		\
 	fi
 
 kernel: $(ZIMAGE)
-	@echo "  INSTALL kernel/$(PKG)" | tee -a $(BUILDLOG)
-	@cp -v $(ZIMAGE) $(IMAGEDIR) $(REDIRECT)
+	@echo "  INSTALL kernel/$(PKG)"
+	@cp -v $(ZIMAGE) $(IMAGEDIR)
 
 modules: kernel
-	@echo "  MODULES $(PKG)" | tee -a $(BUILDLOG)
-	+@$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) modules $(REDIRECT)
+	@echo "  MODULES $(PKG)"
+	+@$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) modules
 
 headers_install: kernel
-	@echo "  HEADERS kernel/$(PKG)" | tee -a $(BUILDLOG)
-	+$(MAKE) -C $(PKG) $@ ARCH=$(KERNEL_ARCH) INSTALL_HDR_PATH=$(STAGING) $(REDIRECT)
+	@echo "  HEADERS kernel/$(PKG)"
+	+$(MAKE) -C $(PKG) $@ ARCH=$(KERNEL_ARCH) INSTALL_HDR_PATH=$(STAGING)
 
 #modules:
 #	rm -rf modules
@@ -92,7 +92,7 @@ headers_install: kernel
 #	find modules/lib/modules/$(KERNELRELEASE) -name '*.ko' | xargs $(CROSS_COMPILE)strip -g
 
 modules_install: modules
-	@echo "  MODINST kernel/$(PKG)" | tee -a $(BUILDLOG)
+	@echo "  MODINST kernel/$(PKG)"
 	@. $(PKG)/.config;						\
 	if [ "$$CONFIG_MODULES" = "y" ]; then				\
 		if [ ! -d $(STAGING)/lib/modules ]; then		\
@@ -101,7 +101,7 @@ modules_install: modules
 		$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH)			\
 				  INSTALL_MOD_PATH=$(STAGING)		\
 				  INSTALL_MOD_STRIP=--strip-all		\
-				  $@ $(REDIRECT);			\
+				  $@;					\
 	fi
 
 distclean::

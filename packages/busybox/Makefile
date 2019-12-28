@@ -29,5 +29,5 @@ menuconfig: oldconfig
 	@$(MAKE) -C $(PKG) menuconfig
 
 install::
-	@cp -v $(PKG)/examples/udhcp/udhcpd.conf $(STAGING)/etc/ $(REDIRECT)
+	@cp -v $(PKG)/examples/udhcp/udhcpd.conf $(STAGING)/etc/
 
