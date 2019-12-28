@@ -12,13 +12,14 @@ include $(ROOTDIR)/pkg.mk
 BASE_VER   := $(shell echo $(PKGVER) | sed 's/\([0-9]*\.[0-9]*\)\.[0-9]*/\1/')
 CONFIG     := config-$(BASE_VER)
 
-$(PKG)/.config::
-	@if [ -f $(CONFIG) ]; then					\
-		cp $(CONFIG) $@;					\
-	else								\
+$(PKG)/.config:: $(PKG)/.unpacked
+	@if [ ! -f $(CONFIG) ]; then					\
 		echo "Warning: .config missing for $(PKG)";		\
 		echo "         You need to create it from scratch.";	\
 		exit 1;							\
+	fi
+	@if [ ! -s $(PKG)/.config ]; then				\
+		cp $(CONFIG) $@;					\
 	fi
 
 saveconfig:
