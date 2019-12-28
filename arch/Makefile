@@ -39,16 +39,17 @@ image: $(IMAGEDIR)/troglos.img
 romfs:
 	@echo "  POPUL8  Creating root filesystem from $(STAGING)"
 	@$(CROSS_COMPILE)populate -f -s $(STAGING) -d $(ROMFS)
-	@rm $(ROMFS)/sbin/sln
-	@rm $(ROMFS)/sbin/ldconfig
-	@rm -rf $(ROMFS)/usr/lib/gconv
-	@rm -rf $(ROMFS)/usr/share/i18n
-	@rm -rf $(ROMFS)/usr/share/locale
+	-@rm -f $(ROMFS)/sbin/sln
+	-@rm -f $(ROMFS)/sbin/ldconfig
+	-@rm -rf $(ROMFS)/usr/lib/gconv
+	-@rm -rf $(ROMFS)/usr/share/i18n
+	-@rm -rf $(ROMFS)/usr/share/locale
+	-@rm -rf $(ROMFS)/var/db/Makefile
 	@echo "  PRUNE   Cleaning $(ROMFS)"
-	@rm -rf                    $(ROMFS)/usr/share/info
-	@rm -rf $(ROMFS)/share/doc $(ROMFS)/usr/share/doc
-	@rm -rf $(ROMFS)/share/man $(ROMFS)/usr/share/man
-	@rm -rf $(ROMFS)/include   $(ROMFS)/usr/include
+	-@rm -rf                    $(ROMFS)/usr/share/info
+	-@rm -rf $(ROMFS)/share/doc $(ROMFS)/usr/share/doc
+	-@rm -rf $(ROMFS)/share/man $(ROMFS)/usr/share/man
+	-@rm -rf $(ROMFS)/include   $(ROMFS)/usr/include
 	@find $(ROMFS)/ -name '*.a'  -delete
 	@find $(ROMFS)/ -name '*.la' -delete
 	@echo "  STRIP   Optimizing $(ROMFS)"
