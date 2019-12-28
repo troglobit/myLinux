@@ -43,7 +43,6 @@ defconfig: $(kcfg)/conf						## Use TroglOS defconfig
 ifeq ($(KBUILD_DEFCONFIG),)
 	@$< --defconfig $(Kconfig)
 else
-	@echo "*** Default configuration is based on '$(KBUILD_DEFCONFIG)'"
 	@$< --defconfig=arch/$(ARCH)/configs/$(KBUILD_DEFCONFIG) $(Kconfig)
 endif
 
