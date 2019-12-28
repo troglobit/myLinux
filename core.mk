@@ -3,16 +3,14 @@ TOOLCHAIN         := crosstool-ng-1.23.0-319-gaca85cb
 qstrip             = $(strip $(subst ",,$(1)))
 # "
 
+# System must be configured by this point
+include $(ROOTDIR)/.config
+
 ifeq ($(CONFIG_DOT_CONFIG),y)
 ARCH               = $(call qstrip, $(CONFIG_ARCH))
 MACH               = $(call qstrip, $(CONFIG_MACH))
 KERNEL_VERSION     = $(call qstrip, $(CONFIG_LINUX_VERSION))
 QEMU_APPEND        = $(call qstrip, $(CONFIG_LINUX_CMDLINE))
-else
-#ARCH              ?= arm
-#MACH              ?= versatile
-#KERNEL_VERSION     = 4.8.7
-#QEMU_APPEND        = root=/dev/ram console=ttyAMA0,115200
 endif
 
 # Map Qemu archs (used by TroglOS) to Linux kernel archs
