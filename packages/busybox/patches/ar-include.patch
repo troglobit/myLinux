@@ -1,0 +1,107 @@
+
+Avoid using same include file naming pattern as available in GLIBC.
+Renamed to match grp_.h et al.
+
+Signed-off-by: Joachim Nilsson <troglobit@gmail.com>
+
+Index: busybox-1.29.3/archival/ar.c
+===================================================================
+--- busybox-1.29.3.orig/archival/ar.c
++++ busybox-1.29.3/archival/ar.c
+@@ -60,7 +60,7 @@
+ 
+ #include "libbb.h"
+ #include "bb_archive.h"
+-#include "ar.h"
++#include "ar_.h"
+ 
+ #if ENABLE_FEATURE_AR_CREATE
+ /* filter out entries with same names as specified on the command line */
+Index: busybox-1.29.3/include/ar.h
+===================================================================
+--- busybox-1.29.3.orig/include/ar.h
++++ /dev/null
+@@ -1,26 +0,0 @@
+-/*
+- * busybox ar archive data structures
+- * Licensed under GPLv2 or later, see file LICENSE in this source tree.
+- */
+-#ifndef AR_H
+-#define AR_H
+-
+-PUSH_AND_SET_FUNCTION_VISIBILITY_TO_HIDDEN
+-
+-struct ar_header {
+-	char name[16];
+-	char date[12];
+-	char uid[6];
+-	char gid[6];
+-	char mode[8];
+-	char size[10];
+-	char magic[2];
+-};
+-
+-#define AR_HEADER_LEN sizeof(struct ar_header)
+-#define AR_MAGIC      "!<arch>"
+-#define AR_MAGIC_LEN  7
+-
+-POP_SAVED_FUNCTION_VISIBILITY
+-
+-#endif
+Index: busybox-1.29.3/include/ar_.h
+===================================================================
+--- /dev/null
++++ busybox-1.29.3/include/ar_.h
+@@ -0,0 +1,26 @@
++/*
++ * busybox ar archive data structures
++ * Licensed under GPLv2 or later, see file LICENSE in this source tree.
++ */
++#ifndef AR_H
++#define AR_H
++
++PUSH_AND_SET_FUNCTION_VISIBILITY_TO_HIDDEN
++
++struct ar_header {
++	char name[16];
++	char date[12];
++	char uid[6];
++	char gid[6];
++	char mode[8];
++	char size[10];
++	char magic[2];
++};
++
++#define AR_HEADER_LEN sizeof(struct ar_header)
++#define AR_MAGIC      "!<arch>"
++#define AR_MAGIC_LEN  7
++
++POP_SAVED_FUNCTION_VISIBILITY
++
++#endif
+Index: busybox-1.29.3/archival/libarchive/get_header_ar.c
+===================================================================
+--- busybox-1.29.3.orig/archival/libarchive/get_header_ar.c
++++ busybox-1.29.3/archival/libarchive/get_header_ar.c
+@@ -6,7 +6,7 @@
+  */
+ #include "libbb.h"
+ #include "bb_archive.h"
+-#include "ar.h"
++#include "ar_.h"
+ 
+ /* WARNING: Clobbers str[len], so fields must be read in reverse order! */
+ static unsigned read_num(char *str, int base, int len)
+Index: busybox-1.29.3/archival/libarchive/unpack_ar_archive.c
+===================================================================
+--- busybox-1.29.3.orig/archival/libarchive/unpack_ar_archive.c
++++ busybox-1.29.3/archival/libarchive/unpack_ar_archive.c
+@@ -4,7 +4,7 @@
+  */
+ #include "libbb.h"
+ #include "bb_archive.h"
+-#include "ar.h"
++#include "ar_.h"
+ 
+ void FAST_FUNC unpack_ar_archive(archive_handle_t *ar_archive)
+ {
