@@ -3,6 +3,10 @@
 # TroglOS Virtual Devboard Configuration
 #
 CONFIG_DOT_CONFIG=y
+
+#
+# Target
+#
 # CONFIG_ARM is not set
 # CONFIG_ARM64 is not set
 # CONFIG_PPC is not set
@@ -10,6 +14,11 @@ CONFIG_X86=y
 CONFIG_ARCH="x86"
 CONFIG_MACH="x86_64"
 CONFIG_X86_64=y
+
+#
+# Toolchain and Build Specific Settings
+#
+CONFIG_TOOLCHAIN_PREFIX="x86_64-unknown-linux-gnu-"
 
 #
 # Boot Loaders and Firmware
