@@ -1,3 +1,4 @@
+# Find a suitable toolchain at https://github.com/myrootfs/crosstool-ng/releases
 TOOLCHAIN         := crosstool-ng-1.23.0-319-gaca85cb
 
 qstrip             = $(strip $(subst ",,$(1)))
@@ -11,6 +12,7 @@ ARCH               = $(call qstrip, $(CONFIG_ARCH))
 MACH               = $(call qstrip, $(CONFIG_MACH))
 KERNEL_VERSION     = $(call qstrip, $(CONFIG_LINUX_VERSION))
 QEMU_APPEND        = $(call qstrip, $(CONFIG_LINUX_CMDLINE))
+CROSS_COMPILE      = $(call qstrip, $(CONFIG_TOOLCHAIN_PREFIX))
 endif
 
 # Map Qemu archs (used by TroglOS) to Linux kernel archs

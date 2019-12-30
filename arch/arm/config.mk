@@ -1,6 +1,5 @@
 .EXPORT_ALL_VARIABLES:
 
-CROSS_COMPILE := arm-unknown-linux-gnueabi-
 KERNEL_IMG    := zImage
 QEMU_ARCH     := arm
 QEMU_MACH     := versatilepb
