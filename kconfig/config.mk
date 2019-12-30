@@ -14,7 +14,7 @@ else
 Kconfig := Kconfig
 endif
 
-menuconfig: $(kcfg)/mconf dep					## Update current config utilising a menu based program
+menuconfig: $(kcfg)/mconf					## Update current config utilising a menu based program
 	@$< $(Kconfig)
 
 config: $(kcfg)/conf						## Update current config utilising a line-oriented program
