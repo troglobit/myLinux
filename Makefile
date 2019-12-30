@@ -37,7 +37,7 @@ STAGING_DIRS       = mnt proc sys lib share bin sbin tmp var home host
 
 # Include .config variables, unless calling Kconfig
 noconfig_targets  := menuconfig nconfig gconfig xconfig config oldconfig	\
-		     defconfig %_defconfig allyesconfig allnoconfig
+		     defconfig %_defconfig allyesconfig allnoconfig distclean
 ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
 include $(ROOTDIR)/.config
 endif
@@ -57,6 +57,7 @@ else
 MAKEFLAGS          = --silent --no-print-directory
 endif
 
+export noconfig_targets
 export OSNAME OSRELEASE_ID OSRELEASE OSVERSION_ID OSVERSION
 export OSID OSPRETTY_NAME OSHOME_URL
 export PATH ROOTDIR srctree STAGING_DIRS

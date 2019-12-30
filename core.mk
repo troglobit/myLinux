@@ -5,7 +5,9 @@ qstrip             = $(strip $(subst ",,$(1)))
 # "
 
 # System must be configured by this point
+ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
 include $(ROOTDIR)/.config
+endif
 
 ifeq ($(CONFIG_DOT_CONFIG),y)
 ARCH               = $(call qstrip, $(CONFIG_ARCH))
@@ -28,7 +30,9 @@ endif
 KERNEL_MODULES     = $(wildcard $(ROMFS)/lib/modules/$(KERNEL_VERSION)*)
 KERNELRELEASE      = $(shell test -d $(KERNEL_MODULES)/build && $(MAKE) -s -C $(KERNEL_MODULES)/build CROSS_COMPILE=$(CROSS_COMPILE) ARCH=$(KERNEL_ARCH) kernelrelease)
 
+ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
 include $(ROOTDIR)/arch/$(ARCH)/config.mk
+endif
 
 CROSS_TARGET       = $(CROSS_COMPILE:-=)
 CC                 = $(CROSS_COMPILE)gcc
