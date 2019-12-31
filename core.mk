@@ -4,18 +4,16 @@ TOOLCHAIN         := crosstool-ng-1.23.0-319-gaca85cb
 qstrip             = $(strip $(subst ",,$(1)))
 # "
 
-# System must be configured by this point
-ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
-include $(ROOTDIR)/.config
-endif
+# System should be configured by this point
+-include $(ROOTDIR)/.config
 
+# Check to be sure, CONFIG_DOT_CONFIG only set if include succeeeded
 ifeq ($(CONFIG_DOT_CONFIG),y)
 ARCH               = $(call qstrip, $(CONFIG_ARCH))
 MACH               = $(call qstrip, $(CONFIG_MACH))
 KERNEL_VERSION     = $(call qstrip, $(CONFIG_LINUX_VERSION))
 QEMU_APPEND        = $(call qstrip, $(CONFIG_LINUX_CMDLINE))
 CROSS_COMPILE      = $(call qstrip, $(CONFIG_TOOLCHAIN_PREFIX))
-endif
 
 # Map Qemu archs (used by TroglOS) to Linux kernel archs
 KERNEL_ARCH       := $(shell echo $(ARCH) | sed	\
@@ -24,15 +22,15 @@ KERNEL_ARCH       := $(shell echo $(ARCH) | sed	\
 			-e 's/aarch64/arm64/'   \
 			-e 's/x86_64/x86/')
 
+# Include KERNEL_ and QEMU_ settings for this arch.
+include $(ROOTDIR)/arch/$(ARCH)/config.mk
+endif
+
 ifdef KERNEL_RC
 KERNEL_VERSION     = $(KERNEL_VERSION).0$(KERNEL_RC)
 endif
 KERNEL_MODULES     = $(wildcard $(ROMFS)/lib/modules/$(KERNEL_VERSION)*)
 KERNELRELEASE      = $(shell test -d $(KERNEL_MODULES)/build && $(MAKE) -s -C $(KERNEL_MODULES)/build CROSS_COMPILE=$(CROSS_COMPILE) ARCH=$(KERNEL_ARCH) kernelrelease)
-
-ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
-include $(ROOTDIR)/arch/$(ARCH)/config.mk
-endif
 
 CROSS_TARGET       = $(CROSS_COMPILE:-=)
 CC                 = $(CROSS_COMPILE)gcc

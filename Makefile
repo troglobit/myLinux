@@ -57,7 +57,6 @@ else
 MAKEFLAGS          = --silent --no-print-directory
 endif
 
-export noconfig_targets
 export OSNAME OSRELEASE_ID OSRELEASE OSVERSION_ID OSVERSION
 export OSID OSPRETTY_NAME OSHOME_URL
 export PATH ROOTDIR srctree STAGING_DIRS
