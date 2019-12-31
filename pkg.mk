@@ -48,9 +48,9 @@
 # WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-.PHONY: all install clean distclean
-
+ifndef TOOLCHAIN
 include $(ROOTDIR)/core.mk
+endif
 
 PKGFETCH   ?= wget -t3 -nc --no-dns-cache --no-iri -q -cO
 PKGNAME    ?= $(PKG:-$(PKGVER)=)
@@ -206,3 +206,5 @@ ifdef CONFIG_FINIT
 		cp $$file $(FINIT_D_AVAILABLE)/; 				\
 	done
 endif
+
+.PHONY: all install clean distclean
