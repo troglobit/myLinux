@@ -13,7 +13,8 @@
 # WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-.PHONY: all defconfig oldconfig saveconfig headers_install modules_install clean distclean
+include $(ROOTDIR)/core.mk
+unexport KBUILD_KCONFIG
 
 PKGVER         ?= $(KERNEL_VERSION)
 PKGBASEVER      = $(shell echo $(PKGVER) | sed 's/\([0-9]*\.[0-9]*\).*/\1/')
@@ -29,19 +30,19 @@ PKGURL          = http://cdn.kernel.org/pub/linux/kernel/v4.x/$(RC_PATH)$(PKGTAR
 CONFIG          = $(PRODDIR)/linux.config-$(PKGBASEVER)
 ZIMAGE          = $(PKG)/arch/$(KERNEL_ARCH)/boot/$(KERNEL_IMG)
 
-$(PKG)/.config::
-	@if [ ! -s $(PKG)/.config ]; then							\
-		echo "  INSTALL $@ from $(CONFIG)";						\
-		if [ -f $(CONFIG) ]; then							\
-			cp $(CONFIG) $@;							\
-			$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) oldconfig;			\
-		else										\
-			$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) $(MACH)_defconfig;		\
-		fi;										\
-		echo "  PREPARE $(PKG)";							\
-		$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) prepare scripts;				\
-	else											\
-		echo "  NO-OP   $(PKG)/.config already installed.";				\
+$(PKG)/.config:: $(PKG)/.unpacked
+	@if [ ! -s $(PKG)/.config ]; then						\
+		echo "  INSTALL $(PKG)/.config from $(CONFIG)";				\
+		if [ -f $(CONFIG) ]; then						\
+			cp $(CONFIG) $(PKG)/.config;					\
+			$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) oldconfig;		\
+		else									\
+			$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) $(MACH)_defconfig;	\
+		fi;									\
+		echo "  PREPARE $(PKG)";						\
+		$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) prepare scripts;			\
+	else										\
+		echo "  NO-OP   $(PKG)/.config already installed.";			\
 	fi
 
 $(ZIMAGE): $(PKG)/.config
@@ -103,5 +104,5 @@ modules_install: modules
 distclean::
 	-@$(RM) -rf linux-*
 
+.PHONY: all defconfig oldconfig saveconfig headers_install modules_install clean distclean
 include $(ROOTDIR)/pkg.mk
-unexport KBUILD_KCONFIG
