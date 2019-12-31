@@ -75,7 +75,7 @@ include kconfig/config.mk
 run:								## Run Qemu for selected target platform
 	@$(MAKE) -C arch $@
 
-staging:							## Initialize staging area
+staging: dep							## Initialize staging area
 	@$(MAKE) -C arch $@
 
 romfs:								## Create stripped down romfs/ from staging/
@@ -89,12 +89,12 @@ ramdisk: romfs							## Build ramdisk of staging dir
 	@touch romfs/etc/version
 	@$(MAKE) -f ramdisk.mk $@
 
-image:
+image: boot user packages lib
 	@$(MAKE) -C arch $@
 
-kernel:								## Build configured Linux kernel
-	@$(MAKE) -j5 -C kernel all
-	@$(MAKE) kernel_install
+kernel: staging							## Build configured Linux kernel
+	+@$(MAKE) -C kernel all
+	+@$(MAKE) kernel_install
 
 kernel_menuconfig:						## Call Linux menuconfig
 	@$(MAKE) -C kernel menuconfig
@@ -111,6 +111,9 @@ kernel_saveconfig:						## Save Linux-VER.REV/.config to kernel/config-VER
 kernel_install:							## Install Linux device tree
 	@$(MAKE) -C kernel dtbinst
 
+# Gate everything with the kernel
+lib: kernel
+
 # Packages may depend on libraries, so we build libs first
 packages: lib
 
@@ -118,8 +121,8 @@ packages: lib
 user: packages lib
 
 boot user packages lib:						## Build packages or libraries
-	@$(MAKE) -j5 -C $@ all
-	@$(MAKE) -j5 -C $@ install
+	+@$(MAKE) -C $@ all
+	+@$(MAKE) -C $@ install
 
 TARGETS=$(shell find lib -maxdepth 1 -mindepth 1 -type d)
 include quick.mk
@@ -131,13 +134,13 @@ TARGETS=$(shell find user -maxdepth 1 -mindepth 1 -type d)
 include quick.mk
 
 clean:								## Clean build tree, excluding menuconfig
-	@for dir in user, packages, lib kernel boot; do		\
+	+@for dir in user, packages, lib kernel boot; do		\
 		echo "  CLEAN   $$dir";				\
-		$(MAKE) -C $$dir $@;				\
+		$(MAKE) -C $$dir $@;			\
 	done
 
 distclean:							## Really clean, as if started from scratch
-	@for dir in user packages lib kernel boot kconfig; do	\
+	+@for dir in user packages lib kernel boot kconfig; do	\
 		echo "  PURGE   $$dir";				\
 		$(MAKE) -C $$dir $@;			\
 	done
