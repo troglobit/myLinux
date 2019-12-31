@@ -10,7 +10,7 @@ PKGCFG     += --enable-x11-common-plugin --enable-inetd-chargen-plugin
 PKGCFG     += --enable-fallback-shell --enable-watchdog
 PKGCFG     += --disable-docs --disable-contrib
 ifndef CONFIG_FINIT_BOOT_ANIMATION
-#PKGCFG     += --enable-progress
+PKGCFG     += --enable-progress
 endif
 PKGINSTALL := install-exec
 
