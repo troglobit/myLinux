@@ -6,9 +6,9 @@ $(addsuffix -install,$(TARGETS)):
 	@echo "  INSTALL $(patsubst %-install,%,$@)"
 	+@$(MAKE) -C $(patsubst %-install,%,$@) V=1 install
 
-# $(addsuffix -chksum,$(TARGETS)):
-# 	@echo "  CHKSUM  $(patsubst %-chksum,%,$@)"
-# 	+@$(MAKE) -C $(patsubst %-chksum,%,$@) V=1 chksum
+$(addsuffix -chksum,$(TARGETS)):
+	@echo "  CHKSUM  $(patsubst %-chksum,%,$@)"
+	+@$(MAKE) -C $(patsubst %-chksum,%,$@) V=1 chksum
 
 $(addsuffix -clean,$(TARGETS)):
 	@echo "  CLEAN   $(patsubst %-clean,%,$@)"
