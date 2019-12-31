@@ -1,4 +1,5 @@
 # all/install/clean/distclean rules that iterate over $(dir_y)
+.PHONY: all install clean distclean
 THIS := $(notdir $(shell pwd))
 
 all:
