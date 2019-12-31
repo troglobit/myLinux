@@ -29,9 +29,6 @@ PKGURL          = http://cdn.kernel.org/pub/linux/kernel/v4.x/$(RC_PATH)$(PKGTAR
 CONFIG          = $(PRODDIR)/linux.config-$(PKGBASEVER)
 ZIMAGE          = $(PKG)/arch/$(KERNEL_ARCH)/boot/$(KERNEL_IMG)
 
-include $(ROOTDIR)/pkg.mk
-unexport KBUILD_KCONFIG
-
 $(PKG)/.config::
 	@if [ ! -s $(PKG)/.config ]; then							\
 		echo "  INSTALL $@ from $(CONFIG)";						\
@@ -105,3 +102,6 @@ modules_install: modules
 
 distclean::
 	-@$(RM) -rf linux-*
+
+include $(ROOTDIR)/pkg.mk
+unexport KBUILD_KCONFIG

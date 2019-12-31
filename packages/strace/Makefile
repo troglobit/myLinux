@@ -8,7 +8,7 @@ PKGCFG      = --host=$(CROSS_TARGET) --prefix=
 PKGCFG     += --without-libunwind
 PKGINSTALL := install-exec
 
-include $(ROOTDIR)/pkg.mk
-
 install::
 	@rm $(STAGING)/bin/strace-graph
+
+include $(ROOTDIR)/pkg.mk

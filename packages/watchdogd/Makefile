@@ -8,10 +8,10 @@ PKGCFG     += --disable-test-mode --enable-examples
 PKGCFG     += --enable-loadavg --enable-filenr --enable-meminfo --enable-syslog-mark
 PKGINSTALL := install-exec
 
-include $(ROOTDIR)/pkg.mk
-
 $(PKG)/.stamp::
 	@$(MAKE) $(PKGENV) -C $(PKG) install-dev $(REDIRECT)
 
 install::
 	@cp watchdogd.conf $(STAGING)/etc/
+
+include $(ROOTDIR)/pkg.mk
