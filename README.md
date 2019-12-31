@@ -48,12 +48,12 @@ Building
 To try it out, simply clone this repository, install the dependencies
 listed in the Requirements section, then type:
 
-    make
+    make -j5
 
 Or modify the configuration using the well known menuconfig interface
 
     make menuconfig
-    make
+    make -j5
 
 When the build has completed, start Qemu.  Use `root` to login.  
 No password by default.
@@ -64,7 +64,7 @@ For a truly minimal setup, only Busybox and an ARM/Versatile config:
 
     make distclean
     cp small.config .config && make oldconfig
-    make
+    make -j5
     make run
 
 As an alternative, which can be useful for scripting, the menuconfig
@@ -72,7 +72,7 @@ step can be skipped using an arch-specific defconfig:
 
     make distclean
     ARCH=x86_64 make x86_64_defconfig
-    make
+    make -j5
     make run
 
 Now go have fun! :-)
