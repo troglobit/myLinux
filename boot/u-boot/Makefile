@@ -1,13 +1,9 @@
 # Glue for cross compiling Das U-Boot
-include $(ROOTDIR)/core.mk
-
 PKGVER     := 2017.07
 PKG	   := u-boot-$(PKGVER)
 PKGSUFFIX  := tar.bz2
 PKGURL      = ftp://ftp.denx.de/pub/u-boot/$(PKGTAR)
 PKGENV     := CROSS_COMPILE=$(CROSS_COMPILE) ARCH=$(ARCH)
-
-include $(ROOTDIR)/pkg.mk
 
 $(PKG)/.config::
 	@if [ ! -s $(PKG)/.config ]; then							\
@@ -21,3 +17,4 @@ $(PKG)/.config::
 install::
 	@cp -v $(PKG)/u-boot.bin $(IMAGEDIR)/ $(REDIRECT)
 
+include $(ROOTDIR)/pkg.mk
