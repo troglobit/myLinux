@@ -22,6 +22,6 @@ clean:
 
 distclean:
 	-@for dir in $(dir_all); do					\
-		echo "  REMOVE  $(THIS)/$$dir";				\
+		echo "  PURGE   $(THIS)/$$dir";				\
 		$(MAKE) -C $$dir $@;					\
 	done
