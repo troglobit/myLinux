@@ -37,7 +37,7 @@ $(PKG)/.config::
 		echo "  INSTALL $(PKG)/.config from $(CONFIG)";				\
 		if [ -f $(CONFIG) ]; then						\
 			cp $(CONFIG) $(PKG)/.config;					\
-			$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) silentoldconfig;		\
+			$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) oldconfig;		\
 		else									\
 			$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) $(MACH)_defconfig;	\
 		fi;									\
