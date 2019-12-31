@@ -7,7 +7,9 @@ PKGENV      = CONFIG_PREFIX=$(STAGING)
 BASE_VER   := $(shell echo $(PKGVER) | sed 's/\([0-9]*\.[0-9]*\)\.[0-9]*/\1/')
 CONFIG     := config-$(BASE_VER)
 
-$(PKG)/.config:: $(PKG)/.unpacked
+include $(ROOTDIR)/pkg.mk
+
+$(PKG)/.config::
 	@if [ ! -f $(CONFIG) ]; then					\
 		echo "Warning: .config missing for $(PKG)";		\
 		echo "         You need to create it from scratch.";	\
@@ -26,5 +28,3 @@ menuconfig: oldconfig
 
 install::
 	@cp -v $(PKG)/examples/udhcp/udhcpd.conf $(STAGING)/etc/
-
-include $(ROOTDIR)/pkg.mk

@@ -18,8 +18,8 @@ PKGCFG     += --disable-static --disable-rpath-hack --disable-big-core		\
 #	      --with-termpath='${sysconfdir}/termcap:${datadir}/misc/termcap'
 #	      --with-terminfo-dirs='${sysconfdir}/terminfo:${datadir}/terminfo' 
 
+include $(ROOTDIR)/pkg.mk
+
 install::
 	@cp  -f libtermcap.so $(STAGING)/lib/
 	@ln -sf libtinfo.a    $(STAGING)/lib/libtermcap.a
-
-include $(ROOTDIR)/pkg.mk

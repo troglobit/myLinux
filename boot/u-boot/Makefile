@@ -1,4 +1,6 @@
 # Glue for cross compiling Das U-Boot
+include $(ROOTDIR)/pkg.mk
+
 PKGVER     := 2017.07
 PKG	   := u-boot-$(PKGVER)
 PKGSUFFIX  := tar.bz2
@@ -16,5 +18,3 @@ $(PKG)/.config::
 
 install::
 	@cp -v $(PKG)/u-boot.bin $(IMAGEDIR)/ $(REDIRECT)
-
-include $(ROOTDIR)/pkg.mk

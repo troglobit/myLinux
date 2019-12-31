@@ -7,7 +7,7 @@ PKGPATCHES :=
 PKGCFG      = --host=$(CROSS_TARGET) --prefix=
 PKGINSTALL := install-exec
 
+include $(ROOTDIR)/pkg.mk
+
 install::
 	@ln -sf mg $(STAGING)/bin/emacs
-
-include $(ROOTDIR)/pkg.mk

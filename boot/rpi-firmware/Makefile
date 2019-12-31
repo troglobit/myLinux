@@ -1,4 +1,6 @@
 # Glue for cross compiling Das U-Boot
+include $(ROOTDIR)/pkg.mk
+
 PKGVER     := 20170703
 PKGNAME    := rpi-firmware
 PKG	   := firmware-1.$(PKGVER)
@@ -12,5 +14,3 @@ $(PKG)/Makefile: wrap.mk $(PKG)/.unpacked
 	@cp -vf $< $@
 
 $(PKG)/.config:: $(PKG)/Makefile
-
-include $(ROOTDIR)/pkg.mk

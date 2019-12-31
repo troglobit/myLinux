@@ -14,6 +14,8 @@ PKGCFG     += --enable-progress
 endif
 PKGINSTALL := install-exec
 
+include $(ROOTDIR)/pkg.mk
+
 $(PKG)/.stamp::
 	@$(MAKE) $(PKGENV) -C $(PKG) install-dev $(REDIRECT)
 	@$(MAKE) -C plugins
@@ -29,5 +31,3 @@ clean::
 
 distclean::
 	@$(MAKE) -C plugins $@
-
-include $(ROOTDIR)/pkg.mk

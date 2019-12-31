@@ -8,7 +8,7 @@ PKGCFG     += --disable-apparmor --disable-seccomp --disable-selinux
 PKGCFG     += --disable-werror --disable-bash --disable-gnutls
 PKGCFG     += --disable-capabilities --disable-python --disable-lua
 
+include $(ROOTDIR)/pkg.mk
+
 install::
 	@cp vm $(STAGING)/sbin/
-
-include $(ROOTDIR)/pkg.mk

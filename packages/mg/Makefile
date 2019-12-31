@@ -8,7 +8,7 @@ PKGCFG      = --host=$(CROSS_TARGET) --prefix=
 PKGCFG     += --disable-all --enable-size-optimizations
 PKGINSTALL := install-exec
 
+include $(ROOTDIR)/pkg.mk
+
 install::
 	@ln -sf mg $(STAGING)/bin/emacs
-
-include $(ROOTDIR)/pkg.mk
