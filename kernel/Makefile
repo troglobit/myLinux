@@ -15,23 +15,22 @@
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .PHONY: all defconfig oldconfig saveconfig headers_install modules_install clean distclean
 
-include ../core.mk
-
 PKGVER         ?= $(KERNEL_VERSION)
-PKGBASEVER     := $(shell echo $(PKGVER) | sed 's/\([0-9]*\.[0-9]*\).*/\1/')
-PKG            := linux-$(PKGVER)
-PKGNAME	       := kernel
+PKGBASEVER      = $(shell echo $(PKGVER) | sed 's/\([0-9]*\.[0-9]*\).*/\1/')
+PKG             = linux-$(PKGVER)
+PKGNAME        := kernel
 PKGSUFFIX      := tar.xz
 PKGTARGETS     := kernel headers_install modules modules_install
-PKGPATCHES     := patches/$(PKGBASEVER)/*.patch patches/$(PKGBASEVER)/series
+PKGPATCHES      = patches/$(PKGBASEVER)/*.patch patches/$(PKGBASEVER)/series
 ifdef CONFIG_LINUX_RC
 RC_PATH         = testing/
 endif
 PKGURL          = http://cdn.kernel.org/pub/linux/kernel/v4.x/$(RC_PATH)$(PKGTAR)
 CONFIG          = $(PRODDIR)/linux.config-$(PKGBASEVER)
 ZIMAGE          = $(PKG)/arch/$(KERNEL_ARCH)/boot/$(KERNEL_IMG)
-unexport KBUILD_KCONFIG
+
 include $(ROOTDIR)/pkg.mk
+unexport KBUILD_KCONFIG
 
 $(PKG)/.config::
 	@if [ ! -s $(PKG)/.config ]; then							\

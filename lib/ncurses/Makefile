@@ -1,5 +1,4 @@
 # Glue for cross compiling Ncurses
-
 PKGVER     := 5.9
 PKG        := ncurses-$(PKGVER)
 PKGPATCHES :=
@@ -7,7 +6,7 @@ PKGINSTALL := install.libs install.includes install.data
 PKGSUFFIX  := tar.gz
 PKGURL      = http://ftp.gnu.org/gnu/$(PKGNAME)/$(PKGTAR)
 PKGCFGENV  := CPPFLAGS=-P
-PKGCFG     := --host=$(CROSS_TARGET) --prefix= --program-prefix=
+PKGCFG      = --host=$(CROSS_TARGET) --prefix= --program-prefix=
 PKGCFG     += --disable-static --disable-rpath-hack --disable-big-core		\
 	      --enable-termcap --enable-sigwinch  --enable-pc-files		\
 	      --enable-hard-tabs --enable-xmc-glitch --enable-colorfgbg		\

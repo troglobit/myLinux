@@ -50,6 +50,8 @@
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .PHONY: all install clean distclean
 
+include $(ROOTDIR)/core.mk
+
 PKGFETCH   ?= wget -t3 -nc --no-dns-cache --no-iri -q -cO
 PKGNAME    ?= $(PKG:-$(PKGVER)=)
 PKGDEV     := $(PKGNAME)-dev
