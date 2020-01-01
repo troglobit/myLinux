@@ -89,7 +89,10 @@ ramdisk: romfs							## Build ramdisk of staging dir
 	@touch romfs/etc/version
 	@$(MAKE) -f ramdisk.mk $@
 
-image: boot user packages lib
+image: boot user packages lib					## Build image, with dependency checking
+	@$(MAKE) -C arch $@
+
+image_only:							## Build image w/o dependency checking
 	@$(MAKE) -C arch $@
 
 kernel: staging							## Build configured Linux kernel
