@@ -14,7 +14,7 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .SUFFIX:
-.PHONY: run staging boot kernel lib packages romfs ramdisk clean distclean
+.PHONY: run staging boot kernel lib packages romfs ramdisk clean distclean image_only
 
 OSNAME            := TroglOS Linux
 OSRELEASE_ID      := chaos
@@ -93,7 +93,7 @@ image: boot user packages lib					## Build image, with dependency checking
 	@$(MAKE) -C arch $@
 
 image_only:							## Build image w/o dependency checking
-	@$(MAKE) -C arch $@
+	@$(MAKE) -C arch image
 
 kernel: staging							## Build configured Linux kernel
 	+@$(MAKE) -C kernel all
