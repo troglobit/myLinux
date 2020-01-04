@@ -17,17 +17,17 @@ PKGINSTALL := install-exec
 include $(ROOTDIR)/pkg.mk
 
 $(PKG)/.stamp::
-	@$(MAKE) $(PKGENV) -C $(PKG) install-dev
-	@$(MAKE) -C plugins
+	+@$(MAKE) $(PKGENV) -C $(PKG) install-dev
+	+@$(MAKE) -C plugins
 
 install::
 	@ln -sf finit $(STAGING)/sbin/init
 	@ln -sf sbin/init $(STAGING)/init
 	@ln -sf available/getty.conf $(STAGING)/etc/finit.d/getty.conf
-	@$(MAKE) -C plugins $@
+	+@$(MAKE) -C plugins $@
 
 clean::
-	@$(MAKE) -C plugins $@
+	+@$(MAKE) -C plugins $@
 
 distclean::
-	@$(MAKE) -C plugins $@
+	+@$(MAKE) -C plugins $@

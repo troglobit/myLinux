@@ -13,8 +13,7 @@
 # WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-.SUFFIX:
-.PHONY: run staging boot kernel lib packages romfs ramdisk clean distclean image_only
+.PHONY: help run world staging boot kernel romfs ramdisk clean distclean image
 
 OSNAME            := TroglOS Linux
 OSRELEASE_ID      := chaos
@@ -38,9 +37,6 @@ STAGING_DIRS       = mnt proc sys lib share bin sbin tmp var home host
 # Include .config variables, unless calling Kconfig
 noconfig_targets  := menuconfig nconfig gconfig xconfig config oldconfig	\
 		     defconfig %_defconfig allyesconfig allnoconfig distclean
-ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
-include $(ROOTDIR)/.config
-endif
 
 ifdef V
   ifeq ("$(origin V)", "command line")
@@ -63,11 +59,17 @@ export PATH ROOTDIR srctree STAGING_DIRS
 export TROGLOHUB SUPPORT_URL BUG_REPORT_URL
 export KBUILD_VERBOSE MAKEFLAGS
 
-all: dep staging boot kernel lib packages user image		## Build all the things
+ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
+ifeq (.config, $(wildcard .config))
+include $(ROOTDIR)/.config
+all: dep staging kernel world image				## Build all the things
+else
+all: error
+endif
+endif
 
-dep:								## Use TroglOS defconfig if user forgets to run menuconfig
-#	@test -e .config || $(MAKE) $(DEFCONFIG)
-	@make -C arch $@
+dep:
+	+@make -C arch $@
 
 # Linux Kconfig, menuconfig et al
 include kconfig/config.mk
@@ -75,37 +77,34 @@ include kconfig/config.mk
 run:								## Run Qemu for selected target platform
 	@$(MAKE) -C arch $@
 
-staging: dep							## Initialize staging area
-	@$(MAKE) -C arch $@
+staging:							## Initialize staging area
+	+@$(MAKE) -C arch $@
 
 romfs:								## Create stripped down romfs/ from staging/
-	@$(MAKE) -C arch $@
+	+@$(MAKE) -C arch $@
 
 sdcard:								## Create Raspberry Pi SD card
 	@$(MAKE) -C arch $@
 
-ramdisk: romfs							## Build ramdisk of staging dir
+ramdisk:							## Build ramdisk of staging dir
 	@echo "  INITRD  $(OSNAME) $(OSVERSION_ID)"
 	@touch romfs/etc/version
 	@$(MAKE) -f ramdisk.mk $@
 
-image: boot user packages lib					## Build image, with dependency checking
-	@$(MAKE) -C arch $@
+image: world							## Build image, with dependency checking
+	+@$(MAKE) -C arch $@
 
-image_only:							## Build image w/o dependency checking
-	@$(MAKE) -C arch image
-
-kernel: staging							## Build configured Linux kernel
+kernel:								## Build configured Linux kernel
 	+@$(MAKE) -C kernel all
 	+@$(MAKE) kernel_install
 
-kernel_menuconfig:						## Call Linux menuconfig
+kernel_menuconfig:						## Linux menuconfig
 	@$(MAKE) -C kernel menuconfig
 
-kernel_oldconfig:						## Call Linux oldconfig
+kernel_oldconfig:						## Linux oldconfig
 	@$(MAKE) -C kernel oldconfig
 
-kernel_defconfig:						## Call Linux defconfig for the selected target platform
+kernel_defconfig:						## Linux defconfig for the selected target platform
 	@$(MAKE) -C kernel defconfig
 
 kernel_saveconfig:						## Save Linux-VER.REV/.config to kernel/config-VER
@@ -114,18 +113,11 @@ kernel_saveconfig:						## Save Linux-VER.REV/.config to kernel/config-VER
 kernel_install:							## Install Linux device tree
 	@$(MAKE) -C kernel dtbinst
 
-# Gate everything with the kernel
-lib: kernel
-
-# Packages may depend on libraries, so we build libs first
-packages: lib
-
-# We don't know anything about user programs, we build them last
-user: packages lib
-
-boot user packages lib:						## Build packages or libraries
-	+@$(MAKE) -C $@ all
-	+@$(MAKE) -C $@ install
+world:								## Build everything, in order
+	+@for dir in lib boot packages user; do			\
+		$(MAKE) -C $$dir all;				\
+		$(MAKE) -C $$dir install;			\
+	done
 
 TARGETS=$(shell find lib -maxdepth 1 -mindepth 1 -type d)
 include quick.mk
@@ -137,22 +129,25 @@ TARGETS=$(shell find user -maxdepth 1 -mindepth 1 -type d)
 include quick.mk
 
 clean:								## Clean build tree, excluding menuconfig
-	+@for dir in user, packages, lib kernel boot; do		\
+	-+@for dir in user packages lib kernel boot; do		\
 		echo "  CLEAN   $$dir";				\
-		$(MAKE) -C $$dir $@;			\
+		$(MAKE) -C $$dir $@;				\
 	done
 
 distclean:							## Really clean, as if started from scratch
-	+@for dir in user packages lib kernel boot kconfig; do	\
+	-+@for dir in user packages lib kernel boot kconfig; do	\
 		echo "  PURGE   $$dir";				\
-		$(MAKE) -C $$dir $@;			\
+		$(MAKE) -C $$dir $@;				\
 	done
-	-@for file in .config staging romfs images; do 		\
+	-+@for file in .config staging romfs images; do 	\
 		echo "  PURGE   $$file";	   		\
 		$(RM) -rf $$file;				\
 	done
 
-.PHONY: help
+error:
+	@echo "  FAIL    No .config found, see the README for help on download and set up."
+	@exit 1
+
 help:
 	@grep -hP '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST)	\
 	| sort | awk 'BEGIN {FS = ":.*?## "}; 			\
@@ -160,3 +155,7 @@ help:
 	@echo
 	@echo 'Briefly, after `git clone`: make all; make run'
 	@echo
+
+# Disable parallel build in this Makefile only, to ensure execution
+# of 'image' *after* 'world' --J
+.NOTPARALLEL:

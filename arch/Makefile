@@ -13,7 +13,7 @@
 # WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-.PHONY: run romfs
+.PHONY: dep run image romfs staging sdcard
 
 # Source configured settings for this arch
 include ../core.mk
@@ -21,7 +21,7 @@ include ../core.mk
 dep:
 	@check-toolchain $(CROSS_COMPILE)gcc $(TOOLCHAIN)
 
-run:
+run: $(IMAGEDIR)/troglos.img
 	@echo "  QEMU    Ctrl-a x -- exit | Ctrl-a c -- toggle console/monitor"
 	-@mkdir -p $(QEMU_HOST) 2>/dev/null
 	-@[ ! -e $(QEMU_MNT) ] && dd if=/dev/zero of=$(QEMU_MNT) bs=16384 count=960
@@ -62,7 +62,7 @@ romfs:
 	@chmod -R u+w $(ROMFS)
 
 staging:
-	@echo "  STAGING Root file system ..."
+	@printf "  STAGING Root file system ... "
 	@mkdir -p $(IMAGEDIR)
 	@mkdir -p $(STAGING)
 	@mkdir -p $(ROMFS)
@@ -87,7 +87,7 @@ staging:
 	@echo "$(OSNAME) $(OSVERSION_ID)"              > $(STAGING)/etc/issue.net
 	@echo "$(OSRELEASE_ID)"                        > $(STAGING)/etc/hostname
 	@sed -i 's/HOSTNAME/$(OSRELEASE_ID)/' $(STAGING)/etc/hosts
+	@printf "OK\n"
 
 sdcard:
 	@$(MAKE) -C $(ARCH)/$(MACH) $@
-
