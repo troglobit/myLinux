@@ -77,6 +77,11 @@ step can be skipped using an arch-specific defconfig:
 
 Now go have fun! :-)
 
+> **Note:** parallel builds (`-j5` above) can be very hard to debug
+> since the output of many different components is mixed.  To avoid
+> this and maintain your sanity, add `--output-sync=recurse` to
+> your `make` commands.
+
 
 Requirements
 ------------
