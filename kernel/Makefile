@@ -33,10 +33,10 @@ include $(ROOTDIR)/pkg.mk
 unexport KBUILD_KCONFIG
 
 $(PKG)/.config::
-	@if [ ! -s $(PKG)/.config ]; then						\
-		echo "  INSTALL $(PKG)/.config from $(CONFIG)";				\
+	@if [ ! -s $@ ]; then								\
+		echo "  CONFIG  $@ from $(patsubst $(srctree)/%,%,$(CONFIG))";		\
 		if [ -f $(CONFIG) ]; then						\
-			cp $(CONFIG) $(PKG)/.config;					\
+			cp $(CONFIG) $@;						\
 			$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) oldconfig;		\
 		else									\
 			$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) $(MACH)_defconfig;	\
@@ -44,7 +44,7 @@ $(PKG)/.config::
 		echo "  PREPARE $(PKG)";						\
 		$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) prepare scripts;			\
 	else										\
-		echo "  NO-OP   $(PKG)/.config already installed.";			\
+		echo "  NO-OP   $@ already installed.";					\
 	fi
 
 $(ZIMAGE): $(PKG)/.config
