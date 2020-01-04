@@ -35,7 +35,7 @@ static const char *logo[] = {
 	"'-|\e[1m.\e[0m  |-|__| |_____|___  |__|\e[1m.\e[0m  |   |____   |    |     o |/   \\/____o/\n",
 	"  |\e[1m:\e[0m  |            |_____|  |\e[1m:\e[0m  1   |\e[1m:\e[0m  1   |    '-------'\n",
 	"  |\e[1m::.\e[0m| Chaos Rel.          |\e[1m::.. .\e[0m |\e[1m::.. .\e[0m |    Troglobit Software Inc.\n",
-	"  '---'                     '-------'-------'    \e[4mhttp://troglobit.com\e[0m\n",
+	"  '---'                     '-------'-------'    \e[4mhttps://troglobit.com\e[0m\n",
 	NULL
 };
 

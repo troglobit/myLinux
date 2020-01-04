@@ -13,7 +13,7 @@ config INADYN
        help
 	 Powerful and small DDNS client inadyn
 	 
-	 http://troglobit.com/inadyn.html
+	 https://troglobit.com/inadyn.html
 
 config IPROUTE2
        bool "iproute2 - next generation ifconfig et al"
@@ -53,7 +53,7 @@ config MINI_SNMPD
        help
 	 Robert Ernst's original mini_snmpd reborn.
 	 
-	 http://troglobit.com/mini-snmpd.html
+	 https://troglobit.com/mini-snmpd.html
 
 config MROUTED
        bool "mrouted - The original dynamic multicast routing daemon"
@@ -61,7 +61,7 @@ config MROUTED
 	 The restored original mrouted.  This is not PIM but DVMRP, so
 	 basically RIP but for multicast.  Very reliable.
 	 
-	 http://troglobit.com/mrouted.html
+	 https://troglobit.com/mrouted.html
 
 config NEMESIS
        bool "nemesis - packet crafting & injection"
@@ -157,7 +157,7 @@ config PIMD
          It is the original USC (netweb/catarina.usc.edu) implementation
          of the protocol, based on RFC2362.
 	 
-	 http://troglobit.com/pimd.html
+	 https://troglobit.com/pimd.html
 
 config REDIR
        bool "redir - A TCP port redirector for UNIX"
@@ -177,7 +177,7 @@ config SMCROUTE
        help
 	 Carsten Schill's smcroute daemon, for static-only multicast routes.
 	 
-	 http://troglobit.com/smcroute.html
+	 https://troglobit.com/smcroute.html
 
 config SSDPD
        bool "ssdp-responder - SSDP discovery agent"
@@ -193,7 +193,7 @@ config UFTPD
        help
 	 Troglobit uftpd, quick TFTP and fuzzy-less FTP daemon.
 	 
-	 http://troglobit.com/uftpd.html
+	 https://troglobit.com/uftpd.html
 
 config UREDIR
        bool "uredir - A UDP port redirector for UNIX"
@@ -241,7 +241,7 @@ config FINIT
          The original Asus EeePC fastinit clone, on steroids.  With process
 	 supervision, plugin support, and more!
 	 
-	 http://troglobit.com/finit.html
+	 https://troglobit.com/finit.html
 
 config FINIT_BOOT_ANIMATION
 	bool "ASCII boot animation instead of traditional Finit progress"
@@ -316,7 +316,7 @@ config TETRIS
 	 musl libc. Hence, very suitable for embedded devices in need of an
 	 easter egg ;-)
 	 
-	 http://troglobit.com/tetris.html
+	 https://troglobit.com/tetris.html
 
 config TCPDUMP
        bool "tcpdump - Monitor network traffic"
