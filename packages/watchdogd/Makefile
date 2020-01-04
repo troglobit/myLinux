@@ -11,7 +11,7 @@ PKGINSTALL := install-exec
 include $(ROOTDIR)/pkg.mk
 
 $(PKG)/.stamp::
-	@$(MAKE) $(PKGENV) -C $(PKG) install-dev $(REDIRECT)
+	@$(MAKE) $(PKGENV) -C $(PKG) install-dev
 
 install::
 	@cp watchdogd.conf $(STAGING)/etc/

@@ -17,4 +17,4 @@ $(PKG)/.config::
 	fi
 
 install::
-	@cp -v $(PKG)/u-boot.bin $(IMAGEDIR)/ $(REDIRECT)
+	@cp -v $(PKG)/u-boot.bin $(IMAGEDIR)/
