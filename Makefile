@@ -48,9 +48,9 @@ ifndef KBUILD_VERBOSE
 endif
 KBUILD_DEFCONFIG   = defconfig
 ifeq ($(KBUILD_VERBOSE),1)
-MAKEFLAGS          =
+MAKEFLAGS          = --output-sync=recurse
 else
-MAKEFLAGS          = --silent --no-print-directory
+MAKEFLAGS          = --output-sync=recurse --silent --no-print-directory
 endif
 
 export OSNAME OSRELEASE_ID OSRELEASE OSVERSION_ID OSVERSION
