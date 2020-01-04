@@ -1,27 +1,23 @@
-# all/install/clean/distclean rules that iterate over $(dir_y)
 .PHONY: all install clean distclean
 THIS := $(notdir $(shell pwd))
 
-all:
-	+@for dir in $(dir_y); do					\
-		echo "  BUILD   $(THIS)/$$dir";				\
-		$(MAKE) -C $$dir $@ || exit 1;				\
-	done
+all:       $(addsuffix -all,       $(dir_y))
+clean:     $(addsuffix -clean,     $(dir_y))
+distclean: $(addsuffix -distclean, $(dir_all))
+install:   $(addsuffix -install,   $(dir_y))
 
-install:
-	+@for dir in $(dir_y); do					\
-		echo "  INSTALL $(THIS)/$$dir";				\
-		$(MAKE) -C $$dir $@ || exit 1;				\
-	done
+$(addsuffix -all, $(dir_y)):
+	@echo "  BUILD   $(THIS)/$(patsubst %-all,%,$@)"
+	+@$(MAKE) -C $(patsubst %-all,%,$@)
 
-clean: 
-	-+@for dir in $(dir_y); do					\
-		echo "  CLEAN   $(THIS)/$$dir";				\
-		$(MAKE) -C $$dir $@;					\
-	done
+$(addsuffix -install, $(dir_y)):
+	@echo "  INSTALL $(THIS)/$(patsubst %-install,%,$@)"
+	+@$(MAKE) -C $(patsubst %-install,%,$@) install
 
-distclean:
-	-+@for dir in $(dir_all); do					\
-		echo "  PURGE   $(THIS)/$$dir";				\
-		$(MAKE) -C $$dir $@;					\
-	done
+$(addsuffix -clean, $(dir_y)):
+	@echo "  CLEAN   $(THIS)/$(patsubst %-clean,%,$@)"
+	+@$(MAKE) -C $(patsubst %-clean,%,$@) clean
+
+$(addsuffix -distclean, $(dir_all)):
+	@echo "  PROPER  $(THIS)/$(patsubst %-distclean,%,$@)"
+	+@$(MAKE) -C $(patsubst %-distclean,%,$@) distclean
