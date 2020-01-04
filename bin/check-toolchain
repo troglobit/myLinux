@@ -17,7 +17,7 @@ if [ -e $ROOTDIR/.strict ]; then
     warn="FAIL"
     rc=1
 else
-    mesg="not verified, unsupported!"
+    mesg="unsupported."
     warn="WARN"
     rc=0
 fi
@@ -38,7 +38,8 @@ printf "  CHECK   Toolchain version ... "
 $CC --version |grep $VER >/dev/null 2>&1
 if [ $? -ne 0 ]; then
     printf "$mesg\n"
-    printf "  $warn    Wrong toolchain version, should be $VER\n"
+    printf "  $warn    Unsupported toolchain, expected $VER ...\n"
+    printf "          Update core.mk to change, or see README for help.\n"
     exit $rc
 fi
 
