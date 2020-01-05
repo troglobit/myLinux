@@ -62,7 +62,7 @@ export KBUILD_VERBOSE MAKEFLAGS
 ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
 ifeq (.config, $(wildcard .config))
 include $(ROOTDIR)/.config
-all: dep staging kernel world image				## Build all the things
+all: dep staging kernel world romfs image			## Build all the things
 else
 all: error
 endif
@@ -91,7 +91,7 @@ ramdisk:							## Build ramdisk of staging dir
 	@touch romfs/etc/version
 	@$(MAKE) -f ramdisk.mk $@
 
-image: world							## Build image, with dependency checking
+image:								## Build image, with dependency checking
 	+@$(MAKE) -C arch $@
 
 kernel:								## Build configured Linux kernel
@@ -113,7 +113,7 @@ kernel_saveconfig:						## Save Linux-VER.REV/.config to kernel/config-VER
 kernel_install:							## Install Linux device tree
 	+@$(MAKE) -C kernel dtbinst
 
-world:								## Build everything, in order
+world:								## Build everything, in sequence
 	+@for dir in lib boot packages user; do			\
 		$(MAKE) -C $$dir all;				\
 		$(MAKE) -C $$dir install;			\

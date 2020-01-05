@@ -21,17 +21,15 @@ include ../core.mk
 dep:
 	@check-toolchain $(CROSS_COMPILE)gcc $(TOOLCHAIN)
 
-run: $(IMAGEDIR)/troglos.img
+run:
 	@echo "  QEMU    Ctrl-a x -- exit | Ctrl-a c -- toggle console/monitor"
 	-@mkdir -p $(QEMU_HOST) 2>/dev/null
 	-@[ ! -e $(QEMU_MNT) ] && dd if=/dev/zero of=$(QEMU_MNT) bs=16384 count=960
 	@qemu $(IMAGEDIR)/$(KERNEL_IMG) $(IMAGEDIR)/troglos.img
 
-$(IMAGEDIR)/troglos.img: romfs
+image:
 	@echo "  SQUASH  Creating TroglOS SquasFS image"
-	@mksquashfs $(ROMFS)/* $@ -noappend -no-xattrs -comp xz -all-root -b 128k
-
-image: $(IMAGEDIR)/troglos.img
+	@mksquashfs $(ROMFS)/* $(IMAGEDIR)/troglos.img -noappend -no-xattrs -comp xz -all-root -b 128k
 
 # The install phase removes unnecessary files from the sysroot
 # The prune phase removes doc/man/include files and static libraries
