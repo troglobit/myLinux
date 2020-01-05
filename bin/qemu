@@ -56,6 +56,7 @@ append_args()
     fi
 
     echo -n "${QEMU_APPEND} "
+    echo -n "console=hvc0 "
     echo -n "block2mtd.block2mtd=/dev/sda,,Config "
 }
 
@@ -92,6 +93,16 @@ net_args()
     fi
 }
 
+consle_args()
+{
+    echo -n "-device virtio-serial "
+
+    echo -n "-chardev stdio,mux=on,id=hvc0 "
+    echo -n "-device virtconsole,chardev=hvc0 "
+
+    echo -n "-mon chardev=hvc0 "
+}
+
 if [ ${#} != 2 ]; then
     usage
     exit 1
@@ -100,11 +111,17 @@ fi
 # Disable pulseaudio warning
 export QEMU_AUDIO_DRV=none
 
+# Save current line settings, then disable all of them so that
+# everything is passed through to the guest (C-c, C-z etc.).
+line=$(stty -g)
+stty raw
+
 # Start Qemu
 #	    -watchdog i6300esb
-qemu-system-${QEMU_ARCH} -nographic -m 256M -M ${QEMU_MACH} ${QEMU_EXTRA} \
-	    -kernel ${1} -initrd ${2} -append "$(append_args)"	\
-	    $(dtb_args) $(mnt_args) $(host_args) $(net_args)
+qemu-system-${QEMU_ARCH} -display none -m 256M -M ${QEMU_MACH} ${QEMU_EXTRA}	\
+	    -kernel ${1} -initrd ${2} -append "$(append_args)"			\
+	    $(dtb_args) $(mnt_args) $(host_args) $(net_args)			\
+	    $(consle_args)
 
 # Restore TTY from Qemu target
-stty sane
+stty ${line}
