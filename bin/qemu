@@ -21,6 +21,18 @@ Environment variables that impact qemu:
     QEMU_DTB - Path to device tree to use
        default: No device tree
 
+    QEMU_EXTRA - Commandline options to pass to QEMU
+       default: None
+
+    QEMU_GDB_KPORT - TCP port to listen for GDB connections to kernel
+       default: 1234
+
+    QEMU_GDB_KWAIT - Wait for user to attach to kernel before booting
+       default: Don't wait
+
+    QEMU_GDB_UPORT - TCP port to listen for GDB connections to userspace
+       default: 1235
+
     QEMU_MNT - JFFS2 image to mount as /mnt
        default: None, mandatory
 
@@ -103,6 +115,18 @@ consle_args()
     echo -n "-mon chardev=hvc0 "
 }
 
+gdb_args()
+{
+    echo -n "-gdb tcp::${QEMU_GDB_KPORT:-1234} "
+    if [ ! -z ${QEMU_GDB_KWAIT} ]; then
+        echo -n "-S "
+    fi
+
+    addr="port=${QEMU_GDB_UPORT:-1235},host=localhost"
+    echo -n "-chardev socket,id=hvc1,${addr},server,nowait "
+    echo -n "-device virtconsole,name=gdb,chardev=hvc1"
+}
+
 if [ ${#} != 2 ]; then
     usage
     exit 1
@@ -121,7 +145,7 @@ stty raw
 qemu-system-${QEMU_ARCH} -display none -m 256M -M ${QEMU_MACH} ${QEMU_EXTRA}	\
 	    -kernel ${1} -initrd ${2} -append "$(append_args)"			\
 	    $(dtb_args) $(mnt_args) $(host_args) $(net_args)			\
-	    $(consle_args)
+	    $(consle_args) $(gdb_args)
 
 # Restore TTY from Qemu target
 stty ${line}
