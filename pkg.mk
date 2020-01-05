@@ -202,7 +202,8 @@ install:: build
 ifdef CONFIG_FINIT
 	@mkdir -p $(FINIT_D_AVAILABLE)
 	@for file in $(wildcard finit.d/*.conf); do 				\
-		echo "  INSTALL $(PKG)/$$file $(FINIT_D_AVAILABLE)/";		\
+		dir=$(patsubst $(srctree)/%,%,$(FINIT_D_AVAILABLE));		\
+		echo "  INSTALL $(PKG)/$$file $$dir/";				\
 		cp $$file $(FINIT_D_AVAILABLE)/; 				\
 	done
 endif
