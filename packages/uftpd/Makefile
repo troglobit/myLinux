@@ -1,5 +1,5 @@
 # Glue for cross compiling uftpd
-PKGVER     := 2.8
+PKGVER     := 2.11
 PKG        := uftpd-$(PKGVER)
 PKGSUFFIX  := tar.xz
 PKGPATCHES :=
