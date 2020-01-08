@@ -69,7 +69,7 @@ endif
 endif
 
 dep:
-	+@make -C arch $@
+	+@make -C system $@
 
 # Linux Kconfig, menuconfig et al
 include kconfig/config.mk
@@ -78,15 +78,15 @@ run:								## Run Qemu for selected target platform
 	@$(MAKE) -C arch $@
 
 staging:							## Initialize staging area
-	+@$(MAKE) -C arch $@
+	+@$(MAKE) -C system $@
 
 romfs:								## Create stripped down romfs/ from staging/
-	+@$(MAKE) -C arch $@
+	+@$(MAKE) -C system $@
 
 sdcard:								## Create Raspberry Pi SD card
 	@$(MAKE) -C arch $@
 
-ramdisk:							## Build ramdisk of staging dir
+ramdisk:							## Build ramdisk of romfs/ dir
 	@echo "  INITRD  $(OSNAME) $(OSVERSION_ID)"
 	@touch romfs/etc/version
 	@$(MAKE) -f ramdisk.mk $@
