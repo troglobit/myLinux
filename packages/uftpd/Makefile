@@ -7,4 +7,4 @@ PKGURL      = $(TROGLOHUB)/$(PKGNAME)/releases/download/v$(PKGVER)/$(PKGTAR)
 PKGCFG      = --prefix= --host=$(CROSS_TARGET)
 PKGINSTALL := install-exec
 
-include $(ROOTDIR)/pkg.mk
+include $(ROOTDIR)/system/pkg.mk

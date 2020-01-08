@@ -1,7 +1,7 @@
 # Glue for creating a bootable Raspberry Pi SD card
 .PHONY: sdcard
 
-include $(ROOTDIR)/core.mk
+include $(ROOTDIR)/system/core.mk
 
 sdcard:
 	if [ "`id -nu`" != "root" ]; then				\

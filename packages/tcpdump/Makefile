@@ -7,4 +7,4 @@ PKGCFGENV  += export ac_cv_linux_vers=2 td_cv_buggygetaddrinfo=no;
 PKGCFG      = --host=$(CROSS_TARGET) --prefix= --without-smi
 PKGCFG     += --disable-smb --without-crypto
 
-include $(ROOTDIR)/pkg.mk
+include $(ROOTDIR)/system/pkg.mk

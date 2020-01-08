@@ -5,4 +5,4 @@ PKGSUFFIX  := tar.xz
 PKGURL      = $(TROGLOHUB)/$(PKGNAME)/releases/download/v$(PKGVER)/$(PKGTAR)
 PKGCFG      = --host=$(CROSS_TARGET) --prefix=
 
-include $(ROOTDIR)/pkg.mk
+include $(ROOTDIR)/system/pkg.mk

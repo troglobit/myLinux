@@ -6,4 +6,4 @@ PKGURL      = $(TROGLOHUB)/$(PKGNAME)/releases/download/$(PKGVER)/$(PKGTAR)
 PKGPATCHES :=
 PKGCFG      = --enable-rsrr
 
-include $(ROOTDIR)/pkg.mk
+include $(ROOTDIR)/system/pkg.mk

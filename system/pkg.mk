@@ -49,7 +49,7 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 ifndef TOOLCHAIN
-include $(ROOTDIR)/core.mk
+include $(ROOTDIR)/system/core.mk
 endif
 
 PKGFETCH   ?= wget -t3 -nc --no-dns-cache --no-iri -q -cO

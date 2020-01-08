@@ -4,4 +4,4 @@ PKG        := tetris-$(PKGVER)
 PKGSUFFIX  := tar.bz2
 PKGURL      = $(TROGLOHUB)/$(PKGNAME)/releases/download/$(PKGVER)/$(PKGTAR)
 
-include $(ROOTDIR)/pkg.mk
+include $(ROOTDIR)/system/pkg.mk

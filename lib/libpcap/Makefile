@@ -9,5 +9,5 @@ PKGCFG     += --disable-protochain --disable-largefile --enable-yydebug
 PKGCFG     += --disable-bluetooth --disable-dbus
 PKGCFG     += --disable-canusb --disable-can
 
-include $(ROOTDIR)/pkg.mk
+include $(ROOTDIR)/system/pkg.mk
 

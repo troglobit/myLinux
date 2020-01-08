@@ -14,7 +14,7 @@ PKGCFG     += --enable-progress
 endif
 PKGINSTALL := install-exec
 
-include $(ROOTDIR)/pkg.mk
+include $(ROOTDIR)/system/pkg.mk
 
 $(PKG)/.stamp::
 	+@$(MAKE) $(PKGENV) -C $(PKG) install-dev

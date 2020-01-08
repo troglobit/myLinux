@@ -7,7 +7,7 @@ PKGTAR     := 1.$(PKGVER).$(PKGSUFFIX)
 PKGURL      = https://github.com/raspberrypi/firmware/archive/$(PKGTAR)
 PKGPATCHES :=
 
-include $(ROOTDIR)/pkg.mk
+include $(ROOTDIR)/system/pkg.mk
 
 $(PKG)/Makefile: wrap.mk $(PKG)/.unpacked
 	@echo "  STRAP   $@"

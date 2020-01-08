@@ -1,6 +1,6 @@
 .PHONY: ramdisk
 
-include core.mk
+include $(ROOTDIR)/system/core.mk
 
 # images/initramfs-$(KERNELRELEASE).img images/initramfs-$(KERNELRELEASE).uImage
 RAMDISK := images/initramfs-$(KERNELRELEASE).gz

@@ -16,7 +16,7 @@
 .PHONY: run image sdcard
 
 # Source configured settings for this arch
-include ../core.mk
+include $(ROOTDIR)/system/core.mk
 
 run:
 	@echo "  QEMU    Ctrl-a x -- exit | Ctrl-a c -- toggle console/monitor"

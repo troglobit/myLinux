@@ -5,4 +5,4 @@ PKGSUFFIX  := tar.xz
 PKGURL      = https://github.com/martinh/libconfuse/releases/download/v$(PKGVER)/$(PKGTAR)
 PKGCFG      = --host=$(CROSS_TARGET) --prefix= --disable-examples
 
-include $(ROOTDIR)/pkg.mk
+include $(ROOTDIR)/system/pkg.mk

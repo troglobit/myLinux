@@ -7,4 +7,4 @@ PKGCFG      = --host=$(CROSS_TARGET) --prefix=
 PKGPATCHES :=
 PKGINSTALL := install
 
-include $(ROOTDIR)/pkg.mk
+include $(ROOTDIR)/system/pkg.mk

@@ -6,4 +6,4 @@ PKGPATCHES :=
 PKGCFG      = --prefix= --enable-rsrr
 CC         := gcc
 
-include $(ROOTDIR)/pkg.mk
+include $(ROOTDIR)/system/pkg.mk

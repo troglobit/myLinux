@@ -5,7 +5,7 @@ PKGSUFFIX  := tar.bz2
 PKGURL      = ftp://ftp.denx.de/pub/u-boot/$(PKGTAR)
 PKGENV      = CROSS_COMPILE=$(CROSS_COMPILE) ARCH=$(KERNEL_ARCH)
 
-include $(ROOTDIR)/pkg.mk
+include $(ROOTDIR)/system/pkg.mk
 
 $(PKG)/.config::
 	@if [ ! -s $(PKG)/.config ]; then							\

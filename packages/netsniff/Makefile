@@ -6,4 +6,4 @@ PKGURL      = https://github.com/netsniff-ng/netsniff-ng/archive/v$(PKGVER).$(PK
 PKGCFG      = --prefix= --disable-libnl --disable-geoip --disable-zlib
 PKG_CONFIG := pkg-config
 
-include $(ROOTDIR)/pkg.mk
+include $(ROOTDIR)/system/pkg.mk

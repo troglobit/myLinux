@@ -7,7 +7,7 @@ PKGENV      = CONFIG_PREFIX=$(STAGING)
 BASE_VER    = $(shell echo $(PKGVER) | sed 's/\([0-9]*\.[0-9]*\)\.[0-9]*/\1/')
 CONFIG      = config-$(BASE_VER)
 
-include $(ROOTDIR)/pkg.mk
+include $(ROOTDIR)/system/pkg.mk
 
 $(PKG)/.config::
 	@if [ ! -f $(CONFIG) ]; then					\

@@ -5,4 +5,4 @@ PKGSUFFIX  := tar.xz
 PKGPATCHES :=
 PKGURL      = $(TROGLOHUB)/$(PKGNAME)/releases/download/v$(PKGVER)/$(PKGTAR)
 
-include $(ROOTDIR)/pkg.mk
+include $(ROOTDIR)/system/pkg.mk

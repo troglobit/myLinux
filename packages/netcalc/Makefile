@@ -6,4 +6,4 @@ PKGPATCHES :=
 PKGCFG      = --host=$(CROSS_TARGET) --prefix= --disable-ipcalc-symlink
 PKGINSTALL := install-exec
 
-include $(ROOTDIR)/pkg.mk
+include $(ROOTDIR)/system/pkg.mk

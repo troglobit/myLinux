@@ -39,7 +39,7 @@ $CC --version |grep $VER >/dev/null 2>&1
 if [ $? -ne 0 ]; then
     printf "$mesg\n"
     printf "  $warn    Unsupported toolchain, expected $VER ...\n"
-    printf "          Update core.mk to change, or see README for help.\n"
+    printf "          Update system/core.mk to change, or see README for help.\n"
     exit $rc
 fi
 

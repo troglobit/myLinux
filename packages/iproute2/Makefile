@@ -7,4 +7,4 @@ PKGENV      = CPPFLAGS=-I$(STAGING)/include LDFLAGS="-L$(STAGING)/lib"
 PKGENV     += DESTDIR=$(STAGING) PREFIX=/
 PKGCFG      = --host=$(CROSS_TARGET) --prefix=
 
-include $(ROOTDIR)/pkg.mk
+include $(ROOTDIR)/system/pkg.mk

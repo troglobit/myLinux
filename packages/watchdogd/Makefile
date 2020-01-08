@@ -8,7 +8,7 @@ PKGCFG     += --disable-test-mode --enable-examples
 PKGCFG     += --enable-loadavg --enable-filenr --enable-meminfo --enable-syslog-mark
 PKGINSTALL := install-exec
 
-include $(ROOTDIR)/pkg.mk
+include $(ROOTDIR)/system/pkg.mk
 
 $(PKG)/.stamp::
 	+@$(MAKE) $(PKGENV) -C $(PKG) install-dev

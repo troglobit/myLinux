@@ -5,4 +5,4 @@ PKGSUFFIX  := tar.bz2
 PKGURL      = http://ftp.netfilter.org/pub/libmnl/$(PKGTAR)
 PKGCFG      = --host=$(CROSS_TARGET) --prefix=$(STAGING)
 
-include $(ROOTDIR)/pkg.mk
+include $(ROOTDIR)/system/pkg.mk

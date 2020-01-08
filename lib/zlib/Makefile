@@ -4,4 +4,4 @@ PKG        := zlib-$(PKGVER)
 PKGURL      = http://zlib.net/$(PKGTAR)
 PKGCFG     := --prefix=
 
-include $(ROOTDIR)/pkg.mk
+include $(ROOTDIR)/system/pkg.mk

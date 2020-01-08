@@ -30,4 +30,4 @@ dir_n                    =
 dir_                     =
 dir_all                  = $(filter-out $(exclude), $(notdir $(wildcard *)))
 
-include ../rules.mk
+include $(ROOTDIR)/system/rules.mk

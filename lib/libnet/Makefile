@@ -5,4 +5,4 @@ PKGSUFFIX  := tar.gz
 PKGURL      = https://github.com/libnet/libnet/releases/download/v$(PKGVER)/$(PKG).$(PKGSUFFIX)
 PKGCFG      = --host=$(CROSS_TARGET) --prefix=
 
-include $(ROOTDIR)/pkg.mk
+include $(ROOTDIR)/system/pkg.mk

@@ -120,13 +120,13 @@ world:								## Build everything, in sequence
 	done
 
 TARGETS=$(shell find lib -maxdepth 1 -mindepth 1 -type d)
-include quick.mk
+include system/quick.mk
 
 TARGETS=$(shell find packages -maxdepth 1 -mindepth 1 -type d)
-include quick.mk
+include system/quick.mk
 
 TARGETS=$(shell find user -maxdepth 1 -mindepth 1 -type d)
-include quick.mk
+include system/quick.mk
 
 clean:								## Clean build tree, excluding menuconfig
 	-+@for dir in user packages lib kernel boot; do		\

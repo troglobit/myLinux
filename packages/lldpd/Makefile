@@ -17,7 +17,7 @@ PKGCFG     += --disable-doxygen-doc --without-json --without-xml
 #PKGCFG     += --with-snmp
 PKGINSTALL := install-exec
 
-include $(ROOTDIR)/pkg.mk
+include $(ROOTDIR)/system/pkg.mk
 
 install::
 	@mkdir -p $(STAGING)/etc/lldpd.d

@@ -8,4 +8,4 @@ PKGCFG      = --host=$(CROSS_TARGET) --prefix=
 PKGCFG     += --prefix=/usr --localstatedir=/var --sysconfdir=/etc
 PKGCFG     += --without-ssl
 
-include $(ROOTDIR)/pkg.mk
+include $(ROOTDIR)/system/pkg.mk

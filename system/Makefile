@@ -16,7 +16,7 @@
 .PHONY: dep romfs staging
 
 # Source configured settings for this arch
-include ../core.mk
+include core.mk
 
 dep:
 	@check-toolchain $(CROSS_COMPILE)gcc $(TOOLCHAIN)
