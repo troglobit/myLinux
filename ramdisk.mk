@@ -25,5 +25,5 @@ images/initramfs-$(KERNELRELEASE).img: images/initramfs-$(KERNELRELEASE).cpio
 
 images/initramfs-$(KERNELRELEASE).cpio: $(ROMFS)/etc/version
 	@(cat initramfs.devnodes; \
-		sh $(KERNEL_MODULES)/build/scripts/gen_initramfs_list.sh -u squash -g squash $(ROMFS)) \
-		 | $(KERNEL_MODULES)/build/usr/gen_init_cpio - >$@
+	  sh $(KERNEL_MODULES)/build/usr/gen_initramfs_list.sh -u squash -g squash $(ROMFS)) \
+	   | $(KERNEL_MODULES)/build/usr/gen_init_cpio - >$@
