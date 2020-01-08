@@ -143,6 +143,7 @@ stty raw
 
 # Start Qemu
 #	    -watchdog i6300esb
+# echo qemu-system-${QEMU_ARCH} -display none -m 256M -M ${QEMU_MACH} ${QEMU_EXTRA}   -kernel ${1} -initrd ${2} -append "$(append_args)"	$(dtb_args) $(mnt_args) $(host_args) $(net_args) $(consle_args) $(gdb_args)
 qemu-system-${QEMU_ARCH} -display none -m 256M -M ${QEMU_MACH} ${QEMU_EXTRA}	\
 	    -kernel ${1} -initrd ${2} -append "$(append_args)"			\
 	    $(dtb_args) $(mnt_args) $(host_args) $(net_args)			\
