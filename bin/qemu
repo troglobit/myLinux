@@ -69,6 +69,7 @@ append_args()
 
     echo -n "${QEMU_APPEND} "
     echo -n "console=hvc0 "
+    echo -n "root=/dev/ram "
     echo -n "block2mtd.block2mtd=/dev/sda,,Config "
 }
 

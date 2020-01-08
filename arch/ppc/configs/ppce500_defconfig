@@ -23,7 +23,7 @@ CONFIG_PPCE500=y
 #
 CONFIG_LINUX_VERSION="4.8.7"
 # CONFIG_LINUX_TESTING is not set
-CONFIG_LINUX_CMDLINE="root=/dev/ram mem=256M console=ttyS0,115200"
+# CONFIG_LINUX_CMDLINE is not set
 
 #
 # Libraries
