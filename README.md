@@ -168,6 +168,11 @@ To tweak the kernel the following build shortcuts are available:
 There are a few more, see the Makefile for details, it is surprisingly
 readable! :-)
 
+> **Note:** debugging Makefiles can be a bit of a hassle.  To see what is
+> *really* going on you can used `make --debug=FLAGS V=1`, or even try
+> `make SHELL='sh -x' --debug=FLAGS V=1`.  Consult the GNU make man
+> page for help with the debug FLAGS.
+
 
 Upgrading Linux
 ---------------
