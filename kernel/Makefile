@@ -84,12 +84,6 @@ headers_install: kernel
 	@echo "  HEADERS kernel/$(PKG)"
 	+$(MAKE) -C $(PKG) $@ ARCH=$(KERNEL_ARCH) INSTALL_HDR_PATH=$(STAGING)
 
-#modules:
-#	rm -rf modules
-#	mkdir -p modules/lib/modules/$(KERNELRELEASE)
-#	sh -ec "cd $(KERNEL_MODULES);find * -depth -print0 | cpio -0pdm $(PWD)/modules/lib/modules/$(KERNELRELEASE)"
-#	find modules/lib/modules/$(KERNELRELEASE) -name '*.ko' | xargs $(CROSS_COMPILE)strip -g
-
 modules_install: modules
 	@echo "  MODINST kernel/$(PKG)"
 	@. $(PKG)/.config;						\

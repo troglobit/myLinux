@@ -15,7 +15,6 @@
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .PHONY: dep romfs staging
 
-# Source configured settings for this arch
 include core.mk
 
 dep:
