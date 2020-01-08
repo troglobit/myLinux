@@ -9,11 +9,11 @@ qstrip             = $(strip $(subst ",,$(1)))
 
 # Check to be sure, CONFIG_DOT_CONFIG only set if include succeeeded
 ifeq ($(CONFIG_DOT_CONFIG),y)
-ARCH               = $(call qstrip, $(CONFIG_ARCH))
-MACH               = $(call qstrip, $(CONFIG_MACH))
-KERNEL_VERSION     = $(call qstrip, $(CONFIG_LINUX_VERSION))
-QEMU_APPEND        = $(call qstrip, $(CONFIG_LINUX_CMDLINE))
-CROSS_COMPILE      = $(call qstrip, $(CONFIG_TOOLCHAIN_PREFIX))
+ARCH              := $(call qstrip, $(CONFIG_ARCH))
+MACH              := $(call qstrip, $(CONFIG_MACH))
+KERNEL_VERSION    := $(call qstrip, $(CONFIG_LINUX_VERSION))
+QEMU_APPEND       := $(QEMU_APPEND) $(call qstrip, $(CONFIG_LINUX_CMDLINE))
+CROSS_COMPILE     := $(call qstrip, $(CONFIG_TOOLCHAIN_PREFIX))
 
 # Map Qemu archs (used by TroglOS) to Linux kernel archs
 KERNEL_ARCH       := $(shell echo $(ARCH) | sed	\
