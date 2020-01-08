@@ -8,7 +8,7 @@
    |::.|                     |::.. . |::.. . |    |     o |/   \/____o/
    `---'                     `-------`-------'    '-------'
 ```
-<img align="right" src="example.png" alt="Image of TroglOS Example Run">
+<img align="right" src="doc/example.png" alt="TroglOS Example Run">
 
 * [Introduction](#introduction)
 * [Building](#building)
