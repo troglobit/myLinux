@@ -137,13 +137,9 @@ you're set, otherwise you're unfortunately on your own.
 Troubleshooting
 ---------------
 
-TroglOS builds silent.   You will not see any  compiler output, warnings
-or such by  default.  When something does not work  this can be slightly
-annoying, so there are several shortcuts and other tricks to help you!
-
-First,  check  the file  `build.log`,  everything  is redirected  there,
-except for  some status messages.  If  that does not help,  try enabling
-verbose mode:
+When something does not build it can be hard to see what went wrong, so
+there are several shortcuts and other tricks in the build system to help
+you.  For instance, verbose mode:
 
     make V=1
 
@@ -165,8 +161,7 @@ To tweak the kernel the following build shortcuts are available:
     make kernel_menuconfig
     make kernel_saveconfig
 
-There are a few more, see the Makefile for details, it is surprisingly
-readable! :-)
+There are a few more, see the Makefile for details.
 
 > **Note:** debugging Makefiles can be a bit of a hassle.  To see what is
 > *really* going on you can used `make --debug=FLAGS V=1`, or even try
