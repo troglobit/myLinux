@@ -20,14 +20,17 @@ PKGBASEVER      = $(shell echo $(PKGVER) | sed 's/\([0-9]*\.[0-9]*\).*/\1/')
 PKG             = linux-$(PKGVER)
 PKGNAME        := kernel
 PKGSUFFIX      := tar.xz
-PKGTARGETS     := kernel headers_install modules modules_install
+PKGTARGETS     := build-kernel
+PKGINTALL      := custom
 PKGPATCHES      = patches/$(PKGBASEVER)/*.patch patches/$(PKGBASEVER)/series
 ifdef CONFIG_LINUX_RC
 RC_PATH         = testing/
 endif
 PKGURL          = http://cdn.kernel.org/pub/linux/kernel/v4.x/$(RC_PATH)$(PKGTAR)
 CONFIG          = $(PRODDIR)/linux.config-$(PKGBASEVER)
-ZIMAGE          = $(PKG)/arch/$(KERNEL_ARCH)/boot/$(KERNEL_IMG)
+IMAGE           = $(if $(filter linux,$(KERNEL_IMAGE)), \
+			$(PKG)/linux, \
+			$(PKG)/arch/$(KERNEL_ARCH)/boot/$(KERNEL_IMAGE))
 
 include $(ROOTDIR)/system/pkg.mk
 unexport KBUILD_KCONFIG
@@ -47,10 +50,6 @@ $(PKG)/.config::
 		echo "  NO-OP   $@ already installed.";					\
 	fi
 
-$(ZIMAGE): $(PKG)/.config
-	@echo "  BUILD   $(PKG)"
-	+@$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) $(KERNEL_IMG)
-
 defconfig:
 	@$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) $(MACH)_defconfig
 
@@ -65,22 +64,24 @@ menuconfig: $(PKG)/.config
 	@echo "  CONFIG  $(PKG)"
 	@$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) menuconfig
 
-dtbinst:
-	@if [ "$(ARCH)" = "arm" -o "$(ARCH)" = "arm64" ]; then		\
+$(IMAGE): $(PKG)/.config
+	@echo "  BUILD   kernel/$(PKG)"
+	+@$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) $(KERNEL_IMAGE)
+
+kernel: $(IMAGE)
+	@echo "  INSTALL kernel/$(PKG)"
+	@cp -v $(IMAGE) $(IMAGEDIR)
+	+@if [ "$(ARCH)" != "x86" -a "$(ARCH)" != "x86_64" ]; then	\
 		echo "  DTBINST kernel/$(PKG)";				\
 		INSTALL_DTBS_PATH=$(IMAGEDIR) ARCH=$(KERNEL_ARCH) 	\
 			$(MAKE) -C $(PKG) dtbs dtbs_install; 		\
 	fi
 
-kernel: $(ZIMAGE)
-	@echo "  INSTALL kernel/$(PKG)"
-	@cp -v $(ZIMAGE) $(IMAGEDIR)
-
-modules: kernel
-	@echo "  MODULES $(PKG)"
+modules: $(PKG)/.config
+	@echo "  MODULES kernel/$(PKG)"
 	+@$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) modules
 
-headers_install: kernel
+headers_install: $(PKG)/.config
 	@echo "  HEADERS kernel/$(PKG)"
 	+$(MAKE) -C $(PKG) $@ ARCH=$(KERNEL_ARCH) INSTALL_HDR_PATH=$(STAGING)
 
@@ -96,6 +97,12 @@ modules_install: modules
 				  INSTALL_MOD_STRIP=--strip-all		\
 				  $@;					\
 	fi
+
+ifdef CONFIG_LINUX_BUILD_IMAGE
+build-kernel: kernel modules_install headers_install
+else ifdef CONFIG_LINUX_BUILD_HEADERS
+build-kernel: headers_install
+endif
 
 distclean::
 	-@$(RM) -rf linux-*

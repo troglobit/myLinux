@@ -11,9 +11,12 @@ qstrip             = $(strip $(subst ",,$(1)))
 ifeq ($(CONFIG_DOT_CONFIG),y)
 ARCH              := $(call qstrip, $(CONFIG_ARCH))
 MACH              := $(call qstrip, $(CONFIG_MACH))
+KERNEL_IMAGE       = $(call qstrip, $(CONFIG_LINUX_IMAGE))
 KERNEL_VERSION    := $(call qstrip, $(CONFIG_LINUX_VERSION))
-QEMU_APPEND       := $(QEMU_APPEND) $(call qstrip, $(CONFIG_LINUX_CMDLINE))
-CROSS_COMPILE     := $(call qstrip, $(CONFIG_TOOLCHAIN_PREFIX))
+ifdef KERNEL_RC
+KERNEL_VERSION     = $(KERNEL_VERSION).0$(KERNEL_RC)
+endif
+KERNEL_MODULES     = $(wildcard $(ROMFS)/lib/modules/$(KERNEL_VERSION)*)
 
 # Map Qemu archs (used by TroglOS) to Linux kernel archs
 KERNEL_ARCH       := $(shell echo $(ARCH) | sed	\
@@ -22,14 +25,12 @@ KERNEL_ARCH       := $(shell echo $(ARCH) | sed	\
 			-e 's/aarch64/arm64/'   \
 			-e 's/x86_64/x86/')
 
+QEMU_APPEND       := $(QEMU_APPEND) $(call qstrip, $(CONFIG_LINUX_CMDLINE))
+CROSS_COMPILE     := $(call qstrip, $(CONFIG_TOOLCHAIN_PREFIX))
+
 # Include KERNEL_ and QEMU_ settings for this arch.
 include $(ROOTDIR)/arch/$(ARCH)/config.mk
 endif
-
-ifdef KERNEL_RC
-KERNEL_VERSION     = $(KERNEL_VERSION).0$(KERNEL_RC)
-endif
-KERNEL_MODULES     = $(wildcard $(ROMFS)/lib/modules/$(KERNEL_VERSION)*)
 
 CROSS_TARGET       = $(CROSS_COMPILE:-=)
 CC                 = $(CROSS_COMPILE)gcc

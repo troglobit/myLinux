@@ -111,7 +111,7 @@ kernel-saveconfig:						## Save Linux-VER.REV/.config to kernel/config-VER
 	@$(MAKE) -C kernel saveconfig
 
 kernel-install:							## Install Linux device tree
-	+@$(MAKE) -C kernel dtbinst
+	+@$(MAKE) -C kernel kernel
 
 world:								## Build everything, in sequence
 	+@for dir in lib boot packages user; do			\
