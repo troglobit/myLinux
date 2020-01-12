@@ -94,7 +94,7 @@ modules_install: modules
 		fi;							\
 		$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH)			\
 				  INSTALL_MOD_PATH=$(STAGING)		\
-				  INSTALL_MOD_STRIP=--strip-all		\
+				  INSTALL_MOD_STRIP=--strip-debug	\
 				  $@;					\
 	fi
 
