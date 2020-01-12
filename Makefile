@@ -110,8 +110,9 @@ kernel-defconfig:						## Linux defconfig for the selected target platform
 kernel-saveconfig:						## Save Linux-VER.REV/.config to kernel/config-VER
 	@$(MAKE) -C kernel saveconfig
 
-kernel-install:							## Install Linux device tree
+kernel-install:							## Install Linux
 	+@$(MAKE) -C kernel kernel
+	+@$(MAKE) -C kernel modules_install
 
 world:								## Build everything, in sequence
 	+@for dir in lib boot packages user; do			\
