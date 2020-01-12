@@ -37,8 +37,9 @@ romfs:
 	-@rm -rf $(ROMFS)/share/doc $(ROMFS)/usr/share/doc
 	-@rm -rf $(ROMFS)/share/man $(ROMFS)/usr/share/man
 	-@rm -rf $(ROMFS)/include   $(ROMFS)/usr/include
-	@find $(ROMFS)/ -name '*.a'  -delete
-	@find $(ROMFS)/ -name '*.la' -delete
+	@find $(ROMFS)/ -name '*.a'    -delete
+	@find $(ROMFS)/ -name '*.la'   -delete
+	@find $(ROMFS)/ -name '.empty' -delete
 	@echo "  STRIP   Optimizing $(ROMFS)"
 	@for file in `find $(ROMFS) -executable -type f`; do		\
 		file $$file | grep 'not stripped' 2>&1 >/dev/null;	\
