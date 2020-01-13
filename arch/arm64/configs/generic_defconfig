@@ -1,14 +1,25 @@
 #
-# TroglOS Virtual Devboard Default Configuration
+# Automatically generated make config: don't edit
+# TroglOS Virtual Devboard Configuration
 #
 CONFIG_DOT_CONFIG=y
+
+#
+# Target
+#
 # CONFIG_ARM is not set
 CONFIG_ARM64=y
-CONFIG_GENERIC=y
 # CONFIG_PPC is not set
 # CONFIG_X86 is not set
 CONFIG_ARCH="arm64"
 CONFIG_MACH="generic"
+CONFIG_GENERIC=y
+# CONFIG_MCBIN is not set
+
+#
+# Toolchain and Build Specific Settings
+#
+CONFIG_TOOLCHAIN_PREFIX="aarch64-unknown-linux-gnu-"
 
 #
 # Boot Loaders and Firmware
@@ -19,9 +30,12 @@ CONFIG_MACH="generic"
 #
 # Kernel
 #
-CONFIG_LINUX_VERSION="4.15.4"
+# CONFIG_LINUX_BUILD_HEADERS is not set
+CONFIG_LINUX_BUILD_IMAGE=y
+CONFIG_LINUX_IMAGE="Image"
+CONFIG_LINUX_VERSION="4.19.74"
 # CONFIG_LINUX_TESTING is not set
-# CONFIG_LINUX_CMDLINE is not set
+CONFIG_LINUX_CMDLINE=""
 
 #
 # Libraries
@@ -29,8 +43,10 @@ CONFIG_LINUX_VERSION="4.15.4"
 CONFIG_CONFUSE=y
 CONFIG_LIBITE=y
 CONFIG_LIBUEV=y
-CONFIG_LIBMNL=y
 # CONFIG_LIPIFY is not set
+CONFIG_LIBMNL=y
+# CONFIG_LIBNET is not set
+CONFIG_LIBPCAP=y
 CONFIG_NCURSES=y
 CONFIG_ZLIB=y
 
@@ -39,17 +55,22 @@ CONFIG_ZLIB=y
 #
 CONFIG_DROPBEAR=y
 # CONFIG_INADYN is not set
+CONFIG_IPROUTE2=y
 # CONFIG_LLDPD is not set
 # CONFIG_MERECAT is not set
+# CONFIG_MDNSD is not set
 # CONFIG_MINI_SNMPD is not set
 # CONFIG_MROUTED is not set
+# CONFIG_NEMESIS is not set
 # CONFIG_NETCALC is not set
+# CONFIG_NETSNIFF is not set
 # CONFIG_NTPCLIENT is not set
 # CONFIG_OMPING is not set
 # CONFIG_MCJOIN is not set
 # CONFIG_PIMD is not set
 # CONFIG_REDIR is not set
 # CONFIG_SMCROUTE is not set
+# CONFIG_SSDPD is not set
 # CONFIG_UFTPD is not set
 # CONFIG_UREDIR is not set
 
@@ -59,9 +80,13 @@ CONFIG_DROPBEAR=y
 CONFIG_BUSYBOX=y
 CONFIG_FINIT=y
 # CONFIG_FINIT_BOOT_ANIMATION is not set
-# CONFIG_MG is not set
-# CONFIG_STRACE is not set
-# CONFIG_TETRIS is not set
+CONFIG_LXC=y
+CONFIG_MG=y
+CONFIG_SOCAT=y
+CONFIG_STRACE=y
+CONFIG_SYSKLOGD=y
+CONFIG_TETRIS=y
+CONFIG_TCPDUMP=y
 CONFIG_WATCHDOGD=y
 
 #
