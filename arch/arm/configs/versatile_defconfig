@@ -3,6 +3,10 @@
 # TroglOS Virtual Devboard Configuration
 #
 CONFIG_DOT_CONFIG=y
+
+#
+# Target
+#
 CONFIG_ARM=y
 # CONFIG_ARM64 is not set
 # CONFIG_PPC is not set
@@ -13,6 +17,11 @@ CONFIG_VERSATILE=y
 CONFIG_MACH="versatile"
 
 #
+# Toolchain and Build Specific Settings
+#
+CONFIG_TOOLCHAIN_PREFIX="arm-unknown-linux-gnueabi-"
+
+#
 # Boot Loaders and Firmware
 #
 # CONFIG_RPI_BLOBS is not set
@@ -21,9 +30,12 @@ CONFIG_MACH="versatile"
 #
 # Kernel
 #
+# CONFIG_LINUX_BUILD_HEADERS is not set
+CONFIG_LINUX_BUILD_IMAGE=y
+CONFIG_LINUX_IMAGE="zImage"
 CONFIG_LINUX_VERSION="4.15.4"
 # CONFIG_LINUX_TESTING is not set
-# CONFIG_LINUX_CMDLINE is not set
+CONFIG_LINUX_CMDLINE=""
 
 #
 # Libraries
@@ -31,8 +43,10 @@ CONFIG_LINUX_VERSION="4.15.4"
 CONFIG_CONFUSE=y
 CONFIG_LIBITE=y
 CONFIG_LIBUEV=y
-CONFIG_LIBMNL=y
 # CONFIG_LIPIFY is not set
+# CONFIG_LIBMNL is not set
+# CONFIG_LIBNET is not set
+CONFIG_LIBPCAP=y
 CONFIG_NCURSES=y
 CONFIG_ZLIB=y
 
@@ -40,21 +54,25 @@ CONFIG_ZLIB=y
 # Networking packages
 #
 CONFIG_DROPBEAR=y
-CONFIG_INADYN=y
-CONFIG_LLDPD=y
-CONFIG_MERECAT=y
-CONFIG_MDNSD=y
-CONFIG_MINI_SNMPD=y
+# CONFIG_INADYN is not set
+# CONFIG_IPROUTE2 is not set
+# CONFIG_LLDPD is not set
+# CONFIG_MERECAT is not set
+# CONFIG_MDNSD is not set
+# CONFIG_MINI_SNMPD is not set
 # CONFIG_MROUTED is not set
+# CONFIG_NEMESIS is not set
 # CONFIG_NETCALC is not set
+# CONFIG_NETSNIFF is not set
 # CONFIG_NTPCLIENT is not set
 # CONFIG_OMPING is not set
-CONFIG_MCJOIN=y
+# CONFIG_MCJOIN is not set
 # CONFIG_PIMD is not set
-CONFIG_REDIR=y
-CONFIG_SMCROUTE=y
-CONFIG_UFTPD=y
-CONFIG_UREDIR=y
+# CONFIG_REDIR is not set
+# CONFIG_SMCROUTE is not set
+# CONFIG_SSDPD is not set
+# CONFIG_UFTPD is not set
+# CONFIG_UREDIR is not set
 
 #
 # System packages
@@ -62,10 +80,13 @@ CONFIG_UREDIR=y
 CONFIG_BUSYBOX=y
 CONFIG_FINIT=y
 # CONFIG_FINIT_BOOT_ANIMATION is not set
-# CONFIG_LXC is not set
+CONFIG_LXC=y
 CONFIG_MG=y
+# CONFIG_SOCAT is not set
 # CONFIG_STRACE is not set
+CONFIG_SYSKLOGD=y
 # CONFIG_TETRIS is not set
+CONFIG_TCPDUMP=y
 CONFIG_WATCHDOGD=y
 
 #
