@@ -20,8 +20,7 @@ PKGBASEVER      = $(shell echo $(PKGVER) | sed 's/\([0-9]*\.[0-9]*\).*/\1/')
 PKG             = linux-$(PKGVER)
 PKGNAME        := kernel
 PKGSUFFIX      := tar.xz
-PKGTARGETS     := build-kernel
-PKGINTALL      := custom
+PKGINSTALL     :=
 PKGPATCHES      = patches/$(PKGBASEVER)/*.patch patches/$(PKGBASEVER)/series
 ifdef CONFIG_LINUX_RC
 RC_PATH         = testing/
@@ -67,15 +66,17 @@ menuconfig: $(PKG)/.config
 $(IMAGE): $(PKG)/.config
 	@echo "  BUILD   kernel/$(PKG)"
 	+@$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) $(KERNEL_IMAGE)
-
-kernel: $(IMAGE)
-	@echo "  INSTALL kernel/$(PKG)"
-	@cp -v $(IMAGE) $(IMAGEDIR)
 	+@if [ "$(ARCH)" != "x86" -a "$(ARCH)" != "x86_64" ]; then	\
-		echo "  DTBINST kernel/$(PKG)";				\
-		INSTALL_DTBS_PATH=$(IMAGEDIR) ARCH=$(KERNEL_ARCH) 	\
-			$(MAKE) -C $(PKG) dtbs dtbs_install; 		\
+		echo "  DTBS    kernel/$(PKG)";				\
+		$(MAKE) -C $(PKG) ARCH=$(KERNEL_ARCH) dtbs;		\
 	fi
+
+ifdef CONFIG_LINUX_BUILD_IMAGE
+kernel: headers_install $(IMAGE) modules
+else ifdef CONFIG_LINUX_BUILD_HEADERS
+kernel: headers_install
+endif
+
 
 modules: $(PKG)/.config
 	@echo "  MODULES kernel/$(PKG)"
@@ -85,7 +86,17 @@ headers_install: $(PKG)/.config
 	@echo "  HEADERS kernel/$(PKG)"
 	+$(MAKE) -C $(PKG) $@ ARCH=$(KERNEL_ARCH) INSTALL_HDR_PATH=$(STAGING)
 
-modules_install: modules
+kernel_install: $(IMAGE)
+	@echo "  INSTALL kernel/$(PKG)"
+	@cp -v $(IMAGE) $(IMAGEDIR)
+	+@if [ "$(ARCH)" != "x86" -a "$(ARCH)" != "x86_64" ]; then	\
+		echo "  DTBINST kernel/$(PKG)";				\
+		INSTALL_DTBS_PATH=$(IMAGEDIR) ARCH=$(KERNEL_ARCH) 	\
+			$(MAKE) -C $(PKG) dtbs_install; 		\
+	fi
+	+@$(MAKE) modules_install
+
+modules_install:
 	@echo "  MODINST kernel/$(PKG)"
 	@. $(PKG)/.config;						\
 	if [ "$$CONFIG_MODULES" = "y" ]; then				\
@@ -97,12 +108,6 @@ modules_install: modules
 				  INSTALL_MOD_STRIP=--strip-debug	\
 				  $@;					\
 	fi
-
-ifdef CONFIG_LINUX_BUILD_IMAGE
-build-kernel: kernel modules_install headers_install
-else ifdef CONFIG_LINUX_BUILD_HEADERS
-build-kernel: headers_install
-endif
 
 distclean::
 	-@$(RM) -rf linux-*

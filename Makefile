@@ -95,7 +95,7 @@ image:								## Build image, with dependency checking
 	+@$(MAKE) -C arch $@
 
 kernel:								## Build configured Linux kernel
-	+@$(MAKE) -C kernel all
+	+@$(MAKE) -C kernel $@
 	+@$(MAKE) kernel-install
 
 kernel-menuconfig:						## Linux menuconfig
@@ -111,8 +111,7 @@ kernel-saveconfig:						## Save Linux-VER.REV/.config to kernel/config-VER
 	@$(MAKE) -C kernel saveconfig
 
 kernel-install:							## Install Linux
-	+@$(MAKE) -C kernel kernel
-	+@$(MAKE) -C kernel modules_install
+	+@$(MAKE) -C kernel kernel_install
 
 world:								## Build everything, in sequence
 	+@for dir in lib boot packages user; do			\
