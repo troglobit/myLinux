@@ -111,3 +111,7 @@ modules_install:
 
 distclean::
 	-@$(RM) -rf linux-*
+
+# Disable parallel build in this Makefile only, to ensure execution
+# of '$(IMAGE)' before modules, but after headers_install --J
+.NOTPARALLEL:
