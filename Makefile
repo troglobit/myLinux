@@ -101,6 +101,9 @@ kernel:								## Build configured Linux kernel
 kernel-menuconfig:						## Linux menuconfig
 	@$(MAKE) -C kernel menuconfig
 
+kernel-chksum:							## Update kernel md5sum file
+	@$(MAKE) -C kernel chksum
+
 kernel-oldconfig:						## Linux oldconfig
 	@$(MAKE) -C kernel oldconfig
 
