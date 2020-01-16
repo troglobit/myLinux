@@ -123,7 +123,7 @@ $(PKG)/.unpacked:: Makefile $(PKGARCHIVE) $(PKGPATCHES)
 	fi
 else
 $(PKG)/.unpacked:: Makefile
-	-@rm $(PKG)/.config
+	-@rm $(PKG)/.config 2>/dev/null
 endif
 	@touch $@
 
