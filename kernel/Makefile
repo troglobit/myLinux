@@ -84,7 +84,7 @@ modules: $(PKG)/.config
 
 headers_install: $(PKG)/.config
 	@echo "  HEADERS kernel/$(PKG)"
-	+$(MAKE) -C $(PKG) $@ ARCH=$(KERNEL_ARCH) INSTALL_HDR_PATH=$(STAGING)
+	+$(MAKE) -C $(PKG) $@ ARCH=$(KERNEL_ARCH) INSTALL_HDR_PATH=$(STAGING)/usr
 
 kernel_install: $(IMAGE)
 	@echo "  INSTALL kernel/$(PKG)"
