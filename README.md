@@ -45,12 +45,16 @@ based [toolchain][2].  Pull requests for  more targets are most welcome!
 Building
 --------
 
-To try it out, simply clone this repository, install the dependencies
-listed in the Requirements section, then type:
+To try it out, clone this repository, install the dependencies listed in
+the Requirements section, including the toolchain for your preferred
+target(s).  There is no default arch set, so if you want to build for an
+ARM 64-bit system:
 
+    export PATH=/usr/local/aarch64-unknown-linux-gnu-7.3.0-1/bin:$PATH
+    ARCH=arm64 make defconfig
     make -j5
 
-Or modify the configuration using the well known menuconfig interface
+Or modify the configuration, using the well known menuconfig interface:
 
     make menuconfig
     make -j5
@@ -71,7 +75,7 @@ As an alternative, which can be useful for scripting, the menuconfig
 step can be skipped using an arch-specific defconfig:
 
     make distclean
-    ARCH=x86_64 make x86_64_defconfig
+    ARCH=x86_64 make defconfig
     make -j5
     make run
 
