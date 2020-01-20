@@ -69,7 +69,10 @@ append_args()
 
     echo -n "${QEMU_APPEND} "
     echo -n "console=hvc0 "
-    echo -n "root=/dev/ram "
+
+    # Size of initrd, rounded up to nearest kb
+    size=$((($(find ${1} -printf %s)+1023) >> 10))
+    echo -n "root=/dev/ram ramdisk_size=${size} "
     echo -n "block2mtd.block2mtd=/dev/sda,,Config "
 }
 
@@ -145,7 +148,7 @@ stty raw
 #	    -watchdog i6300esb
 # echo qemu-system-${QEMU_ARCH} -display none -m 256M -M ${QEMU_MACH} ${QEMU_EXTRA}   -kernel ${1} -initrd ${2} -append "$(append_args)"	$(dtb_args) $(mnt_args) $(host_args) $(net_args) $(consle_args) $(gdb_args)
 qemu-system-${QEMU_ARCH} -display none -m 256M -M ${QEMU_MACH} ${QEMU_EXTRA}	\
-	    -kernel ${1} -initrd ${2} -append "$(append_args)"			\
+	    -kernel ${1} -initrd ${2} -append "$(append_args ${2})"		\
 	    $(dtb_args) $(mnt_args) $(host_args) $(net_args)			\
 	    $(consle_args) $(gdb_args)
 
