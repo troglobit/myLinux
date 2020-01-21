@@ -1,2 +1,3 @@
 mtd2block-custom-label.patch
 ppc-silence-setup-arch-progress.patch
+qemu-e500-idle.patch
