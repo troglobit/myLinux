@@ -159,7 +159,7 @@ stop()
     lxc-stop -n $*
 }
 
-# Import a squashfs based container
+# Import a cramfs/squashfs based container
 import()
 {
     check_args $*
@@ -187,9 +187,8 @@ import()
 lxc.uts.name = $nm
 lxc.tty.max = 4
 lxc.pty.max=1024
-lxc.rootfs.path = $path
+lxc.rootfs.path = loop:/$path
 lxc.rootfs.mount = $dir/rootfs
-lxc.rootfs.options = -t squashfs
 lxc.mount.auto = cgroup:mixed proc:mixed sys:mixed
 lxc.mount.entry=run run tmpfs rw,nodev,relatime,mode=755 0 0
 lxc.mount.entry=shm dev/shm tmpfs rw,nodev,noexec,nosuid,relatime,mode=1777,create=dir 0 0
