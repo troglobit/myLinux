@@ -16,6 +16,7 @@
 .PHONY: all defconfig oldconfig saveconfig headers_install modules_install clean distclean
 
 PKGVER         ?= $(KERNEL_VERSION)
+PKGMAJORVER     = $(shell echo $(PKGVER) | sed 's/\([0-9]*\)\.[0-9]*.*/\1/')
 PKGBASEVER      = $(shell echo $(PKGVER) | sed 's/\([0-9]*\.[0-9]*\).*/\1/')
 PKG             = linux-$(PKGVER)
 PKGNAME        := kernel
@@ -25,7 +26,7 @@ PKGPATCHES      = patches/$(PKGBASEVER)/*.patch patches/$(PKGBASEVER)/series
 ifdef CONFIG_LINUX_RC
 RC_PATH         = testing/
 endif
-PKGURL          = http://cdn.kernel.org/pub/linux/kernel/v5.x/$(RC_PATH)$(PKGTAR)
+PKGURL          = http://cdn.kernel.org/pub/linux/kernel/v$(PKGMAJORVER).x/$(RC_PATH)$(PKGTAR)
 CONFIG          = $(PRODDIR)/linux.config-$(PKGBASEVER)
 IMAGE           = $(if $(filter linux,$(KERNEL_IMAGE)), \
 			$(PKG)/linux, \
