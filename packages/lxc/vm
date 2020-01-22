@@ -182,6 +182,7 @@ import()
     # Create container directory and lxc config
     dir=$statedir/$nm
     mkdir -p $dir/rootfs
+    mkdir -p $dir/rw
 
     cat > $dir/config << EOF
 lxc.uts.name = $nm
@@ -191,6 +192,7 @@ lxc.start.auto = 1
 lxc.rootfs.path = loop:/$path
 lxc.rootfs.mount = $dir/rootfs
 lxc.mount.auto = cgroup:mixed proc:mixed sys:mixed
+lxc.mount.entry=$dir/rw mnt none bind,create=dir 0 0
 lxc.mount.entry=run run tmpfs rw,nodev,relatime,mode=755 0 0
 lxc.mount.entry=shm dev/shm tmpfs rw,nodev,noexec,nosuid,relatime,mode=1777,create=dir 0 0
 lxc.net.0.type = veth
