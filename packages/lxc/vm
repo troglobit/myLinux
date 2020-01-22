@@ -187,6 +187,7 @@ import()
 lxc.uts.name = $nm
 lxc.tty.max = 4
 lxc.pty.max=1024
+lxc.start.auto = 1
 lxc.rootfs.path = loop:/$path
 lxc.rootfs.mount = $dir/rootfs
 lxc.mount.auto = cgroup:mixed proc:mixed sys:mixed
