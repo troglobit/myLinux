@@ -11,4 +11,5 @@ PKGCFG     += --disable-capabilities --disable-python --disable-lua
 include $(ROOTDIR)/system/pkg.mk
 
 install::
+	@rm -f $(STAGING)/share/lxc/config $(STAGING)/share/lxc/templates
 	@cp vm $(STAGING)/sbin/
