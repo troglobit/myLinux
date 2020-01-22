@@ -130,6 +130,14 @@ EOF
     echo
 }
 
+edit()
+{
+    check_args *$
+    check_exist $1
+
+    $EDITOR $statedir/$1/config
+}
+
 show()
 {
     if [ "x$1" != "x" ]; then
@@ -210,6 +218,9 @@ case $cmd in
 	;;
     create)
 	create $*
+	;;
+    edit)
+	edit $*
 	;;
     import)
 	import $*
