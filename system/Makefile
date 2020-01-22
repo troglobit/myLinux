@@ -33,10 +33,11 @@ romfs:
 	-@rm -rf $(ROMFS)/usr/share/locale
 	-@rm -rf $(ROMFS)/var/db/Makefile
 	@echo "  PRUNE   Cleaning $(ROMFS)"
-	-@rm -rf                    $(ROMFS)/usr/share/info
-	-@rm -rf $(ROMFS)/share/doc $(ROMFS)/usr/share/doc
-	-@rm -rf $(ROMFS)/share/man $(ROMFS)/usr/share/man
-	-@rm -rf $(ROMFS)/include   $(ROMFS)/usr/include
+	-@rm -rf $(ROMFS)/lib/pkgconfig $(ROMFS)/usr/lib/pkgconfig
+	-@rm -rf                        $(ROMFS)/usr/share/info
+	-@rm -rf $(ROMFS)/share/doc     $(ROMFS)/usr/share/doc
+	-@rm -rf $(ROMFS)/share/man     $(ROMFS)/usr/share/man
+	-@rm -rf $(ROMFS)/include       $(ROMFS)/usr/include
 	@find $(ROMFS)/ -name '*.a'    -delete
 	@find $(ROMFS)/ -name '*.la'   -delete
 	@find $(ROMFS)/ -name '.empty' -delete
