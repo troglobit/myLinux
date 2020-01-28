@@ -20,6 +20,7 @@ CONFIG_MACH="versatile"
 # Toolchain and Build Specific Settings
 #
 CONFIG_TOOLCHAIN_PREFIX="arm-unknown-linux-gnueabi-"
+CONFIG_IMAGE_NAME="mylinux.img"
 
 #
 # Boot Loaders and Firmware

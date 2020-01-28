@@ -20,6 +20,7 @@ CONFIG_PPCE500=y
 # Toolchain and Build Specific Settings
 #
 CONFIG_TOOLCHAIN_PREFIX="powerpc-unknown-linux-gnu-"
+CONFIG_IMAGE_NAME="mylinux.img"
 
 #
 # Boot Loaders and Firmware

@@ -19,6 +19,7 @@ CONFIG_X86_64=y
 # Toolchain and Build Specific Settings
 #
 CONFIG_TOOLCHAIN_PREFIX="x86_64-unknown-linux-gnu-"
+CONFIG_IMAGE_NAME="mylinux.img"
 
 #
 # Boot Loaders and Firmware
