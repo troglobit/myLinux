@@ -33,10 +33,9 @@ source "arch/x86/Kconfig"
 comment "Toolchain and Build Specific Settings"
 
 config TOOLCHAIN_PREFIX
-config TOOLCHAIN_PREFIX
 	string "Crosstool-NG toolchain prefix"
 	help
-	  myrootfs is built using Crosstool-NG which provides a lot of
+	  myLinux is built using Crosstool-NG which provides a lot of
 	  useful tools to, not only cross-compile, but also to create
 	  the resulting root file system.
 
@@ -51,5 +50,9 @@ config TOOLCHAIN_PREFIX
 	default "aarch64-unknown-linux-gnu-" if ARM64
 	default "powerpc-unknown-linux-gnu-" if PPC
 	default "x86_64-unknown-linux-gnu-" if X86
+
+config IMAGE_NAME
+	string "SquashFS image name"
+	default "mylinux.img"
 
 endmenu

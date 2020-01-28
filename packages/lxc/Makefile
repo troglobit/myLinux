@@ -3,7 +3,7 @@ PKGVER     := 3.2.1
 PKG        := lxc-$(PKGVER)
 PKGURL      = https://linuxcontainers.org/downloads/lxc/$(PKGTAR)
 PKGPATCHES :=
-PKGCFG      = --host=$(CROSS_TARGET) --prefix= --with-distro=troglos
+PKGCFG      = --host=$(CROSS_TARGET) --prefix= --with-distro=myLinux
 PKGCFG     += --disable-apparmor --disable-seccomp --disable-selinux
 PKGCFG     += --disable-werror --disable-bash --disable-gnutls
 PKGCFG     += --disable-capabilities --disable-python --disable-lua

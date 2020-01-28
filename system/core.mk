@@ -11,6 +11,7 @@ qstrip             = $(strip $(subst ",,$(1)))
 ifeq ($(CONFIG_DOT_CONFIG),y)
 ARCH              := $(call qstrip, $(CONFIG_ARCH))
 MACH              := $(call qstrip, $(CONFIG_MACH))
+IMAGE_NAME        := $(call qstrip, $(CONFIG_IMAGE_NAME))
 KERNEL_IMAGE       = $(call qstrip, $(CONFIG_LINUX_IMAGE))
 KERNEL_VERSION    := $(call qstrip, $(CONFIG_LINUX_VERSION))
 ifdef KERNEL_RC
@@ -18,7 +19,7 @@ KERNEL_VERSION     = $(KERNEL_VERSION).0$(KERNEL_RC)
 endif
 KERNEL_MODULES     = $(wildcard $(ROMFS)/lib/modules/$(KERNEL_VERSION)*)
 
-# Map Qemu archs (used by TroglOS) to Linux kernel archs
+# Map Qemu archs to Linux kernel archs
 KERNEL_ARCH       := $(shell echo $(ARCH) | sed	\
 			-e 's/ppc64/powerpc64/'	\
 			-e 's/ppc/powerpc/'	\
@@ -26,6 +27,7 @@ KERNEL_ARCH       := $(shell echo $(ARCH) | sed	\
 			-e 's/x86_64/x86/')
 
 QEMU_APPEND       := $(QEMU_APPEND) $(call qstrip, $(CONFIG_LINUX_CMDLINE))
+QEMU_IMAGE        ?= $(IMAGE_NAME)
 CROSS_COMPILE     := $(call qstrip, $(CONFIG_TOOLCHAIN_PREFIX))
 
 # Include KERNEL_ and QEMU_ settings for this arch.
@@ -44,7 +46,7 @@ STRIP              = $(CROSS_COMPILE)strip
 PATH              := $(ROOTDIR)/bin:$(PATH)
 PRODDIR            = $(ROOTDIR)/arch/$(ARCH)/$(MACH)
 DOWNLOADS         ?= $(shell xdg-helper DOWNLOAD)
-QEMU_HOST         ?= $(shell xdg-helper DOCUMENTS)/TroglOS
+QEMU_HOST         ?= $(shell xdg-helper DOCUMENTS)/myLinux
 QEMU_MNT          ?= $(QEMU_HOST)/mnt-$(ARCH).jffs2
 STAGING            = $(ROOTDIR)/staging
 ROMFS              = $(ROOTDIR)/romfs

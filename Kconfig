@@ -2,7 +2,7 @@
 # For a description of the syntax of this configuration file,
 # see doc/kconfig/kconfig-language.txt.
 #
-mainmenu "TroglOS Virtual Devboard Configuration"
+mainmenu "myLinux Configuration"
 
 # Magic marker used by build system
 config DOT_CONFIG

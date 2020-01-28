@@ -22,11 +22,11 @@ run:
 	@echo "  QEMU    Ctrl-a x -- exit | Ctrl-a c -- toggle console/monitor"
 	-@mkdir -p $(QEMU_HOST) 2>/dev/null
 	-@[ ! -e $(QEMU_MNT) ] && dd if=/dev/zero of=$(QEMU_MNT) bs=16384 count=960
-	@qemu $(IMAGEDIR)/$(KERNEL_IMG) $(IMAGEDIR)/troglos.img
+	@qemu $(IMAGEDIR)/$(KERNEL_IMG) $(IMAGEDIR)/$(QEMU_IMAGE)
 
 image:
-	@echo "  SQUASH  Creating TroglOS SquasFS image"
-	@mksquashfs $(ROMFS)/* $(IMAGEDIR)/troglos.img -noappend -no-xattrs -comp xz -all-root -b 128k
+	@echo "  SQUASH  Creating SquashFS image"
+	@mksquashfs $(ROMFS)/* $(IMAGEDIR)/$(IMAGE_NAME) -noappend -no-xattrs -comp xz -all-root -b 128k
 
 sdcard:
 	@$(MAKE) -C $(ARCH)/$(MACH) $@

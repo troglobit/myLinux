@@ -231,7 +231,7 @@ config BUSYBOX
 	 few configuration files in /etc, and a Linux kernel.
 	 
 	 Use `make packages/busybox-menuconfig` and `-saveconfig` to
-	 modify and save your BusyBox configuration in TroglOS.
+	 modify and save your BusyBox configuration.
 	 
 	 https://busybox.net/
 

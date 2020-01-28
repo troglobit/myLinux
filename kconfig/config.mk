@@ -39,7 +39,7 @@ listnewconfig oldnoconfig: $(kcfg)/conf				## List new options
 savedefconfig: $(kcfg)/conf
 	@$< --$@=defconfig $(Kconfig)
 
-defconfig: $(kcfg)/conf						## Use TroglOS defconfig
+defconfig: $(kcfg)/conf						## Use defconfig
 ifeq ($(KBUILD_DEFCONFIG),)
 	@$< --defconfig $(Kconfig)
 else

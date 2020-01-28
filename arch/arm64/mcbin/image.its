@@ -57,7 +57,7 @@
 		default = "config-1";
 
 		config-1 {
-			description = "TroglOS on Marvell MacchiatoBin";
+			description = "myLinux on Marvell MacchiatoBin";
 			kernel = "kernel-1";
 			ramdisk = "ramdisk-1";
 			fdt = "fdt-1";

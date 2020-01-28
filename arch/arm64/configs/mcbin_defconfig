@@ -1,5 +1,5 @@
 #
-# TroglOS Virtual Devboard Default Configuration
+# myLinux Default Configuration
 #
 CONFIG_DOT_CONFIG=y
 # CONFIG_ARM is not set

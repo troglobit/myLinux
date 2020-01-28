@@ -132,7 +132,7 @@ unpack: $(PKG)/.unpacked
 # Default rule, override with your own to create Makefile for build step
 # Silly test -s is to check that $PKGCFG is set ...
 $(PKG)/.config:: $(PKG)/.unpacked
-	@tmpfile=`mktemp /tmp/troglos.XXXXXX)`;					\
+	@tmpfile=`mktemp /tmp/mylinux.XXXXXX)`;					\
 	echo -n '$(PKGCFG)' > $$tmpfile;					\
 	if [ -s $$tmpfile ]; then						\
 		rm $$tmpfile;							\

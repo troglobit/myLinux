@@ -1,14 +1,5 @@
-``` 
-                           __                                   ______
-  _______                 |  |_______ _______       .-------.  /\     \
- |       .----.-----.-----|  |   _   |   _   |     /   o   /| /o \  o  \
- |.|   | |   _|  _  |  _  |  |.  |   |   1___|    /_______/o|/   o\_____\
- `-|.  |-|__| |_____|___  |__|.  |   |____   |    | o     | |\o   /o    /
-   |:  |            |_____|  |:  1   |:  1   |    |   o   |o/ \ o/  o  /
-   |::.|                     |::.. . |::.. . |    |     o |/   \/____o/
-   `---'                     `-------`-------'    '-------'
-```
-<img align="right" src="doc/example.png" alt="TroglOS Example Run">
+<img align="right" src="doc/example.png" alt="Example Boot">
+<img class="left" src="doc/logo.png" alt="myLinux">
 
 * [Introduction](#introduction)
 * [Building](#building)
@@ -24,18 +15,18 @@
 Introduction
 ------------
 
-TroglOS is  a playful, but working,  example of how to  create a virtual
+myLinux is  a playful, but working,  example of how to  create a virtual
 devboard from components like Qemu, Linux  and BusyBox.  It can also run
 on actual HW, currently Raspberry Pi.
 
-Use the  build framework in  TroglOS to test your  embedded applications
+Use the  build framework in  myLinux to test your  embedded applications
 before the actual hardware arrives.  Or  as a stable reference when said
 hardware starts acting up -- as it  invariably does ... you can even use
-it as  a reference to  other embedded  Linux build systems.   TroglOS is
+it as  a reference to  other embedded  Linux build systems.   myLinux is
 relatively  clean and  vanilla, the  intent is  to keep  it as  close to
 upstream sources as possible.
 
-Currently TroglOS supports  an *ARM Versatile PB* devboard  with Qemu, a
+Currently myLinux supports  an *ARM Versatile PB* devboard  with Qemu, a
 Freescale e500 PowerPC, also with Qemu, and Raspberry Pi 2, BCM2836.  It
 has only been  tested on a Ubuntu 64-bit host,  with a [crosstool-NG][1]
 based [toolchain][2].  Pull requests for  more targets are most welcome!
@@ -114,7 +105,7 @@ user, add yourself to the kvm group and log out/in again:
 Qemu Networking
 ---------------
 
-TroglOS uses Qemu to run the resulting kernel + image.  For networking
+myLinux uses Qemu to run the resulting kernel + image.  For networking
 to work you can either `sudo make run`, which is a level of access to
 your system you likely do not want to give a random Makefile from the
 Internet.  Instead you can use capabilities:
@@ -190,9 +181,9 @@ Make sure to do a `make kernel_saveconfig`, and possibly add the new
 Testing SNMP
 ------------
 
-TroglOS use [mini-snmpd](https://github.com/troglobit/mini-snmpd) as its
+myLinux use [mini-snmpd](https://github.com/troglobit/mini-snmpd) as its
 SNMP  agent.  It  is  very  small and  therefore  also  very limited  in
-functionality, but it is enough to monitor TroglOS by remote if needed.
+functionality, but it is enough to monitor myLinux by remote if needed.
 
     initctl enable snmpd
     initctl reload
@@ -208,7 +199,7 @@ When done you should be able to do the following:
 
 <kbd>snmpwalk -v2c -c public 192.0.2.42</kbd>
 
-    SNMPv2-MIB::sysDescr.0 = STRING: TroglOS Linux Virtual Devboard
+    SNMPv2-MIB::sysDescr.0 = STRING: myLinux Linux Virtual Devboard
     SNMPv2-MIB::sysObjectID.0 = OID: SNMPv2-SMI::enterprises
     SNMPv2-MIB::sysUpTime.0 = Timeticks: (465) 0:00:04.65
     SNMPv2-MIB::sysContact.0 = STRING: troglobit@gmail.com
@@ -240,7 +231,7 @@ The most common embedded SSH daemon in use on embedded Linux systems
 today is [Dropbear](https://matt.ucc.asn.au/dropbear/dropbear.html) by
 the incredibly humble [Matt Johnston](https://matt.ucc.asn.au/).
 
-No services are enabled by default in TroglOS, so Dropbear has to be
+No services are enabled by default in myLinux, so Dropbear has to be
 enabled first.  It currently allows `root` access, but we recommend
 disabling this and set up another user: <kbd>adduser example</kbd>
 
@@ -253,7 +244,7 @@ Test SSH from your host simply by: <kbd>ssh example@192.0.2.42</kbd>
 Using Telnet
 ------------
 
-The Busybox `telnetd` is available in TroglOS, but you have to enable
+The Busybox `telnetd` is available in myLinux, but you have to enable
 the service to start it:
 
     initctl enable telnetd
@@ -267,13 +258,13 @@ Bugs & Feature Requests
 
 Feel free to report bugs and request features, or even submit your own
 [pull requests](https://help.github.com/articles/using-pull-requests/)
-using [GitHub](https://github.com/troglobit/troglos)
+using [GitHub](https://github.com/myrootfs/myLinux)
 
 Cheers!  
 -- Joachim
 
 [1]: https://github.com/crosstool-ng/crosstool-ng
-[2]: https://ftp.troglobit.com/pub/Toolchains/arm-unknown-linux-gnueabi-7.3.0-1.tar.xz
-[3]: https://ftp.troglobit.com/pub/Toolchains/aarch64-unknown-linux-gnu-7.3.0-1.tar.xz
-[4]: https://ftp.troglobit.com/pub/Toolchains/powerpc-unknown-linux-gnu-7.3.0-1.tar.xz
-[5]: https://ftp.troglobit.com/pub/Toolchains/x86_64-unknown-linux-gnu-7.3.0-1.tar.xz
+[2]: https://github.com/myrootfs/crosstool-ng/releases/download/troglobit%2F7.3.0-1/arm-unknown-linux-gnueabi-7.3.0-1.tar.xz
+[3]: https://github.com/myrootfs/crosstool-ng/releases/download/troglobit%2F7.3.0-1/aarch64-unknown-linux-gnu-7.3.0-1.tar.xz
+[4]: https://github.com/myrootfs/crosstool-ng/releases/download/troglobit%2F7.3.0-1/powerpc-unknown-linux-gnu-7.3.0-1.tar.xz
+[5]: https://github.com/myrootfs/crosstool-ng/releases/download/troglobit%2F7.3.0-1/x86_64-unknown-linux-gnu-7.3.0-1.tar.xz

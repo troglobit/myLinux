@@ -1,6 +1,6 @@
 #
 # Automatically generated make config: don't edit
-# TroglOS Virtual Devboard Configuration
+# myLinux Configuration
 #
 CONFIG_DOT_CONFIG=y
 

@@ -15,17 +15,17 @@
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .PHONY: help run world staging boot kernel romfs ramdisk clean distclean image
 
-OSNAME            := TroglOS Linux
+OSNAME            := myLinux
 OSRELEASE_ID      := chaos
 OSRELEASE          = Chaos Devel `date --iso-8601`
 OSVERSION_ID      := 1.0-rc1
 OSVERSION         := $(OSVERSION_ID), $(OSRELEASE)
-OSID              := "troglos"
+OSID              := "mylinux"
 OSPRETTY_NAME     := $(OSNAME) $(OSVERSION_ID)
-OSHOME_URL        := https://troglobit.com
+OSHOME_URL        := https://myrootfs.github.io
 TROGLOHUB         := https://github.com/troglobit
-SUPPORT_URL       := $(TROGLOHUB)/troglos
-BUG_REPORT_URL    := $(TROGLOHUB)/troglos/issues
+SUPPORT_URL       := https://github.com/myrootfs/myLinux
+BUG_REPORT_URL    := $(SUPPORT_URL)/issues
 
 ROOTDIR           := $(shell pwd)
 PATH              := $(ROOTDIR)/bin:$(PATH)
