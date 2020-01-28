@@ -27,7 +27,7 @@ KERNEL_ARCH       := $(shell echo $(ARCH) | sed	\
 			-e 's/x86_64/x86/')
 
 QEMU_APPEND       := $(QEMU_APPEND) $(call qstrip, $(CONFIG_LINUX_CMDLINE))
-QEMU_IMAGE        ?= $(IMAGE_NAME)
+QEMU_IMAGE        ?= $(IMAGEDIR)/$(IMAGE_NAME)
 CROSS_COMPILE     := $(call qstrip, $(CONFIG_TOOLCHAIN_PREFIX))
 
 # Include KERNEL_ and QEMU_ settings for this arch.
