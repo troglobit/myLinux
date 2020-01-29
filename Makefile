@@ -38,6 +38,7 @@ else
 MAKEFLAGS          = --silent --no-print-directory
 endif
 
+export PATH ROOTDIR srctree
 export KBUILD_VERBOSE MAKEFLAGS
 
 ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)

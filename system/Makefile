@@ -13,7 +13,7 @@
 # WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-include core.mk
+include $(ROOTDIR)/system/core.mk
 
 # usr/lib usr/share usr/bin usr/sbin
 STAGING_DIRS = mnt proc sys lib share bin sbin tmp var home host
