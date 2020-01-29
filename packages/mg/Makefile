@@ -2,7 +2,7 @@
 PKGVER     := 3.0
 PKG        := mg-$(PKGVER)
 PKGSUFFIX  := tar.gz
-PKGURL      = $(TROGLOHUB)/$(PKGNAME)/releases/download/v$(PKGVER)/$(PKGTAR)
+PKGURL      = https://github.com/troglobit/$(PKGNAME)/releases/download/v$(PKGVER)/$(PKGTAR)
 PKGPATCHES :=
 PKGCFG      = --host=$(CROSS_TARGET) --prefix=
 PKGCFG     += --disable-all --enable-size-optimizations

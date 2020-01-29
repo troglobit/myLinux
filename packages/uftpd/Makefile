@@ -3,7 +3,7 @@ PKGVER     := 2.11
 PKG        := uftpd-$(PKGVER)
 PKGSUFFIX  := tar.xz
 PKGPATCHES :=
-PKGURL      = $(TROGLOHUB)/$(PKGNAME)/releases/download/v$(PKGVER)/$(PKGTAR)
+PKGURL      = https://github.com/troglobit/$(PKGNAME)/releases/download/v$(PKGVER)/$(PKGTAR)
 PKGCFG      = --prefix= --host=$(CROSS_TARGET)
 PKGINSTALL := install-exec
 

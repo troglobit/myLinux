@@ -2,7 +2,7 @@
 PKGVER     := 2.4.3
 PKG        := smcroute-$(PKGVER)
 PKGSUFFIX  := tar.xz
-PKGURL      = $(TROGLOHUB)/$(PKGNAME)/releases/download/$(PKGVER)/$(PKGTAR)
+PKGURL      = https://github.com/troglobit/$(PKGNAME)/releases/download/$(PKGVER)/$(PKGTAR)
 PKGPATCHES :=
 PKGCFG      = --host=$(CROSS_TARGET) --prefix=
 PKGINSTALL := install-exec

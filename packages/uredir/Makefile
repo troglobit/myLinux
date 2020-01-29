@@ -2,7 +2,7 @@
 PKGVER     := 3.2
 PKG        := uredir-$(PKGVER)
 PKGSUFFIX  := tar.gz
-PKGURL      = $(TROGLOHUB)/$(PKGNAME)/releases/download/v$(PKGVER)/$(PKGTAR)
+PKGURL      = https://github.com/troglobit/$(PKGNAME)/releases/download/v$(PKGVER)/$(PKGTAR)
 PKGCFG      = --host=$(CROSS_TARGET) --prefix=
 PKGPATCHES :=
 

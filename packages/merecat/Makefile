@@ -2,7 +2,7 @@
 PKGVER     := 2.31
 PKG        := merecat-$(PKGVER)
 PKGSUFFIX  := tar.xz
-PKGURL      = $(TROGLOHUB)/$(PKGNAME)/releases/download/v$(PKGVER)/$(PKGTAR)
+PKGURL      = https://github.com/troglobit/$(PKGNAME)/releases/download/v$(PKGVER)/$(PKGTAR)
 PKGPATCHES :=
 PKGCFG      = --host=$(CROSS_TARGET) --prefix=
 PKGCFG     += --prefix=/usr --localstatedir=/var --sysconfdir=/etc

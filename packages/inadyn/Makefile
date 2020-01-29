@@ -2,7 +2,7 @@
 PKGVER     := 2.3
 PKG        := inadyn-$(PKGVER)
 PKGSUFFIX  := tar.xz
-PKGURL      = $(TROGLOHUB)/$(PKGNAME)/releases/download/v$(PKGVER)/$(PKGTAR)
+PKGURL      = https://github.com/troglobit/$(PKGNAME)/releases/download/v$(PKGVER)/$(PKGTAR)
 PKGCFG      = --host=$(CROSS_TARGET) --prefix= --disable-ssl
 PKGINSTALL := install-exec
 

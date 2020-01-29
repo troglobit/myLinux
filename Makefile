@@ -23,7 +23,6 @@ OSVERSION         := $(OSVERSION_ID), $(OSRELEASE)
 OSID              := "mylinux"
 OSPRETTY_NAME     := $(OSNAME) $(OSVERSION_ID)
 OSHOME_URL        := https://myrootfs.github.io
-TROGLOHUB         := https://github.com/troglobit
 SUPPORT_URL       := https://github.com/myrootfs/myLinux
 BUG_REPORT_URL    := $(SUPPORT_URL)/issues
 
@@ -56,7 +55,7 @@ endif
 export OSNAME OSRELEASE_ID OSRELEASE OSVERSION_ID OSVERSION
 export OSID OSPRETTY_NAME OSHOME_URL
 export PATH ROOTDIR srctree STAGING_DIRS
-export TROGLOHUB SUPPORT_URL BUG_REPORT_URL
+export SUPPORT_URL BUG_REPORT_URL
 export KBUILD_VERBOSE MAKEFLAGS
 
 ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
