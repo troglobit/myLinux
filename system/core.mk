@@ -1,6 +1,17 @@
 # Find a suitable toolchain at https://github.com/myrootfs/crosstool-ng/releases
 TOOLCHAIN         := crosstool-ng-1.23.0-319-gaca85cb
 
+OSNAME            := myLinux
+OSRELEASE_ID      := chaos
+OSRELEASE          = Chaos Devel `date --iso-8601`
+OSVERSION_ID      := 1.0-rc1
+OSVERSION         := $(OSVERSION_ID), $(OSRELEASE)
+OSID              := "mylinux"
+OSPRETTY_NAME     := $(OSNAME) $(OSVERSION_ID)
+OSHOME_URL        := https://myrootfs.github.io
+SUPPORT_URL       := https://github.com/myrootfs/myLinux
+BUG_REPORT_URL    := $(SUPPORT_URL)/issues
+
 qstrip             = $(strip $(subst ",,$(1)))
 # "
 
@@ -55,6 +66,10 @@ FINIT_D_AVAILABLE := $(STAGING)/etc/finit.d/available
 PKG_CONFIG_LIBDIR := $(STAGING)/lib/pkgconfig
 SYSROOT           := $(shell $(CROSS_COMPILE)gcc -print-sysroot)
 
+export OSNAME OSRELEASE_ID OSRELEASE OSVERSION_ID OSVERSION
+export OSID OSPRETTY_NAME OSHOME_URL
+export PATH ROOTDIR srctree STAGING_DIRS
+export SUPPORT_URL BUG_REPORT_URL
 export ARCH MACH CROSS_COMPILE CROSS_TARGET TOOLCHAIN
 export QEMU_APPEND QEMU_DTB QEMU_HOST QEMU_MACH QEMU_MNT QEMU_NIC
 export CC CFLAGS CPPFLAGS LDLIBS LDFLAGS STRIP

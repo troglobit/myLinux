@@ -15,23 +15,9 @@
 # IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .PHONY: help run world staging boot kernel romfs ramdisk clean distclean image
 
-OSNAME            := myLinux
-OSRELEASE_ID      := chaos
-OSRELEASE          = Chaos Devel `date --iso-8601`
-OSVERSION_ID      := 1.0-rc1
-OSVERSION         := $(OSVERSION_ID), $(OSRELEASE)
-OSID              := "mylinux"
-OSPRETTY_NAME     := $(OSNAME) $(OSVERSION_ID)
-OSHOME_URL        := https://myrootfs.github.io
-SUPPORT_URL       := https://github.com/myrootfs/myLinux
-BUG_REPORT_URL    := $(SUPPORT_URL)/issues
-
 ROOTDIR           := $(shell pwd)
 PATH              := $(ROOTDIR)/bin:$(PATH)
 srctree           := $(ROOTDIR)
-
-# usr/lib usr/share usr/bin usr/sbin
-STAGING_DIRS       = mnt proc sys lib share bin sbin tmp var home host
 
 # Include .config variables, unless calling Kconfig
 noconfig_targets  := menuconfig nconfig gconfig xconfig config oldconfig	\
@@ -52,10 +38,6 @@ else
 MAKEFLAGS          = --silent --no-print-directory
 endif
 
-export OSNAME OSRELEASE_ID OSRELEASE OSVERSION_ID OSVERSION
-export OSID OSPRETTY_NAME OSHOME_URL
-export PATH ROOTDIR srctree STAGING_DIRS
-export SUPPORT_URL BUG_REPORT_URL
 export KBUILD_VERBOSE MAKEFLAGS
 
 ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
