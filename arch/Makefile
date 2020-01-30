@@ -20,11 +20,11 @@ include $(ROOTDIR)/system/core.mk
 
 # Override from command line; make run KERNEL=/path/to/zImage ROOTFS=/path/to/initrd.squash
 run:
-	@echo "  QEMU    Ctrl-a x -- exit | Ctrl-a c -- toggle console/monitor"
-	@echo
+	@echo "Starting Qemu  ::  Ctrl-a x -- exit | Ctrl-a c -- toggle console/monitor"
 	-@mkdir -p $(QEMU_HOST) 2>/dev/null
 	-@[ ! -e $(QEMU_MNT) ] && dd if=/dev/zero of=$(QEMU_MNT) bs=16384 count=960
-	@qemu $(KERNEL) $(ROOTFS)
+	@QEMU_APPEND=$(KERNEL_APPEND) QEMU_HOST=$(HOSTDIR) QEMU_MNT=$(DISK)	\
+		qemu $(KERNEL) $(ROOTFS)
 
 image:
 	@echo "  SQUASH  Creating SquashFS image"
