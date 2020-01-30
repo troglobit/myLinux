@@ -12,14 +12,20 @@ OSHOME_URL        := https://myrootfs.github.io
 SUPPORT_URL       := https://github.com/myrootfs/myLinux
 BUG_REPORT_URL    := $(SUPPORT_URL)/issues
 
-qstrip             = $(strip $(subst ",,$(1)))
-# "
+STAGING            = $(ROOTDIR)/staging
+ROMFS              = $(ROOTDIR)/romfs
+IMAGEDIR           = $(ROOTDIR)/images
+HOSTDIR           ?= $(shell xdg-helper DOCUMENTS)/myLinux
+PKG_CONFIG_LIBDIR := $(STAGING)/lib/pkgconfig
 
 # System should be configured by this point
 -include $(ROOTDIR)/.config
 
 # Check to be sure, CONFIG_DOT_CONFIG only set if include succeeeded
 ifeq ($(CONFIG_DOT_CONFIG),y)
+qstrip             = $(strip $(subst ",,$(1)))
+# "
+
 ARCH              := $(call qstrip, $(CONFIG_ARCH))
 MACH              := $(call qstrip, $(CONFIG_MACH))
 
@@ -56,12 +62,7 @@ LDFLAGS            = -L$(STAGING)/lib -L$(STAGING)/usr/lib
 STRIP              = $(CROSS_COMPILE)strip
 endif
 
-QEMU_HOST         ?= $(shell xdg-helper DOCUMENTS)/myLinux
 QEMU_MNT          ?= $(QEMU_HOST)/mnt-$(ARCH).jffs2
-STAGING            = $(ROOTDIR)/staging
-ROMFS              = $(ROOTDIR)/romfs
-IMAGEDIR           = $(ROOTDIR)/images
-PKG_CONFIG_LIBDIR := $(STAGING)/lib/pkgconfig
 
 export OSNAME OSRELEASE_ID OSRELEASE OSVERSION_ID OSVERSION
 export OSID OSPRETTY_NAME OSHOME_URL
@@ -71,4 +72,5 @@ export QEMU_APPEND QEMU_DTB QEMU_HOST QEMU_MACH QEMU_MNT QEMU_NIC
 export CC CFLAGS CPPFLAGS LDLIBS LDFLAGS STRIP
 export PRODDIR DOWNLOADS STAGING ROMFS IMAGEDIR PKG_CONFIG_LIBDIR SYSROOT
 export KERNEL ROOTFS
+export STAGING ROMFS IMAGEDIR HOSTDIR PKG_CONFIG_LIBDIR
 export KERNEL_ARCH KERNEL_VERSION KERNEL_MODULES
