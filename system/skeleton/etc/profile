@@ -2,8 +2,13 @@
 
 res()
 {
-      TTY=`tty`
-      [ $TTY = '/dev/ttyS0' -o $TTY = '/dev/ttyAMA0' -o $TTY = '/dev/ttyUSB0' ] && resize
+    TTYS="/dev/ttyS0 /dev/ttyAMA0 /dev/ttyUSB0"
+    THIS=`tty`
+    for tty in $TTYS; do
+	if [ "$THIS" = "$tty" ]; then
+	    resize
+	fi
+    done
 }
 
 export LANG="en_US.UTF8"
