@@ -52,6 +52,7 @@ ifndef TOOLCHAIN
 include $(ROOTDIR)/system/core.mk
 endif
 
+FINIT_D    := $(STAGING)/etc/finit.d/available
 PKGFETCH   ?= wget -t3 -nc --no-dns-cache --no-iri -q -cO
 PKGNAME    ?= $(PKG:-$(PKGVER)=)
 PKGDEV     := $(PKGNAME)-dev
@@ -200,11 +201,11 @@ install:: build
 	@echo "  INSTALL $(PKG)"
 	+@$(MAKE) $(PKGENV) -C $(PKG) $(PKGINSTALL)
 ifdef CONFIG_FINIT
-	@mkdir -p $(FINIT_D_AVAILABLE)
-	@for file in $(wildcard finit.d/*.conf); do 				\
-		dir=$(patsubst $(srctree)/%,%,$(FINIT_D_AVAILABLE));		\
-		echo "  INSTALL $(PKG)/$$file $$dir/";				\
-		cp $$file $(FINIT_D_AVAILABLE)/; 				\
+	@mkdir -p $(FINIT_D)
+	@for file in $(wildcard finit.d/*.conf); do 			\
+		dir=$(patsubst $(srctree)/%,%,$(FINIT_D));		\
+		echo "  INSTALL $(PKG)/$$file $$dir/";			\
+		cp $$file $(FINIT_D)/; 					\
 	done
 endif
 

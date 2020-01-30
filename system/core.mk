@@ -54,7 +54,6 @@ LDLIBS             =
 LDFLAGS            = -L$(STAGING)/lib -L$(STAGING)/usr/lib
 STRIP              = $(CROSS_COMPILE)strip
 
-PATH              := $(ROOTDIR)/bin:$(PATH)
 PRODDIR            = $(ROOTDIR)/arch/$(ARCH)/$(MACH)
 DOWNLOADS         ?= $(shell xdg-helper DOWNLOAD)
 QEMU_HOST         ?= $(shell xdg-helper DOCUMENTS)/myLinux
@@ -62,7 +61,6 @@ QEMU_MNT          ?= $(QEMU_HOST)/mnt-$(ARCH).jffs2
 STAGING            = $(ROOTDIR)/staging
 ROMFS              = $(ROOTDIR)/romfs
 IMAGEDIR           = $(ROOTDIR)/images
-FINIT_D_AVAILABLE := $(STAGING)/etc/finit.d/available
 PKG_CONFIG_LIBDIR := $(STAGING)/lib/pkgconfig
 SYSROOT           := $(shell $(CROSS_COMPILE)gcc -print-sysroot)
 
@@ -72,5 +70,5 @@ export SUPPORT_URL BUG_REPORT_URL
 export ARCH MACH CROSS_COMPILE CROSS_TARGET TOOLCHAIN
 export QEMU_APPEND QEMU_DTB QEMU_HOST QEMU_MACH QEMU_MNT QEMU_NIC
 export CC CFLAGS CPPFLAGS LDLIBS LDFLAGS STRIP
-export PATH PRODDIR DOWNLOADS STAGING ROMFS IMAGEDIR PKG_CONFIG_LIBDIR SYSROOT
+export PRODDIR DOWNLOADS STAGING ROMFS IMAGEDIR PKG_CONFIG_LIBDIR SYSROOT
 export KERNEL_ARCH KERNEL_VERSION KERNEL_MODULES
