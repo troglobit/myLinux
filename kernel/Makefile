@@ -27,7 +27,7 @@ ifdef CONFIG_LINUX_RC
 RC_PATH         = testing/
 endif
 PKGURL          = http://cdn.kernel.org/pub/linux/kernel/v$(PKGMAJORVER).x/$(RC_PATH)$(PKGTAR)
-CONFIG          = $(PRODDIR)/linux.config-$(PKGBASEVER)
+CONFIG          = $(ROOTDIR)/arch/$(ARCH)/$(MACH)/linux.config-$(PKGBASEVER)
 IMAGE           = $(if $(filter linux,$(KERNEL_IMAGE)), \
 			$(PKG)/linux, \
 			$(PKG)/arch/$(KERNEL_ARCH)/boot/$(KERNEL_IMAGE))

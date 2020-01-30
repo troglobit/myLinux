@@ -56,15 +56,12 @@ LDFLAGS            = -L$(STAGING)/lib -L$(STAGING)/usr/lib
 STRIP              = $(CROSS_COMPILE)strip
 endif
 
-PRODDIR            = $(ROOTDIR)/arch/$(ARCH)/$(MACH)
-DOWNLOADS         ?= $(shell xdg-helper DOWNLOAD)
 QEMU_HOST         ?= $(shell xdg-helper DOCUMENTS)/myLinux
 QEMU_MNT          ?= $(QEMU_HOST)/mnt-$(ARCH).jffs2
 STAGING            = $(ROOTDIR)/staging
 ROMFS              = $(ROOTDIR)/romfs
 IMAGEDIR           = $(ROOTDIR)/images
 PKG_CONFIG_LIBDIR := $(STAGING)/lib/pkgconfig
-SYSROOT           := $(shell $(CROSS_COMPILE)gcc -print-sysroot)
 
 export OSNAME OSRELEASE_ID OSRELEASE OSVERSION_ID OSVERSION
 export OSID OSPRETTY_NAME OSHOME_URL

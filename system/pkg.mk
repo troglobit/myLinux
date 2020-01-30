@@ -52,7 +52,9 @@ ifndef TOOLCHAIN
 include $(ROOTDIR)/system/core.mk
 endif
 
+DOWNLOADS  ?= $(shell xdg-helper DOWNLOAD)
 FINIT_D    := $(STAGING)/etc/finit.d/available
+
 PKGFETCH   ?= wget -t3 -nc --no-dns-cache --no-iri -q -cO
 PKGNAME    ?= $(PKG:-$(PKGVER)=)
 PKGDEV     := $(PKGNAME)-dev

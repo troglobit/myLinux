@@ -16,7 +16,8 @@
 include $(ROOTDIR)/system/core.mk
 
 # usr/lib usr/share usr/bin usr/sbin
-STAGING_DIRS = mnt proc sys lib share bin sbin tmp var home host
+STAGING_DIRS := mnt proc sys lib share bin sbin tmp var home host
+SYSROOT      := $(shell $(CROSS_COMPILE)gcc -print-sysroot)
 
 dep:
 	@check-toolchain $(CROSS_COMPILE)gcc $(TOOLCHAIN)
