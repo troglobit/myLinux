@@ -72,8 +72,8 @@ tested on Ubuntu 16.04 (x86_64):
 ```sh
 sudo apt install build-essential libssl-dev automake autoconf libtool \
                  pkg-config flex bison wget quilt bc lzop libelf-dev  \
-			     gawk device-tree-compiler u-boot-tools               \
-				 qemu-system-arm qemu-system-ppc qemu-system-x86
+                 gawk device-tree-compiler u-boot-tools               \
+                 qemu-system-arm qemu-system-ppc qemu-system-x86
 ```
 
 Install `libvirt-bin` and `virt-manager` as well, the integration of
