@@ -66,7 +66,7 @@ Online help is available:
 Requirements
 ------------
 
-The build environment currently requires at least the following tools,
+The build environment currently requires *at least* the following tools,
 tested on Ubuntu 16.04 (x86_64):
 
 ```sh
@@ -274,9 +274,9 @@ licenses, the patches are provided under the publicly available Open
 Source licenses.
 
 ----
-¹ "... functionally equivalent to the [simplified BSD][] and [MIT][]
-   licenses, but without language deemed unnecessary following the
-   [Berne Convention][]."  --[Theo de Raadt][]
+> ¹ *"... functionally equivalent to the [simplified BSD][] and [MIT][]
+>    licenses, but without language deemed unnecessary following the
+>    [Berne Convention][]."*  --[Theo de Raadt][]
 
 [1]: https://github.com/crosstool-ng/crosstool-ng/releases
 [2]: https://github.com/myrootfs/crosstool-ng/releases/download/troglobit%2F7.3.0-1/arm-unknown-linux-gnueabi-7.3.0-1.tar.xz
