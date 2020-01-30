@@ -15,7 +15,7 @@ $(addsuffix -clean,$(TARGETS)):
 	-+@$(MAKE) -C $(patsubst %-clean,%,$@) V=1 clean
 
 $(addsuffix -distclean,$(TARGETS)):
-	@echo "  PURGE   $(patsubst %-distclean,%,$@)"
+	@echo "  PROPER  $(patsubst %-distclean,%,$@)"
 	-+@$(MAKE) -C $(patsubst %-distclean,%,$@) V=1 distclean
 
 # $(addsuffix -dev,$(TARGETS)):
