@@ -1,6 +1,5 @@
 .EXPORT_ALL_VARIABLES:
 
-KERNEL_IMG    := zImage
 QEMU_ARCH     := ppc64
 QEMU_MACH     := ppce500 -smp 2
 QEMU_NIC      := rtl8139

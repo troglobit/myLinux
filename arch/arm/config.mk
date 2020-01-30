@@ -1,6 +1,5 @@
 .EXPORT_ALL_VARIABLES:
 
-KERNEL_IMG    := zImage
 QEMU_ARCH     := arm
 QEMU_MACH     := versatilepb
 QEMU_NIC      := smc91c111

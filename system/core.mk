@@ -22,6 +22,7 @@ qstrip             = $(strip $(subst ",,$(1)))
 ifeq ($(CONFIG_DOT_CONFIG),y)
 ARCH              := $(call qstrip, $(CONFIG_ARCH))
 MACH              := $(call qstrip, $(CONFIG_MACH))
+
 IMAGE_NAME        := $(call qstrip, $(CONFIG_IMAGE_NAME))
 KERNEL_IMAGE       = $(call qstrip, $(CONFIG_LINUX_IMAGE))
 KERNEL_VERSION    := $(call qstrip, $(CONFIG_LINUX_VERSION))
@@ -37,14 +38,14 @@ KERNEL_ARCH       := $(shell echo $(ARCH) | sed	\
 			-e 's/aarch64/arm64/'   \
 			-e 's/x86_64/x86/')
 
-QEMU_APPEND       := $(QEMU_APPEND) $(call qstrip, $(CONFIG_LINUX_CMDLINE))
-QEMU_IMAGE        ?= $(IMAGEDIR)/$(IMAGE_NAME)
-CROSS_COMPILE     := $(call qstrip, $(CONFIG_TOOLCHAIN_PREFIX))
-
-# Include KERNEL_ and QEMU_ settings for this arch.
+# Include QEMU_ settings for this arch.
 include $(ROOTDIR)/arch/$(ARCH)/config.mk
-endif
 
+QEMU_APPEND       := $(KERNEL_APPEND) $(call qstrip, $(CONFIG_LINUX_CMDLINE))
+KERNEL            ?= $(IMAGEDIR)/$(KERNEL_IMAGE)
+ROOTFS            ?= $(IMAGEDIR)/$(IMAGE_NAME)
+
+CROSS_COMPILE     := $(call qstrip, $(CONFIG_TOOLCHAIN_PREFIX))
 CROSS_TARGET       = $(CROSS_COMPILE:-=)
 CC                 = $(CROSS_COMPILE)gcc
 CFLAGS             = -O2
@@ -53,6 +54,7 @@ CPPFLAGS           = -I$(STAGING)/include -I$(STAGING)/usr/include
 LDLIBS             =
 LDFLAGS            = -L$(STAGING)/lib -L$(STAGING)/usr/lib
 STRIP              = $(CROSS_COMPILE)strip
+endif
 
 PRODDIR            = $(ROOTDIR)/arch/$(ARCH)/$(MACH)
 DOWNLOADS         ?= $(shell xdg-helper DOWNLOAD)
@@ -71,4 +73,5 @@ export ARCH MACH CROSS_COMPILE CROSS_TARGET TOOLCHAIN
 export QEMU_APPEND QEMU_DTB QEMU_HOST QEMU_MACH QEMU_MNT QEMU_NIC
 export CC CFLAGS CPPFLAGS LDLIBS LDFLAGS STRIP
 export PRODDIR DOWNLOADS STAGING ROMFS IMAGEDIR PKG_CONFIG_LIBDIR SYSROOT
+export KERNEL ROOTFS
 export KERNEL_ARCH KERNEL_VERSION KERNEL_MODULES

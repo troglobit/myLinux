@@ -1,6 +1,5 @@
 .EXPORT_ALL_VARIABLES:
 
-KERNEL_IMG    := Image
 QEMU_ARCH     := aarch64
 # vexpress-a15
 QEMU_MACH     := virt
