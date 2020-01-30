@@ -10,27 +10,19 @@
 * [Dropbear SSH](#dropbear-ssh)
 * [Using Telnet](#using-telnet)
 * [Bugs & Feature Requests](#bugs--feature-requests)
+- [Licensing & References](licensing--references)
 
 
 Introduction
 ------------
 
-myLinux is  a playful, but working,  example of how to  create a virtual
-devboard from components like Qemu, Linux  and BusyBox.  It can also run
-on actual HW, currently Raspberry Pi.
+myLinux is a small UNIX like OS for embedded systems.  Clean & vanilla,
+with the intent to keep as close to upstream sources as possible.
 
-Use the  build framework in  myLinux to test your  embedded applications
-before the actual hardware arrives.  Or  as a stable reference when said
-hardware starts acting up -- as it  invariably does ... you can even use
-it as  a reference to  other embedded  Linux build systems.   myLinux is
-relatively  clean and  vanilla, the  intent is  to keep  it as  close to
-upstream sources as possible.
+myLinux can be used to test software components in Qemu before deploying
+to an embedded target, or as a reference to other embedded Linux systems.
 
-Currently myLinux supports  an *ARM Versatile PB* devboard  with Qemu, a
-Freescale e500 PowerPC, also with Qemu, and Raspberry Pi 2, BCM2836.  It
-has only been  tested on a Ubuntu 64-bit host,  with a [crosstool-NG][1]
-based [toolchain][2].  Pull requests for  more targets are most welcome!
-:)
+If you want a small rootfs builder for containers, check [myRootFS][].
 
 
 Building
@@ -38,8 +30,14 @@ Building
 
 To try it out, clone this repository, install the dependencies listed in
 the Requirements section, including the toolchain for your preferred
-target(s).  There is no default arch set, so if you want to build for an
-ARM 64-bit system:
+target(s).  There is no default arch, the following are supported:
+
+  * arm
+  * arm64
+  * ppc
+  * x86_64
+
+So, if you want to build for an ARM 64-bit system:
 
     export PATH=/usr/local/aarch64-unknown-linux-gnu-7.3.0-1/bin:$PATH
     ARCH=arm64 make defconfig
@@ -55,27 +53,14 @@ No password by default.
 
     make run
 
-For a truly minimal setup, only Busybox and an ARM/Versatile config:
+Online help is available:
 
-    make distclean
-    cp small.config .config && make oldconfig
-    make -j5
-    make run
-
-As an alternative, which can be useful for scripting, the menuconfig
-step can be skipped using an arch-specific defconfig:
-
-    make distclean
-    ARCH=x86_64 make defconfig
-    make -j5
-    make run
-
-Now go have fun! :-)
+    make help
 
 > **Note:** parallel builds (`-j5` above) can be very hard to debug
 > since the output of many different components is mixed.  To avoid
 > this and maintain your sanity, add `--output-sync=recurse` to
-> your `make` commands.
+> your `make -jN` commands.
 
 
 Requirements
@@ -84,17 +69,27 @@ Requirements
 The build environment currently requires at least the following tools,
 tested on Ubuntu 16.04 (x86_64):
 
-* build-essential (gcc, make, etc.) libssl-dev (to build kernel)
-* automake autoconf libtool pkg-config flex bison wget quilt
-* bc lzop device-tree-compiler (arm + powerpc) u-boot-tools (mkimage)
-* libelf-dev (x86)
-* qemu-system-arm (install libvirt-bin and virt-manager as well!)
-* Toolchains, which requires gawk:
+```sh
+sudo apt install build-essential libssl-dev automake autoconf libtool \
+                 pkg-config flex bison wget quilt bc lzop libelf-dev  \
+			     gawk device-tree-compiler u-boot-tools               \
+				 qemu-system-arm qemu-system-ppc qemu-system-x86
+```
+
+Install `libvirt-bin` and `virt-manager` as well, the integration of
+these packages in Ubuntu help set up infrastructure such as a `virbr0`
+interface on the host for communicating with the Qemu targets.  See more
+on this topic below.
+
+You also need cross-compiler toolchains.  The [myRootFS][] project
+provides pre-built sysrooted [crosstool-NG][1] based toolchains that
+work on most Linux distributions that use the same, or newer, version of
+GLIBC as Ubuntu 16.04:
+
   * [arm-unknown-linux-gnueabi][2]
   * [aarch64-unknown-linux-gnu][3]
   * [powerpc-unknown-linux-gnu][4]
   * [x86_64-unknown-linux-gnu][5]
-* probably more, gzip?
 
 For x86_64 you may want to enable KVM.  For this to work as a regular
 user, add yourself to the kvm group and log out/in again:
@@ -260,11 +255,37 @@ Feel free to report bugs and request features, or even submit your own
 [pull requests](https://help.github.com/articles/using-pull-requests/)
 using [GitHub](https://github.com/myrootfs/myLinux)
 
-Cheers!  
--- Joachim
 
-[1]: https://github.com/crosstool-ng/crosstool-ng
+Licensing & References
+----------------------
+
+With the exceptions listed below, myLinux is distributed under the terms
+of the [ISC License][]¹.  myLinux is the build system, or glue, that
+ties the various Open Source components together.  Some files have a
+different license statement, e.g. kconfig.  Those files are licensed
+under the license contained in the file itself.
+
+myrootfs bundles patch files, which are applied to the sources of the
+various Open Source packages.  Those patches are not covered by the
+license of myrootfs.  Instead, they are covered by the license of the
+software to which the patches are applied, when said software comes
+available under multiple licenses, sometimes as alternative commercial
+licenses, the patches are provided under the publicly available Open
+Source licenses.
+
+----
+¹ "... functionally equivalent to the [simplified BSD][] and [MIT][]
+   licenses, but without language deemed unnecessary following the
+   [Berne Convention][]."  --[Theo de Raadt][]
+
+[1]: https://github.com/crosstool-ng/crosstool-ng/releases
 [2]: https://github.com/myrootfs/crosstool-ng/releases/download/troglobit%2F7.3.0-1/arm-unknown-linux-gnueabi-7.3.0-1.tar.xz
 [3]: https://github.com/myrootfs/crosstool-ng/releases/download/troglobit%2F7.3.0-1/aarch64-unknown-linux-gnu-7.3.0-1.tar.xz
 [4]: https://github.com/myrootfs/crosstool-ng/releases/download/troglobit%2F7.3.0-1/powerpc-unknown-linux-gnu-7.3.0-1.tar.xz
 [5]: https://github.com/myrootfs/crosstool-ng/releases/download/troglobit%2F7.3.0-1/x86_64-unknown-linux-gnu-7.3.0-1.tar.xz
+[myRootFS]: https://github.com/myrootfs/myrootfs
+[simplified BSD]:   https://en.wikipedia.org/wiki/BSD_licenses#2-clause
+[MIT]:              https://en.wikipedia.org/wiki/MIT_License
+[Berne Convention]: https://en.wikipedia.org/wiki/Berne_Convention
+[Theo de Raadt]:    https://marc.info/?l=openbsd-misc&m=120618313520730&w=2
+[ISC License]: https://en.wikipedia.org/wiki/ISC_license
