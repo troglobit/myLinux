@@ -1,5 +1,9 @@
 #!/bin/sh
 #
+# cx is a wrapper for basic things you want to do with lxc.  It is short
+# for container execute/executor.  Most cx commands take extra options
+# that are forewarded to the lxc counterpart.
+#
 # Copyright (c) 2019-2020  Joachim Nilsson <troglobit@gmail.com>
 #
 # Permission to use, copy, modify, and/or distribute this software for any
@@ -18,16 +22,16 @@ statedir=/var/lib/lxc
 
 usage()
 {
-    echo "usage: vm command [args]"
+    echo "usage: cx command [args]"
     echo
-    echo "       vm attach  name                      Attach to console"
-    echo "       vm create  name                      Create new container"
-    echo "       vm edit    name                      Edit lxc.conf using $EDITOR"
-    echo "       vm import  rootfs[.squashfs] [name]  Create new container from image"
-    echo "       vm start   name                      Start a stopped container"
-    echo "       vm stop    name                      Stop a running container"
-    echo "       vm show   [name]                     Show status of container(s)"
-    echo "       vm top                               UNIX top-like status overview"
+    echo "       cx attach  name                      Attach to console"
+    echo "       cx create  name                      Create new container"
+    echo "       cx edit    name                      Edit lxc.conf using $EDITOR"
+    echo "       cx import  rootfs[.squashfs] [name]  Create new container from image"
+    echo "       cx start   name                      Start a stopped container"
+    echo "       cx stop    name                      Stop a running container"
+    echo "       cx show   [name]                     Show status of container(s)"
+    echo "       cx top                               UNIX top-like status overview"
     echo
 
     exit 1
@@ -126,8 +130,8 @@ EOF
 
     # show instructions
     cd
-    echo "Virtual machine created, start it with:"
-    echo "  vm start $1 -- /bin/sh"
+    echo "Container created, start it with:"
+    echo "  cx start $1 -- /bin/sh"
     echo
 }
 
