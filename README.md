@@ -22,7 +22,7 @@ with the intent to keep as close to upstream sources as possible.
 myLinux can be used to test software components in Qemu before deploying
 to an embedded target, or as a reference to other embedded Linux systems.
 
-If you want a small rootfs builder for containers, check [myRootFS][].
+If you want a small rootfs builder for containers, check out [myRootFS][].
 
 
 Building
