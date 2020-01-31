@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (c) 2019  Joachim Nilsson <troglobit@gmail.com>
+# Copyright (c) 2019-2020  Joachim Nilsson <troglobit@gmail.com>
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -20,13 +20,14 @@ usage()
 {
     echo "usage: vm command [args]"
     echo
-    echo "       vm attach  name"
-    echo "       vm create  name"
-    echo "       vm import  container[.squashfs] [name]"
-    echo "       vm start   name"
-    echo "       vm stop    name"
-    echo "       vm show   [name]"
-    echo "       vm top"
+    echo "       vm attach  name                      Attach to console"
+    echo "       vm create  name                      Create new container"
+    echo "       vm edit    name                      Edit lxc.conf using $EDITOR"
+    echo "       vm import  rootfs[.squashfs] [name]  Create new container from image"
+    echo "       vm start   name                      Start a stopped container"
+    echo "       vm stop    name                      Stop a running container"
+    echo "       vm show   [name]                     Show status of container(s)"
+    echo "       vm top                               UNIX top-like status overview"
     echo
 
     exit 1
