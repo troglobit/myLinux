@@ -140,7 +140,13 @@ edit()
     check_args *$
     check_exist $1
 
-    $EDITOR $statedir/$1/config
+    file=$statedir/$1/config
+    if [ -z "$EDITOR" ]; then
+	echo "The \$EDITOR environment variable is not set, don't know what editor to use."
+	echo "Choose yourself and open the file $file"
+    fi
+
+    $EDITOR $file
 }
 
 show()
