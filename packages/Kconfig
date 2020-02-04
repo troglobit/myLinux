@@ -25,6 +25,18 @@ config IPROUTE2
 	 
 	 https://wiki.linuxfoundation.org/networking/iproute2
 
+config IPTABLES
+       bool "iptables - classic toolset for kernel packet filtering and NAT"
+       help
+	 iptables is the userspace command line program used to
+	 configure the Linux 2.4.x, and later, packet filtering
+	 ruleset.  It is targeted towards system administrators.
+	 
+	 Since Network Address Translation is also configured from the
+	 packet filter ruleset, iptables is used for this, too.
+	 
+	 https://netfilter.org/projects/iptables/
+
 config LLDPD
        bool "lldpd - IEEE 802.1ab LLDP Daemon"
        help

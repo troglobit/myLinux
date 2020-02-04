@@ -22,6 +22,7 @@ dir_$(CONFIG_DROPBEAR)   += dropbear
 dir_$(CONFIG_FINIT)      += finit
 dir_$(CONFIG_INADYN)     += inadyn
 dir_$(CONFIG_IPROUTE2)   += iproute2
+dir_$(CONFIG_IPTABLES)   += iptables
 dir_$(CONFIG_LLDPD)      += lldpd
 dir_$(CONFIG_LXC)        += lxc
 dir_$(CONFIG_MERECAT)    += merecat
