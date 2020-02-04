@@ -45,6 +45,16 @@ config LIBMNL
 	 
 	 https://www.netfilter.org/projects/libmnl/
 
+config LIBNFTNL
+       bool "libnftnl, low-level API to Linux nf_tables"
+       help
+	 libnftnl is a userspace library providing a low-level netlink
+	 programming interface (API) to the in-kernel nf_tables
+	 subsystem. The library libnftnl has been previously known as
+	 libnftables. This library is currently used by nftables.
+	 
+	 https://www.netfilter.org/projects/libnftl/
+
 config LIBNET
        bool "libnet, low-level network packet writing and handling"
        help
