@@ -104,6 +104,18 @@ config NETSNIFF
 	  
 	  http://netsniff-ng.org/
 
+config NFTABLES
+       bool "nftables - Replaces the popular {ip,ip6,arp,eb}tables"
+       help
+	 This software provides a new in-kernel packet classification
+	 framework that is based on a network-specific Virtual Machine
+	 (VM) and a new nft userspace command line tool. nftables reuses
+	 the existing Netfilter subsystems such as the existing hook
+	 infrastructure, the connection tracking system, NAT, userspace
+	 queueing and logging subsystem.
+	 
+	 https://netfilter.org/projects/nftables/
+
 config NTPCLIENT
        bool "ntpclient - Simple NTP client"
        help
