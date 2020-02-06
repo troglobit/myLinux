@@ -18,21 +18,45 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-statedir=/var/lib/lxc
+# TODO: Move these settings to /etc/cx.conf
+statedir=/var/lib/lxc			# Where container config/rootfs lives
+hostback=/mnt/lxc			# Host backing store; /rw or delta0
+
+# Local variables
+progname=$0
+name=""					# Set by -n or arg to command
+fs="ro"					# read-only sandbox by default
+vol=""					# No volumes to mount by default
+type="none"				# Network type: none, empty, veth, phys, vlan, etc.
+link=""					# For network type phys, vlan, and veth
 
 usage()
 {
-    echo "usage: cx command [args]"
+    echo "usage: cx [opts] command [args]"
     echo
-    echo "       cx attach  name                      Attach to console"
-    echo "       cx create  name                      Create new container"
-    echo "       cx edit    name                      Edit lxc.conf using $EDITOR"
-    echo "       cx import  rootfs[.squashfs] [name]  Create new container from image"
-    echo "       cx start   name                      Start a stopped container"
-    echo "       cx stop    name                      Stop a running container"
-    echo "       cx show   [name]                     Show status of container(s)"
-    echo "       cx top                               UNIX top-like status overview"
+    echo "create/import options:"
+    echo " -t,--net type           Initial network type: none, empty, veth, phys, vlan"
+    echo "                         For phys and vlan --link must be given.  Default: none"
+    echo " -l,--link ifname        Interface to assign to container, or use as VLAN trunk"
+    echo " --overlay               Set up read-write OverlayFS for whole container rootfs"
+    echo " -w,--read-write /foo    Set up a single writable bind mount from host to /foo"
+    echo "                         Container can bind-mount further to subdirs in /foo"
+    echo "                         Changes are saved to host $hostback/name/foo"
+    echo "general options:"
+    echo " -c,--name name          Container name, unless given as argument later"
     echo
+    echo "commands:"
+    echo " attach  name            Attach to console"
+    echo " create  name            Create new host native container"
+    echo " edit    name            Edit lxc.conf using $EDITOR"
+    echo " import  rootfs[.sqsh]   Create new system container"
+    echo " ls                      List available containers"
+    echo " start   name            Start a stopped container"
+    echo " stop    name            Stop a running container"
+    echo " show   [name]           Show status of container(s)"
+    echo " top                     UNIX top-like status overview"
+    echo
+    echo "Note: options must precede commands/args."
 
     exit 1
 }
@@ -60,11 +84,132 @@ check_not_exist()
     fi
 }
 
+#
+# configure mode nm dir [path]
+#	Creates LXC config file for nm based on mode.
+#
+configure()
+{
+    mode=$1
+    nm=$2
+    dir=$3
+    path=$4
+
+    # First check supported modes
+    case $mode in
+	native)
+	    ;;
+	system)
+	    ;;
+	*)
+	    echo "Unkown container type or mode."
+	    exit 1
+    esac
+
+    # Common boilerplate
+    cat > $dir/config <<- EOF
+	lxc.uts.name	   = $nm
+	lxc.tty.max	   = 4
+	lxc.pty.max	   = 1024
+	lxc.start.auto	   = 1
+	lxc.mount.auto	   = cgroup:mixed proc:mixed sys:mixed
+	EOF
+
+    case $mode in
+	native)			# Shares rootfs with host
+	    cat >> config <<- EOF
+		lxc.init.cmd    = /bin/sh
+		lxc.rootfs.path = $dir/rootfs
+		lxc.mount.entry = /lib lib none ro,bind 0 0
+		lxc.mount.entry = /bin bin none ro,bind 0 0
+		lxc.mount.entry = /etc etc none ro,bind 0 0
+		lxc.mount.entry = /usr usr none ro,bind 0 0
+		lxc.mount.entry = /sbin sbin none ro,bind 0 0
+		lxc.mount.entry = /lib lib none ro,bind 0 0
+		
+		lxc.mount.entry = proc /proc proc nodev,noexec,nosuid 0 0
+		lxc.mount.entry = tmpfs /dev/shm tmpfs  defaults 0 0
+		EOF
+	    ;;
+
+	system)			# Separate rootfs, nothing shared with host except kernel
+	    case $fs in
+		ro)
+		    cat >> $dir/config <<- EOF
+			# For read-only containers, see below for bind lxc.mount.entry
+			lxc.rootfs.path	  = loop:/$path
+			lxc.rootfs.mount  = $dir/rootfs
+			EOF
+		    ;;
+
+		rw)
+		    cat >> $dir/config <<- EOF
+			# For read-only containers, with a single read-write directory from the host,
+			lxc.rootfs.path	  = loop:/$path
+			lxc.rootfs.mount  = $dir/rootfs
+			lxc.mount.entry	  = $dir/rw $vol none bind,create=dir 0 0
+			EOF
+		    ;;
+
+		overlay)
+		    cat >> $dir/config <<- EOF
+			# For read-write containers, the host provides big OverlayFS mount
+			#lxc.hook.pre-mount = cx mount $path $dir/rootfs
+			lxc.hook.pre-mount = mount -n -o loop $path $dir/rootfs
+			lxc.rootfs.path	   = overlay:$dir/rootfs:$hostback/$nm/delta0
+			EOF
+	    esac
+    esac
+
+    cat >> $dir/config <<- EOF
+	# Should be handled by the container's rc system
+	#lxc.mount.entry   = run run tmpfs rw,nodev,relatime,mode=755 0 0
+	#lxc.mount.entry   = shm dev/shm tmpfs rw,nodev,noexec,nosuid,relatime,mode=1777,create=dir 0 0
+	EOF
+
+    case $type in
+	phys)
+	    cat >> $dir/config <<- EOF
+		lxc.net.0.type	   = phys
+		lxc.net.0.flags	   = up
+		lxc.net.0.link	   = $link
+		EOF
+	    ;;
+	vlan)
+	    cat >> $dir/config <<- EOF
+		lxc.net.0.type	   = vlan
+		lxc.net.0.flags	   = up
+		lxc.net.0.link	   = $link
+		EOF
+	    ;;
+	veth)
+	    cat >> $dir/config <<- EOF
+		lxc.net.0.type	   = veth
+		lxc.net.0.flags	   = up
+		lxc.net.0.link	   = lxcbr0
+		EOF
+	    ;;
+	empty)				# Only create loopback
+	    cat >> $dir/config <<- EOF
+		lxc.net.0.type	   = empty
+		EOF
+	    ;;
+	none | *)			# Shares networking with host
+	    cat >> $dir/config <<- EOF
+		lxc.net.0.type	   = none
+		EOF
+	    ;;
+    esac
+}
+
 attach()
 {
-    check_args $*
+    if [ -z "$name" ]; then
+	check_args $*
+	name=$1
+    fi
 
-    lxc-info -n $1 |grep RUNNING >/dev/null
+    lxc-info -n $name |grep RUNNING >/dev/null
     if [ $? -ne 0 ]; then
 	echo "Container $1 is not running."
 	exit 1
@@ -76,10 +221,14 @@ attach()
 # Creates a container based on the host's rootfs
 create()
 {
-    dir=$statedir/$1
+    if [ -z "$name" ]; then
+	check_args $*
+	name=$1
+    fi
+    dir=$statedir/$name
 
     check_args $*
-    check_not_exist $1
+    check_not_exist $name
 
     # create rootfs
     mkdir -p $dir/rootfs
@@ -110,23 +259,7 @@ create()
     cd ..
 
     # create lxc configuration
-    cat > config << EOF
-lxc.uts.name    = $1
-lxc.pty.max     = 1024
-lxc.rootfs.path = $dir/rootfs
-lxc.mount.auto  = cgroup:mixed proc:mixed sys:mixed
-lxc.mount.entry = /lib lib none ro,bind 0 0
-lxc.mount.entry = /bin bin none ro,bind 0 0
-lxc.mount.entry = /etc etc none ro,bind 0 0
-lxc.mount.entry = /usr usr none ro,bind 0 0
-lxc.mount.entry = /sbin sbin none ro,bind 0 0
-lxc.mount.entry = /lib lib none ro,bind 0 0
-lxc.mount.entry = proc /proc proc nodev,noexec,nosuid 0 0
-lxc.mount.entry = tmpfs /dev/shm tmpfs  defaults 0 0
-lxc.net.0.type = veth
-lxc.net.0.flags = up
-lxc.net.0.link = br0
-EOF
+    configure native $name $dir
 
     # show instructions
     cd
@@ -137,10 +270,13 @@ EOF
 
 edit()
 {
-    check_args *$
-    check_exist $1
+    if [ -z "$name" ]; then
+	check_args $*
+	name=$1
+    fi
+    check_exist $name
 
-    file=$statedir/$1/config
+    file=$statedir/$name/config
     if [ -z "$EDITOR" ]; then
 	echo "The \$EDITOR environment variable is not set, don't know what editor to use."
 	echo "Choose yourself and open the file $file"
@@ -151,31 +287,42 @@ edit()
 
 show()
 {
-    if [ "x$1" != "x" ]; then
-	check_exist $1
+    if [ -z "$name" ]; then
+	name=$1
     fi
-    lxc-ls -f $1
+    if [ "x$name" != "x" ]; then
+	check_exist $name
+    fi
+    lxc-ls -f $name
 }
 
 start()
 {
-    check_args *$
-    check_exist $1
+    if [ -z "$name" ]; then
+	check_args $*
+	name=$1
+	shift
+    fi
+    check_exist $name
 
-    lxc-start -n $*
+    lxc-start -n $name $*
 }
 
 stop()
 {
-    check_args $*
+    if [ -z "$name" ]; then
+	check_args $*
+	name=$1
+	shift
+    fi
 
-    lxc-info -n $1 |grep RUNNING >/dev/null
+    lxc-info -n $name |grep RUNNING >/dev/null
     if [ $? -ne 0 ]; then
 	echo "Container $1 is not running."
 	exit 1
     fi
 
-    lxc-stop -n $*
+    lxc-stop -n $name $*
 }
 
 # Import a cramfs/squashfs based container
@@ -186,10 +333,10 @@ import()
     path=$1
     file=`basename $1`
 
-    if [ $# -eq 2 ]; then
-	nm=$2
-    else
+    if [ -z "$name" ]; then
 	nm=${file%.*}
+    else
+	nm=$name
     fi
 
     if [ ! -e $path -o -z $nm ]; then
@@ -203,26 +350,56 @@ import()
     mkdir -p $dir/rootfs
     mkdir -p $dir/rw
 
-    cat > $dir/config << EOF
-lxc.uts.name = $nm
-lxc.tty.max = 4
-lxc.pty.max=1024
-lxc.start.auto = 1
-lxc.rootfs.path = loop:/$path
-lxc.rootfs.mount = $dir/rootfs
-lxc.mount.auto = cgroup:mixed proc:mixed sys:mixed
-lxc.mount.entry=$dir/rw mnt none bind,create=dir 0 0
-lxc.mount.entry=run run tmpfs rw,nodev,relatime,mode=755 0 0
-lxc.mount.entry=shm dev/shm tmpfs rw,nodev,noexec,nosuid,relatime,mode=1777,create=dir 0 0
-lxc.net.0.type = veth
-lxc.net.0.flags = up
-lxc.net.0.link = br0
-EOF
+    # Create OverlayFS directories on host
+    mkdir $hostback/$nm/delta0
+
+    # create lxc configuration
+    configure system $nm $dir $path
 }
+
+#
+# mount image directory
+#
+# Mounts the given squashfs/cramfs image on a directory.
+#
+# Required since lxc cannot (yet) mount a squashfs, then add an overlay on top
+# *before* doing the pivot for the container.
+#
+# TODO: Add sanity checks with logging; does image exist, mountpoint free etc.
+#
+mount()
+{
+    mount -n -o loop $1 $2
+}
+
+while [ "$1" != "" ]; do
+    case $1 in
+	--overlay)
+	    fs=overlay
+	    ;;
+	--read-write | -w)
+	    fs=rw
+	    vol=$2
+	    shift
+	    ;;
+	-c | --name)
+	    name=$2
+	    shift
+	    ;;
+	-t | --net)
+	    type=$2
+	    shift
+	-l | --link)
+	    link=$2
+	    shift
+	*)
+	    break
+    esac
+    shift
+done
 
 cmd=$1
 shift
-
 case $cmd in
     attach)
 	attach $*
@@ -235,6 +412,12 @@ case $cmd in
 	;;
     import)
 	import $*
+	;;
+    ls)
+	show
+	;;
+    mount)
+	mount $*
 	;;
     show)
 	show $*
