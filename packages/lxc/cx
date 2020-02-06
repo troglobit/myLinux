@@ -29,12 +29,14 @@ fs="ro"					# read-only sandbox by default
 vol=""					# No volumes to mount by default
 type="none"				# Network type: none, empty, veth, phys, vlan, etc.
 link=""					# For network type phys, vlan, and veth
+auto=0					# Do not auto-start container by default
 
 usage()
 {
     echo "usage: cx [opts] command [args]"
     echo
     echo "create/import options:"
+    echo " -a,--auto               Autostart container, test w/ 'cx start' before reboot"
     echo " -t,--net type           Initial network type: none, empty, veth, phys, vlan"
     echo "                         For phys and vlan --link must be given.  Default: none"
     echo " -l,--link ifname        Interface to assign to container, or use as VLAN trunk"
@@ -111,8 +113,7 @@ configure()
 	lxc.uts.name	   = $nm
 	lxc.tty.max	   = 4
 	lxc.pty.max	   = 1024
-	lxc.start.auto	   = 1
-	lxc.mount.auto	   = cgroup:mixed proc:mixed sys:mixed
+	lxc.start.auto	   = $auto
 	EOF
 
     case $mode in
@@ -162,6 +163,7 @@ configure()
     esac
 
     cat >> $dir/config <<- EOF
+	lxc.mount.auto	   = cgroup:mixed proc:mixed sys:mixed
 	# Should be handled by the container's rc system
 	#lxc.mount.entry   = run run tmpfs rw,nodev,relatime,mode=755 0 0
 	#lxc.mount.entry   = shm dev/shm tmpfs rw,nodev,noexec,nosuid,relatime,mode=1777,create=dir 0 0
@@ -374,6 +376,9 @@ mount()
 
 while [ "$1" != "" ]; do
     case $1 in
+	-a | --auto)
+	    auto=1
+	    ;;
 	--overlay)
 	    fs=overlay
 	    ;;
