@@ -1,4 +1,4 @@
-# Glue for cross compiling netcalc
+# Glue for cross compiling lxc
 PKGVER     := 3.2.1
 PKG        := lxc-$(PKGVER)
 PKGURL      = https://linuxcontainers.org/downloads/lxc/$(PKGTAR)
