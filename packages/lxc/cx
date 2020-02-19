@@ -24,6 +24,7 @@ hostback=/mnt/lxc			# Host backing store; /rw or delta0
 
 # Local variables
 progname=$0
+bridge="lxcbr0"
 name=""					# Set by -n or arg to command
 fs="ro"					# read-only sandbox by default
 vol=""					# No volumes to mount by default
@@ -37,6 +38,7 @@ usage()
     echo
     echo "create/import options:"
     echo " -a,--auto               Autostart container, test w/ 'cx start' before reboot"
+    echo " -b,--bridge brname      Host bridge name for attaching veth interface"
     echo " -t,--net type           Initial network type: none, empty, veth, phys, vlan"
     echo "                         For phys and vlan --link must be given.  Default: none"
     echo " -l,--link ifname        Interface to assign to container, or use as VLAN trunk"
@@ -188,7 +190,7 @@ configure()
 	    cat >> $dir/config <<- EOF
 		lxc.net.0.type	   = veth
 		lxc.net.0.flags	   = up
-		lxc.net.0.link	   = lxcbr0
+		lxc.net.0.link	   = $bridge
 		EOF
 	    ;;
 	empty)				# Only create loopback
@@ -262,12 +264,21 @@ create()
 
     # create lxc configuration
     configure native $name $dir
-
-    # show instructions
     cd
-    echo "Container created, start it with:"
-    echo "  cx start $1 -- /bin/sh"
-    echo
+
+    if [ -d /etc/finit.d ]; then
+	cat > /etc/finit.d/$name.conf <<-EOF
+		# Finit .conf script for supervising an lxc container
+		service :$name [2345] <!> cx start $name -F -- container $name
+		EOF
+	initctl reload
+	echo "Container created and added to Finit."
+	echo
+    else
+	echo "Container created, start it with:"
+	echo "  cx start $1 -- /bin/sh"
+	echo
+    fi
 }
 
 edit()
@@ -385,6 +396,10 @@ while [ "$1" != "" ]; do
 	--read-write | -w)
 	    fs=rw
 	    vol=$2
+	    shift
+	    ;;
+	-b | --bridge)
+	    bridge=$2
 	    shift
 	    ;;
 	-c | --name)
