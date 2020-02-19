@@ -25,13 +25,13 @@ Environment variables that impact qemu:
        default: None
 
     QEMU_GDB_KPORT - TCP port to listen for GDB connections to kernel
-       default: 1234
+       default: 4711
 
     QEMU_GDB_KWAIT - Wait for user to attach to kernel before booting
        default: Don't wait
 
     QEMU_GDB_UPORT - TCP port to listen for GDB connections to userspace
-       default: 1235
+       default: 4712
 
     QEMU_MNT - JFFS2 image to mount as /mnt
        default: None, mandatory
@@ -121,12 +121,12 @@ consle_args()
 
 gdb_args()
 {
-    echo -n "-gdb tcp::${QEMU_GDB_KPORT:-1234} "
+    echo -n "-gdb tcp::${QEMU_GDB_KPORT:-4711} "
     if [ ! -z ${QEMU_GDB_KWAIT} ]; then
         echo -n "-S "
     fi
 
-    addr="port=${QEMU_GDB_UPORT:-1235},host=localhost"
+    addr="port=${QEMU_GDB_UPORT:-4712},host=localhost"
     echo -n "-chardev socket,id=hvc1,${addr},server,nowait "
     echo -n "-device virtconsole,name=gdb,chardev=hvc1"
 }
