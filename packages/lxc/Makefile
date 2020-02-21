@@ -17,4 +17,3 @@ $(PKG)/.unpacked::
 
 install::
 	@rm -rf $(STAGING)/share/lxc/config $(STAGING)/share/lxc/templates
-	@cp cx $(STAGING)/sbin/
