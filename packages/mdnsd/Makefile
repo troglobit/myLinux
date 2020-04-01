@@ -8,3 +8,7 @@ PKGCFG      = --host=$(CROSS_TARGET) --prefix=
 PKGINSTALL := install-exec
 
 include $(ROOTDIR)/system/pkg.mk
+
+install::
+	@mkdir -p $(STAGING)/etc/mdns.d
+	@cp ssh.service $(STAGING)/etc/mdns.d/
