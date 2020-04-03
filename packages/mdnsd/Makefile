@@ -1,5 +1,5 @@
 # Glue for cross compiling mdnsd
-PKGVER     := 0.8
+PKGVER     := 0.9
 PKG        := mdnsd-$(PKGVER)
 PKGSUFFIX  := tar.xz
 PKGURL      = https://github.com/troglobit/$(PKGNAME)/releases/download/v$(PKGVER)/$(PKGTAR)
