@@ -128,13 +128,13 @@ config NFTABLES
 	 
 	 https://netfilter.org/projects/nftables/
 
-config NTPCLIENT
-       bool "ntpclient - Simple NTP client"
+config SNTPD
+       bool "sntpd - Simple NTP client and server"
        help
-         This is a slightly enhanced version of Larry Doolittle's ntpclient.
-	 It features daemon support, including use of syslog, and IPv6.
+         This is an enhanced version of Larry Doolittle's ntpclient, featuring
+	 both client and server mode, including syslog and IPv6 support.
 	 
-	 https://github.com/troglobit/ntpclient/
+	 https://github.com/troglobit/sntpd/
 
 config OMPING
        bool "omping - Open Multicast Ping"
