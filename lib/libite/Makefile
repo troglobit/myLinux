@@ -1,5 +1,5 @@
 # Glue for cross compiling libite (LITE)
-PKGVER     := 2.0.2
+PKGVER     := 2.2.0
 PKG        := libite-$(PKGVER)
 PKGSUFFIX  := tar.xz
 PKGURL      = https://github.com/troglobit/$(PKGNAME)/releases/download/v$(PKGVER)/$(PKGTAR)
