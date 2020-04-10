@@ -64,7 +64,6 @@ CONFIG_IPROUTE2=y
 # CONFIG_NEMESIS is not set
 # CONFIG_NETCALC is not set
 # CONFIG_NETSNIFF is not set
-# CONFIG_OMPING is not set
 CONFIG_SNTPD=y
 # CONFIG_MCJOIN is not set
 # CONFIG_PIMD is not set

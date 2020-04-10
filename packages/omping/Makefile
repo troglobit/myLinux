@@ -1,9 +1,0 @@
-# Glue for cross compiling Open Multicast Ping
-PKGVER     := 0.0.5
-PKG        := omping-$(PKGVER)
-PKGPATCHES :=
-PKGURL      = https://github.com/troglobit/$(PKGNAME)/releases/download/$(PKGVER)/$(PKGTAR)
-PKGENV      = DESTDIR=$(STAGING) PREFIX=
-PKGINSTALL := install-exec
-
-include $(ROOTDIR)/system/pkg.mk

@@ -35,7 +35,6 @@ dir_$(CONFIG_NETCALC)    += netcalc
 dir_$(CONFIG_NETSNIFF)   += netsniff
 dir_$(CONFIG_NFTABLES)   += nftables
 dir_$(CONFIG_SNTPD)      += sntpd
-dir_$(CONFIG_OMPING)     += omping
 dir_$(CONFIG_MCJOIN)     += mcjoin
 dir_$(CONFIG_PIMD)       += pimd
 dir_$(CONFIG_REDIR)      += redir
