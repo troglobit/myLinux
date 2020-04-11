@@ -1,5 +1,5 @@
 # Glue for cross compiling Finit SysV init replacement
-PKGVER     := 3.2-rc1
+PKGVER     := 3.2-rc2
 PKG        := finit-$(PKGVER)
 PKGSUFFIX  := tar.xz
 PKGURL      = https://github.com/troglobit/$(PKGNAME)/releases/download/$(PKGVER)/$(PKGTAR)
