@@ -235,6 +235,15 @@ config BUSYBOX
 	 
 	 https://busybox.net/
 
+config CX
+       bool "cx - A simple wrapper for Linux Containers (lxc)"
+       depends on LXC
+       help
+         Very simple wrapper around lxc, handles importing images, creating
+	 basic lxc config files, starting/stopping and attching to container.
+         
+	 https://github.com/troglobit/cx
+
 config FINIT
        bool "finit - Fast SysV init Replacement with Process Supervision"
        help

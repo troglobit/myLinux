@@ -18,6 +18,7 @@
 exclude                   = Makefile Kconfig $(wildcard *~)
 dir_y                     =
 dir_$(CONFIG_BUSYBOX)    += busybox
+dir_$(CONFIG_CX)         += cx
 dir_$(CONFIG_DROPBEAR)   += dropbear
 dir_$(CONFIG_FINIT)      += finit
 dir_$(CONFIG_INADYN)     += inadyn
