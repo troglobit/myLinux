@@ -70,10 +70,11 @@ The build environment currently requires *at least* the following tools,
 tested on Ubuntu 16.04 (x86_64):
 
 ```sh
-sudo apt install build-essential libssl-dev automake autoconf libtool \
-                 pkg-config flex bison wget quilt bc lzop libelf-dev  \
-                 gawk device-tree-compiler u-boot-tools               \
-                 qemu-system-arm qemu-system-ppc qemu-system-x86
+sudo apt install build-essential libssl-dev automake autoconf libtool	\
+                 pkg-config flex bison wget quilt bc lzop libelf-dev	\
+                 gawk device-tree-compiler u-boot-tools squashfs-tools	\
+                 qemu-system-arm qemu-system-ppc qemu-system-x86	\
+                 libpam-cap
 ```
 
 Install `libvirt-bin` and `virt-manager` as well, the integration of
@@ -92,13 +93,14 @@ GLIBC as Ubuntu 16.04:
   * [x86_64-unknown-linux-gnu][5]
 
 For x86_64 you may want to enable KVM.  For this to work as a regular
-user, add yourself to the kvm group and log out/in again:
+user, add yourself to the kvm group and log out/in again to activate
+the changes for your account:
 
     sudo adduser $LOGNAME kvm
 
 
-Qemu Networking
----------------
+Capabilities
+------------
 
 myLinux uses Qemu to run the resulting kernel + image.  For networking
 to work you can either `sudo make run`, which is a level of access to
@@ -109,9 +111,17 @@ Internet.  Instead you can use capabilities:
     sudo /sbin/setcap cap_net_raw,cap_net_admin+ep /usr/bin/qemu-system-arm
     sudo /sbin/setcap cap_net_raw,cap_net_admin+ep /usr/bin/qemu-system-aarch64
     ...
+    sudo /sbin/setcap cap_net_raw,cap_net_admin+ep /usr/bin/qemu-system-x86_64
 
 Remember, your `$LOGNAME` must be listead  as a known user of both above
-capabilities in `/etc/security/capability.conf`.
+capabilities in `/etc/security/capability.conf`, for example:
+
+    cap_net_raw         jocke
+    cap_net_admin       jocke
+
+
+Qemu Networking
+---------------
 
 What remains  now is to  tell Qemu what bridges  in your system  you are
 allowed to connect to,  edit/create the file `/etc/qemu/bridge.conf` and
@@ -121,7 +131,11 @@ add:
 
 Assuming you  have a `virbr0` interface  in your system.  If  you've run
 anything in [virt-manager](http://virt-manager.org/)  prior to this then
-you're set, otherwise you're unfortunately on your own.
+you're set, otherwise install `virt-manager` and:
+
+  1. Check that it's running: `sudo systemctl status libvirtd.service`
+  2. Check networking is up: `sudo virsh net-list --all`
+  3. Bring networking up: `sudo virsh net-start default`
 
 
 Troubleshooting
