@@ -91,6 +91,10 @@ mnt_args()
 	return
     fi
 
+    if [ ! -e "${QEMU_MNT}" ]; then
+	dd if=/dev/zero bs=16384 count=960 2>/dev/null | tr '\000' '\377' > ${QEMU_MNT}
+    fi
+
     echo -n "-device ${QEMU_SCSI},id=scsi0 "
     echo -n "-device scsi-hd,bus=scsi0.0,drive=drive0 "
     echo -n "-drive file=${QEMU_MNT},if=none,format=raw,discard=unmap,id=drive0 "
