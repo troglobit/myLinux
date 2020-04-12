@@ -1,6 +1,6 @@
 # Extensible build recipe for package/library/kernel
 #
-# Copyright (c) 2015-2017  Joachim Nilsson <troglobit@gmail.com
+# Copyright (c) 2015-2020  Joachim Nilsson <troglobit@gmail.com
 #
 # Assumes PKG, PKGVER, and PKGURL being set in the including Makefile.
 # See below for possibilities to override and extend both variables and
