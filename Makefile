@@ -146,6 +146,17 @@ distclean:							## Really clean, as if started from scratch
 		$(RM) -rf $$file;				\
 	done
 
+dist:
+	@git archive --format=tar.gz --prefix=$(OSPKG)/ -o $(OSARCHIVE) v$(OSVERSION_ID)
+	@md5sum $(OSARCHIVE) > $(OSARCHIVE).md5
+	@mv $(OSARCHIVE)* ../
+	@echo "Resulting release files:"
+	@echo "================================================================="
+	@for file in $(OSARCHIVE); do						\
+		printf "$$file    \tDistribution tarball\n";			\
+		printf "$$file.md5\t"; cat ../$$file.md5 | cut -f1 -d' ';	\
+	done
+
 error:
 	@echo "  FAIL    No .config found, see the README for help on download and set up."
 	@exit 1
