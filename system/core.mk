@@ -1,17 +1,6 @@
 # Find a suitable toolchain at https://github.com/myrootfs/crosstool-ng/releases
 TOOLCHAIN         := crosstool-ng-1.23.0-319-gaca85cb
 
-OSNAME            := myLinux
-OSRELEASE_ID      := chaos
-OSRELEASE          = Chaos Devel `date --iso-8601`
-OSVERSION_ID      := 1.0-rc1
-OSVERSION         := $(OSVERSION_ID), $(OSRELEASE)
-OSID              := "mylinux"
-OSPRETTY_NAME     := $(OSNAME) $(OSVERSION_ID)
-OSHOME_URL        := https://myrootfs.github.io
-SUPPORT_URL       := https://github.com/myrootfs/myLinux
-BUG_REPORT_URL    := $(SUPPORT_URL)/issues
-
 STAGING            = $(ROOTDIR)/staging
 ROMFS              = $(ROOTDIR)/romfs
 IMAGEDIR           = $(ROOTDIR)/images
@@ -62,10 +51,6 @@ LDLIBS             =
 LDFLAGS            = -L$(STAGING)/lib -L$(STAGING)/usr/lib
 STRIP              = $(CROSS_COMPILE)strip
 endif
-
-export OSNAME OSRELEASE_ID OSRELEASE OSVERSION_ID OSVERSION
-export OSID OSPRETTY_NAME OSHOME_URL
-export SUPPORT_URL BUG_REPORT_URL
 
 export ARCH MACH CROSS_COMPILE CROSS_TARGET TOOLCHAIN
 export CC CFLAGS CPPFLAGS LDLIBS LDFLAGS STRIP
