@@ -20,6 +20,7 @@ STAGING_DIRS := mnt proc sys lib share bin sbin tmp var home host
 SYSROOT      := $(shell $(CROSS_COMPILE)gcc -print-sysroot)
 
 dep:
+	@mkdir -p $(HOSTDIR)
 	@check-toolchain $(CROSS_COMPILE)gcc $(TOOLCHAIN)
 
 staging:
