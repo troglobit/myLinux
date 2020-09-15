@@ -1,0 +1,30 @@
+#!/bin/sh
+cmd=`mktemp`
+
+modprobe mv88e6xxx
+
+cat <<EOF >$cmd
+link set eth0 up
+
+link add br0 type bridge
+link set br0 type bridge vlan_filtering 1
+
+link set lan0 master br0
+link set lan1 master br0
+
+link set lan0 up
+link set lan1 up
+link set br0  up
+
+link add name vlan1 link br0 type vlan id 1
+link set vlan1 up
+
+addr add 192.168.1.2/24 dev vlan1
+
+route add default via 192.168.1.1
+EOF
+
+ip -batch $cmd
+bridge vlan add vid 1 dev br0 self
+
+rm $cmd

@@ -1,0 +1,27 @@
+auto lo
+iface lo inet loopback
+
+auto chan0
+iface chan0 inet manual
+      pre-up    ip link set dev chan0 up
+      post-down ip link set dev chan0 down
+
+auto br0
+iface br0 inet manual
+      pre-up    ip link add dev br0 type bridge stp_state 0 vlan_filtering 1
+      pre-up    ip link set group port master br0
+      pre-up    ip link set group port up
+      pre-up    ip link set dev br0 up
+      post-down ip link set dev br0 down
+
+auto vlan1
+iface vlan1 inet static
+      pre-up bridge vlan add dev br0 vid 1 self
+      pre-up ip link add link br0 dev vlan1 type vlan id 1
+      pre-up nft -f /etc/nftables.conf
+      address 192.168.1.1
+      netmask 255.255.255.0
+
+auto wan
+iface wan inet dhcp
+
