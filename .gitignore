@@ -1,13 +1,2 @@
 *~
-build.log
-.config*
-etc/*
-src/*
-images/*
-staging/*
-romfs/*
-kernel/linux-*
-lib/zlib/zlib-*
-packages/busybox/busybox-*
-packages/dropbear/dropbear-*
-packages/mini-snmpd/mini_snmpd-*
+/output

@@ -1,0 +1,6 @@
+config BR2_PACKAGE_MDNSD
+	bool "mdnsd - Embeddable mDNS-SD daemon"
+	help
+	  A small mDNS-SD daemon.
+
+	  https://github.com/troglobit/mdnsd/
