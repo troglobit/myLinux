@@ -3,9 +3,6 @@
 
 * [Introduction](#introduction)
 * [Building](#building)
-* [Requirements](#requirements)
-* [Qemu Networking](#qemu-networking)
-* [Upgrading Linux](#upgrading-linux)
 * [Testing SNMP](#testing-snmp)
 * [Dropbear SSH](#dropbear-ssh)
 * [Using Telnet](#using-telnet)
@@ -39,45 +36,6 @@ few locally installed tools to bootstrap itself.  For details, see the
 Online help is available:
 
     make help
-
-
-Capabilities
-------------
-
-myLinux uses Qemu to run the resulting kernel + image.  For networking
-to work you can either `sudo make run`, which is a level of access to
-your system you likely do not want to give a random Makefile from the
-Internet.  Instead you can use capabilities:
-
-    sudo /sbin/setcap cap_net_raw,cap_net_admin+ep /usr/lib/qemu/qemu-bridge-helper
-    sudo /sbin/setcap cap_net_raw,cap_net_admin+ep /usr/bin/qemu-system-arm
-    sudo /sbin/setcap cap_net_raw,cap_net_admin+ep /usr/bin/qemu-system-aarch64
-    ...
-    sudo /sbin/setcap cap_net_raw,cap_net_admin+ep /usr/bin/qemu-system-x86_64
-
-Remember, your `$LOGNAME` must be listead  as a known user of both above
-capabilities in `/etc/security/capability.conf`, for example:
-
-    cap_net_raw         jocke
-    cap_net_admin       jocke
-
-
-Qemu Networking
----------------
-
-What remains  now is to  tell Qemu what bridges  in your system  you are
-allowed to connect to,  edit/create the file `/etc/qemu/bridge.conf` and
-add:
-
-    allow virbr0
-
-Assuming you  have a `virbr0` interface  in your system.  If  you've run
-anything in [virt-manager](http://virt-manager.org/)  prior to this then
-you're set, otherwise install `virt-manager` and:
-
-  1. Check that it's running: `sudo systemctl status libvirtd.service`
-  2. Check networking is up: `sudo virsh net-list --all`
-  3. Bring networking up: `sudo virsh net-start default`
 
 
 Monitoring with SNMP
@@ -163,17 +121,7 @@ With the exceptions listed below, myLinux v2 is distributed under the
 same terms as [Buildroot][], the [GNU GPL][].  myLinux is only the build
 system, or glue, that ties the various Open Source components together.
 Each project included comes with source code, and sometimes local patch
-files, that comes with their own license and restrictions.
+files, all with their own license and restrictions.
 
-[1]: https://github.com/crosstool-ng/crosstool-ng/releases
-[2]: https://github.com/myrootfs/crosstool-ng/releases/download/troglobit%2F7.3.0-1/arm-unknown-linux-gnueabi-7.3.0-1.tar.xz
-[3]: https://github.com/myrootfs/crosstool-ng/releases/download/troglobit%2F7.3.0-1/aarch64-unknown-linux-gnu-7.3.0-1.tar.xz
-[4]: https://github.com/myrootfs/crosstool-ng/releases/download/troglobit%2F7.3.0-1/powerpc-unknown-linux-gnu-7.3.0-1.tar.xz
-[5]: https://github.com/myrootfs/crosstool-ng/releases/download/troglobit%2F7.3.0-1/x86_64-unknown-linux-gnu-7.3.0-1.tar.xz
-[myRootFS]: https://github.com/myrootfs/myrootfs
-[simplified BSD]:   https://en.wikipedia.org/wiki/BSD_licenses#2-clause
-[MIT]:              https://en.wikipedia.org/wiki/MIT_License
-[Berne Convention]: https://en.wikipedia.org/wiki/Berne_Convention
-[Theo de Raadt]:    https://marc.info/?l=openbsd-misc&m=120618313520730&w=2
-[ISC License]: https://en.wikipedia.org/wiki/ISC_license
+[GNU GPL]:          COPYING
 [Westermo NetBox]:  https://github.com/westermo/netbox
