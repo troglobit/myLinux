@@ -1,7 +1,0 @@
---- a/src/Makefile.am
-+++ b/src/Makefile.am
-@@ -106,3 +106,4 @@ libnftables_la_LIBADD += ${JANSSON_LIBS}
- endif
- 
- nft_LDADD = libnftables.la
-+nft_LDADD+= ${LIBMNL_LIBS} ${LIBNFTNL_LIBS} ${LIBS}

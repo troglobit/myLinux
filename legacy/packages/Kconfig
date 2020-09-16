@@ -8,42 +8,6 @@ config DROPBEAR
 	 https://matt.ucc.asn.au/dropbear/dropbear.html
        depends on ZLIB
 
-config INADYN
-       bool "inadyn - Dynamic DNS (DDNS) Client"
-       help
-	 Powerful and small DDNS client inadyn
-	 
-	 https://troglobit.com/inadyn.html
-
-config IPROUTE2
-       bool "iproute2 - next generation ifconfig et al"
-       help
-         iproute2 is a collection of userspace utilities for controlling
-         and monitoring various aspects of networking in the Linux
-         kernel, including routing, network interfaces, tunnels, traffic
-         control, and network-related device drivers.
-	 
-	 https://wiki.linuxfoundation.org/networking/iproute2
-
-config IPTABLES
-       bool "iptables - classic toolset for kernel packet filtering and NAT"
-       help
-	 iptables is the userspace command line program used to
-	 configure the Linux 2.4.x, and later, packet filtering
-	 ruleset.  It is targeted towards system administrators.
-	 
-	 Since Network Address Translation is also configured from the
-	 packet filter ruleset, iptables is used for this, too.
-	 
-	 https://netfilter.org/projects/iptables/
-
-config LLDPD
-       bool "lldpd - IEEE 802.1ab LLDP Daemon"
-       help
-         Vincent Bernat's excellent IEEE 802.1ab LLDP daemon.
-	 
-	 http://vincentbernat.github.io/lldpd/
-
 config MERECAT
        bool "merecat - Simple throttling web server"
        help
@@ -52,21 +16,6 @@ config MERECAT
          maintained by Joachim Nilsson.
          
 	 https://github.com/troglobit/merecat/
-
-config MDNSD
-       bool "mdnsd - Embeddable mDNS-SD daemon"
-       help
-         A small mDNS-SD daemon.
-         
-         https://github.com/troglobit/mdnsd/
-
-config MROUTED
-       bool "mrouted - The original dynamic multicast routing daemon"
-       help
-	 The restored original mrouted.  This is not PIM but DVMRP, so
-	 basically RIP but for multicast.  Very reliable.
-	 
-	 https://troglobit.com/mrouted.html
 
 config NEMESIS
        bool "nemesis - packet crafting & injection"
@@ -87,39 +36,6 @@ config NETCALC
 	 output format of ipcalc.
 	 
 	 https://github.com/troglobit/netcalc/
-
-config NETSNIFF
-       bool "netsniff-ng - A Swiss army knife for your daily Linux network plumbing"
-       help
-
-         The netsniff-ng toolkit's primary usage goal is to facilitate a
-	 network developer's / hacker's daily Linux plumbing.  It can be
-	 used for network development, debugging, analysis, auditing or
-	 network reconnaissance. It consists of the following fixed set
-	 of utilities:
-	 
-	   * netsniff-ng: a zero-copy packet analyzer, pcap capturing/replaying tool
-	   * trafgen: a multithreaded low-level zero-copy network packet generator
-	   * mausezahn [*]: high-level packet generator for appliances with Cisco-CLI
-	   * ifpps: a top-like kernel networking and system statistics tool
-	   * curvetun [*]: a lightweight curve25519-based multiuser IP tunnel
-	   * astraceroute: an autonomous system trace route and DPI testing utility
-	   * flowtop: a top-like netfilter connection tracking tool
-	   * bpfc: a [seccomp-]BPF (Berkeley packet filter) compiler, JIT disassembler
-	  
-	  http://netsniff-ng.org/
-
-config NFTABLES
-       bool "nftables - Replaces the popular {ip,ip6,arp,eb}tables"
-       help
-	 This software provides a new in-kernel packet classification
-	 framework that is based on a network-specific Virtual Machine
-	 (VM) and a new nft userspace command line tool. nftables reuses
-	 the existing Netfilter subsystems such as the existing hook
-	 infrastructure, the connection tracking system, NAT, userspace
-	 queueing and logging subsystem.
-	 
-	 https://netfilter.org/projects/nftables/
 
 config SNTPD
        bool "sntpd - Simple NTP client and server"
@@ -143,15 +59,6 @@ config MCJOIN
 	 
 	 https://github.com/troglobit/mcjoin/
 
-config PIMD
-       bool "pimd - PIM-SM/SSM multicast routing daemon"
-       help
-         pimd is a lightweight PIM-SM/SSM v2 multicast routing daemon.
-         It is the original USC (netweb/catarina.usc.edu) implementation
-         of the protocol, based on RFC2362.
-	 
-	 https://troglobit.com/pimd.html
-
 config REDIR
        bool "redir - A TCP port redirector for UNIX"
        help
@@ -164,22 +71,6 @@ config REDIR
          For a UDP port redirector, see uredir.
          
          https://github.com/troglobit/redir/
-
-config SMCROUTE
-       bool "smcroute - Static Multicast Routing Daemon"
-       help
-	 Carsten Schill's smcroute daemon, for static-only multicast routes.
-	 
-	 https://troglobit.com/smcroute.html
-
-config SSDPD
-       bool "ssdp-responder - SSDP discovery agent"
-       help
-         Simple Service Discovery Protocol daemon (SSDP) for networked Linux
-         devices.  Useful for small and embedded systems that want to announce
-         themselves to systems running Windows.
-         
-         https://github.com/troglobit/ssdp-responder
 
 config UFTPD
        bool "uftpd - TFTP/FTP Daemon That Just Works"
@@ -262,43 +153,6 @@ config LXC
          
 	 https://linuxcontainers.org/
 
-config MG
-       bool "mg - A Micro Emacs clone similar to GNU Emacs"
-       help
-	  Mg is a public domain Micro Emacs derivative.  Created in 1986
-	  based on the original MicroEMACS released by Dave Conroy in
-	  1985 to comp.sources.unix.
-	  
-	  The intention is to be a small, fast, and portable Emacs-like
-	  editor for users who cannot, or do not want to, run the real
-	  Emacs for one reason or another.  Compatibility with GNU Emacs
-	  is key for Mg, separating it from other ErsatzEmacs clones,
-	  because there should never be any reason to learn more than
-	  one Emacs flavor.
-	  
-	  https://github.com/troglobit/mg/
-
-config SOCAT
-       bool "socat - socket cat, a multipurpose relay (netcat++)"
-       help
-         Socat is a command line based utility that establishes two
-	 bidirectional byte streams and transfers data between them.
-	 Because the streams can be constructed from a large set of
-	 different types of data sinks and sources (see address types),
-	 and because lots of address options may be applied to the
-	 streams, socat can be used for many different purposes.
-	 
-	 http://www.dest-unreach.org/socat/
-
-config STRACE
-       bool "strace - Trace system calls and signals in an application"
-       help
-	  Use strace to troubleshoot binaries without having to run them
-	  through a debugger.  strace prints system calls and signals
-	  your application makes.
-	  
-	  http://strace.sourceforge.net       
-
 config SYSKLOGD
        bool "sysklogd - Traditional syslogd with klogd"
        help
@@ -319,16 +173,6 @@ config TETRIS
 	 easter egg ;-)
 	 
 	 https://troglobit.com/tetris.html
-
-config TCPDUMP
-       bool "tcpdump - Monitor network traffic"
-       help
-	 tcpdump is a packet analyzer that runs from the command line.
-	 It allows the user to display TCP/IP and other packets being
-	 transmitted or received over a network to which the system is
-	 attached.
-	 
-	 http://www.tcpdump.org
 
 config WATCHDOGD
        bool "watchdogd - Advanced Watchdog Daemon"
