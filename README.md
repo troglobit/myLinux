@@ -13,9 +13,9 @@
 Introduction
 ------------
 
-myLinux is a small UNIX like OS for embedded systems.  Clean & vanilla,
-with the intent to keep as close to upstream sources as possible.  It
-serves as a testing ground for various embedded networking hardware and
+myLinux is a small UNIX like  OS for embedded systems.  Clean & vanilla,
+with the  intent to keep as  close to upstream sources  as possible.  It
+serves as a testing ground  for various embedded networking hardware and
 open source projects by the main author.
 
 myLinux can be used to test software components in Qemu before deploying
@@ -25,9 +25,9 @@ to an embedded target, or as a reference to other embedded Linux systems.
 Building
 --------
 
-myLinux is based on [Westermo NetBox][], which in turn is based on the
+myLinux is based  on [Westermo NetBox][], which in turn  is based on the
 fine [Buildroot][] project.  Buildroot is almost stand-alone, but need a
-few locally installed tools to bootstrap itself.  For details, see the
+few locally installed  tools to bootstrap itself.  For  details, see the
 [excellent manual](https://buildroot.org/downloads/manual/manual.html).
 
     make espressobin_defconfig
@@ -41,7 +41,7 @@ Online help is available:
 Monitoring with SNMP
 --------------------
 
-myLinux use [mini-snmpd](https://github.com/troglobit/mini-snmpd) as its
+myLinux  use [mini-snmpd](https://troglobit.com/mini-snmpd.html)  as its
 SNMP  agent.  It  is  very  small and  therefore  also  very limited  in
 functionality, but it is enough to monitor myLinux by remote if needed.
 
@@ -87,19 +87,19 @@ When done you should be able to do the following:
 Dropbear SSH
 ------------
 
-The most common embedded SSH daemon in use on embedded Linux systems
-today is [Dropbear](https://matt.ucc.asn.au/dropbear/dropbear.html) by
+The most  common embedded SSH  daemon in  use on embedded  Linux systems
+today  is [Dropbear](https://matt.ucc.asn.au/dropbear/dropbear.html)  by
 the incredibly humble [Matt Johnston](https://matt.ucc.asn.au/).
 
-Dropbear is one of a few services enabled by default in myLinux, it
-allows `root` access, but we recommend disabling this and setting up a
+Dropbear is  one of  a few  services enabled by  default in  myLinux, it
+allows `root` access,  but we recommend disabling this and  setting up a
 regular user account after install.
 
 
 Using Telnet
 ------------
 
-The Busybox `telnetd` is available in myLinux, for security reasons it
+The Busybox `telnetd`  is available in myLinux, for  security reasons it
 is disabled by default, so you have to enable it:
 
     initctl enable telnetd
@@ -117,11 +117,12 @@ using [GitHub](https://github.com/troglobit/myLinux)
 Licensing & References
 ----------------------
 
-With the exceptions listed below, myLinux v2 is distributed under the
+With the  exceptions listed below,  myLinux v2 is distributed  under the
 same terms as [Buildroot][], the [GNU GPL][].  myLinux is only the build
-system, or glue, that ties the various Open Source components together.
-Each project included comes with source code, and sometimes local patch
+system, or glue, that ties  the various Open Source components together.
+Each project included comes with  source code, and sometimes local patch
 files, all with their own license and restrictions.
 
 [GNU GPL]:          COPYING
+[Buildroot]:        https://buildroot.org
 [Westermo NetBox]:  https://github.com/westermo/netbox
