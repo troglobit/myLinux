@@ -60,13 +60,6 @@ config MDNSD
          
          https://github.com/troglobit/mdnsd/
 
-config MINI_SNMPD
-       bool "mini-snmpd - Mini SNMP Daemon"
-       help
-	 Robert Ernst's original mini_snmpd reborn.
-	 
-	 https://troglobit.com/mini-snmpd.html
-
 config MROUTED
        bool "mrouted - The original dynamic multicast routing daemon"
        help
