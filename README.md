@@ -13,10 +13,10 @@
 Introduction
 ------------
 
-myLinux is a small UNIX like  OS for embedded systems.  Clean & vanilla,
-with the  intent to keep as  close to upstream sources  as possible.  It
+myLinux is a small UNIX like  OS for embedded systems based on [Westermo
+NetBox][], which in turn is based on the fine [Buildroot][] project.  It
 serves as a testing ground  for various embedded networking hardware and
-open source projects by the main author.
+open source software projects by the main author.
 
 myLinux can be used to test software components in Qemu before deploying
 to an embedded target, or as a reference to other embedded Linux systems.
@@ -25,10 +25,9 @@ to an embedded target, or as a reference to other embedded Linux systems.
 Building
 --------
 
-myLinux is based  on [Westermo NetBox][], which in turn  is based on the
-fine [Buildroot][] project.  Buildroot is almost stand-alone, but need a
-few locally installed  tools to bootstrap itself.  For  details, see the
-[excellent manual](https://buildroot.org/downloads/manual/manual.html).
+Buildroot is almost stand-alone, but need a few locally installed tools
+to bootstrap itself.  For details, see the [excellent manual][manual].
+Briefly, to build a myLinux image; select the target and then make:
 
     make espressobin_defconfig
     make
@@ -36,6 +35,10 @@ few locally installed  tools to bootstrap itself.  For  details, see the
 Online help is available:
 
     make help
+
+To see available defconfigs for supported targets, use:
+
+    make list-defconfigs
 
 
 Monitoring with SNMP
@@ -83,6 +86,9 @@ When done you should be able to do the following:
 
     SNMPv2-MIB::sysUpTime.0 = Timeticks: (2344) 0:00:23.44
 
+**Note:** Other SNMP agents are also available in Buildroot, but
+  mini-snmpd is pre-selected for myLinux targets.
+
 
 Dropbear SSH
 ------------
@@ -125,4 +131,5 @@ files, all with their own license and restrictions.
 
 [GNU GPL]:          COPYING
 [Buildroot]:        https://buildroot.org
+[manual]:           https://buildroot.org/downloads/manual/manual.html
 [Westermo NetBox]:  https://github.com/westermo/netbox
