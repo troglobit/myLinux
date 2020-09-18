@@ -1,13 +1,5 @@
 menu "Networking packages"
 
-config DROPBEAR
-       bool "dropbear - Dropbear SSH daemon, client and scp"
-       help
-	 Embedded friendly SSH daemon, client, and scp tool.
-	 
-	 https://matt.ucc.asn.au/dropbear/dropbear.html
-       depends on ZLIB
-
 config MERECAT
        bool "merecat - Simple throttling web server"
        help
@@ -29,14 +21,6 @@ config NEMESIS
 	 
 	 https://github.com/troglobit/nemesis/
 
-config NETCALC
-       bool "netcalc - Simple subnet calculator"
-       help
-         netcalc is a slimmed down version of sipcalc using the popular
-	 output format of ipcalc.
-	 
-	 https://github.com/troglobit/netcalc/
-
 config SNTPD
        bool "sntpd - Simple NTP client and server"
        help
@@ -54,23 +38,10 @@ config MCJOIN
 	 
 	 By default group 225.1.2.3 and the UDP port 1234 is used, you
 	 may want to try MCAST_TEST_NET from RFC5771, 233.252.0.0/24, or
-	 the ompoing(8) test group 232.43.211.234 and UDP port 4321.  At
+	 the omping(8) test group 232.43.211.234 and UDP port 4321.  At
 	 the moment max 250 groups can be joined.
 	 
 	 https://github.com/troglobit/mcjoin/
-
-config REDIR
-       bool "redir - A TCP port redirector for UNIX"
-       help
-         Redir listens for TCP connections on a given port, and, when it
-         recieves a connection, then connects to a given destination
-         address:port, and pass data between them. It finds most of its
-         applications in traversing firewalls, but, of course, there are
-         other uses.
-         
-         For a UDP port redirector, see uredir.
-         
-         https://github.com/troglobit/redir/
 
 config UFTPD
        bool "uftpd - TFTP/FTP Daemon That Just Works"
@@ -78,18 +49,6 @@ config UFTPD
 	 Troglobit uftpd, quick TFTP and fuzzy-less FTP daemon.
 	 
 	 https://troglobit.com/uftpd.html
-
-config UREDIR
-       bool "uredir - A UDP port redirector for UNIX"
-       help
-         uredir is a small tool to redirect UDP connections. It can be
-         used to forward connections on select external interfaces to
-         loopback.
-
-         For a TCP port redirector, see redir.
-         
-         https://github.com/troglobit/uredir/
-
 endmenu
 
 menu "System packages"
@@ -152,35 +111,4 @@ config LXC
 	 famous Docker and OpenVZ.
          
 	 https://linuxcontainers.org/
-
-config SYSKLOGD
-       bool "sysklogd - Traditional syslogd with klogd"
-       help
-         This package includes the traditional Berkeley syslog daemon
-         and a small kernel log daemon.  It has built-in log rotation
-         and can both receive from and send to remote syslog servers.
-          
-         https://github.com/troglobit/sysklogd/
-
-config TETRIS
-       bool "tetris - Micro Tetris"
-       help
-         One of the smallest Tetris implementations in the world!
-	 
-	 Utilizing only ANSI escape sequences to draw the board, no external
-	 library dependencies other than a standard C library, like uClibc or
-	 musl libc. Hence, very suitable for embedded devices in need of an
-	 easter egg ;-)
-	 
-	 https://troglobit.com/tetris.html
-
-config WATCHDOGD
-       bool "watchdogd - Advanced Watchdog Daemon"
-       help
-         Extended version of uClinux-dist watchdogd.  Monitors loadavg,
-	 file descriptors and memory leaks, and capable of supervising
-	 your processes main loop using an instrumentation API.
-	 
-	 https://github.com/troglobit/watchdogd
-
 endmenu
