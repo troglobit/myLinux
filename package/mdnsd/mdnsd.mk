@@ -9,7 +9,7 @@ MDNSD_SITE = https://github.com/troglobit/mdnsd/releases/download/v$(MDNSD_VERSI
 MDNSD_LICENSE = BSD-3-Clause
 
 define MDNSD_INSTALL_SAMPLE_CONFIG
-	$(INSTALL) -D -m 0644 $(BR2_EXTERNAL_MYLINUX_PATH)/package/mdmsd/ssh.service \
+	$(INSTALL) -D -m 0644 $(BR2_EXTERNAL_MYLINUX_PATH)/package/mdnsd/ssh.service \
 		$(TARGET_DIR)/etc/mdns.d/
 endef
 
