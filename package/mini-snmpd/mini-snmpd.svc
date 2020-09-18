@@ -1,2 +1,0 @@
-service [2345] /sbin/mini_snmpd -p 16161 -I lo -n -s -- Mini snmpd
-inetd snmp/udp wait [2345] /bin/uredir -i -l debug 127.0.0.1:16161 -- UDP port redirector

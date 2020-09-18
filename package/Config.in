@@ -1,3 +1,2 @@
 source "$BR2_EXTERNAL_MYLINUX_PATH/package/mdnsd/Config.in"
-source "$BR2_EXTERNAL_MYLINUX_PATH/package/mini-snmpd/Config.in"
 source "$BR2_EXTERNAL_MYLINUX_PATH/package/sntpd/Config.in"
