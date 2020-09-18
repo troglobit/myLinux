@@ -1,0 +1,8 @@
+config BR2_PACKAGE_SNTPD
+	bool "sntpd"
+	help
+	  Simple NTP client and server.	 This is an enhanced version
+	  of Larry Doolittle's ntpclient, featuring  both client and
+	  server mode, including syslog and IPv6 support.
+
+	  https://github.com/troglobit/sntpd/
