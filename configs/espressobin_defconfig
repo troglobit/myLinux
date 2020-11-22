@@ -1,55 +1,38 @@
-# Inherited from globalscale_espressobind_defconfig and std netbox_os_*
 BR2_aarch64=y
-BR2_cortex_a53=y
 BR2_ARM_FPU_VFPV4=y
-
 BR2_ENABLE_DEBUG=y
 BR2_GLOBAL_PATCH_DIR="$(BR2_EXTERNAL_NETBOX_PATH)/patches"
 BR2_TOOLCHAIN_EXTERNAL=y
 BR2_TOOLCHAIN_EXTERNAL_GDB_SERVER_COPY=y
-
-# Kernel
+BR2_TARGET_GENERIC_HOSTNAME="anarchy"
+BR2_TARGET_GENERIC_ISSUE="myLinux - Troglobit Software Inc."
+BR2_INIT_NONE=y
+BR2_ROOTFS_OVERLAY="$(BR2_EXTERNAL_NETBOX_PATH)/board/common/os/rootfs $(BR2_EXTERNAL_MYLINUX_PATH)/board/espressobin/rootfs"
+BR2_ROOTFS_POST_IMAGE_SCRIPT="$(TOPDIR)/support/scripts/genimage.sh"
+BR2_ROOTFS_POST_SCRIPT_ARGS="-c $(BR2_EXTERNAL_MYLINUX_PATH)/board/espressobin/genimage.cfg"
 BR2_LINUX_KERNEL=y
 BR2_LINUX_KERNEL_CUSTOM_VERSION=y
 BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE="5.6.11"
 BR2_LINUX_KERNEL_USE_ARCH_DEFAULT_CONFIG=y
 BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="$(BR2_EXTERNAL_MYLINUX_PATH)/board/espressobin/linux-extras.config"
-
-# Device trees for v5 and v7, no ultra or MOCHAbin yet
 BR2_LINUX_KERNEL_DTS_SUPPORT=y
 BR2_LINUX_KERNEL_INTREE_DTS_NAME="marvell/armada-3720-espressobin marvell/armada-3720-espressobin-emmc marvell/armada-3720-espressobin-v7 marvell/armada-3720-espressobin-v7-emmc"
 BR2_LINUX_KERNEL_INSTALL_TARGET=y
-
-# Filesystem
-BR2_TARGET_GENERIC_HOSTNAME="anarchy"
-BR2_TARGET_GENERIC_ISSUE="myLinux v2.0-beta1"
-
+BR2_PACKAGE_BUSYBOX_CONFIG_FRAGMENT_FILES="$(BR2_EXTERNAL_NETBOX_PATH)/board/common/busybox.fragment $(BR2_EXTERNAL_NETBOX_PATH)/board/common/busybox-disable-init.fragment $(BR2_EXTERNAL_NETBOX_PATH)/board/common/busybox-disable-watchdog.fragment $(BR2_EXTERNAL_NETBOX_PATH)/board/common/busybox-ifupdown-background-udhcpc.fragment"
 BR2_TARGET_ROOTFS_EXT2=y
 BR2_TARGET_ROOTFS_EXT2_4=y
 BR2_TARGET_ROOTFS_EXT2_SIZE="120M"
+BR2_TARGET_ROOTFS_SQUASHFS=y
+BR2_TARGET_ROOTFS_SQUASHFS4_LZO=y
 BR2_TARGET_ROOTFS_TAR_GZIP=y
 BR2_PACKAGE_HOST_DTC=y
 BR2_PACKAGE_HOST_GENIMAGE=y
-
-# NetBox specifics
+BR2_PACKAGE_MDNSD=y
+BR2_PACKAGE_SNTPD=y
 NETBOX_TYPE_OS=y
 NETBOX_META_PACKAGE=y
-
-BR2_PACKAGE_BUSYBOX_CONFIG_FRAGMENT_FILES="$(BR2_EXTERNAL_NETBOX_PATH)/board/common/busybox.fragment $(BR2_EXTERNAL_NETBOX_PATH)/board/common/busybox-disable-init.fragment $(BR2_EXTERNAL_NETBOX_PATH)/board/common/busybox-disable-watchdog.fragment $(BR2_EXTERNAL_NETBOX_PATH)/board/common/busybox-ifupdown-background-udhcpc.fragment"
-
-# Overlay common rootfs and EspressoBin specifics
-BR2_ROOTFS_OVERLAY="$(BR2_EXTERNAL_NETBOX_PATH)/board/common/os/rootfs $(BR2_EXTERNAL_MYLINUX_PATH)/board/espressobin/rootfs"
-BR2_ROOTFS_POST_IMAGE_SCRIPT="$(TOPDIR)/support/scripts/genimage.sh"
-BR2_ROOTFS_POST_SCRIPT_ARGS="-c $(BR2_EXTERNAL_MYLINUX_PATH)/board/espressobin/genimage.cfg"
-
-# Use Finit as PID 1 instad of BusyBox init
-BR2_INIT_NONE=y
-BR2_PACKAGE_FINIT=y
-
-# NetBox packages
 BR2_PACKAGE_MG=y
 BR2_PACKAGE_NETCALC=y
 BR2_PACKAGE_SSDP_RESPONDER=y
 BR2_PACKAGE_TETRIS=y
-BR2_PACKAGE_WATCHDOGD=y
 # BR2_PACKAGE_WESTERMO_DTS is not set
