@@ -1,5 +1,5 @@
 export BR2_EXTERNAL := $(CURDIR):$(CURDIR)/netbox
-export PATH         := $(CURDIR)/bin:$(PATH)
+export PATH         := $(CURDIR)/bin:$(CURDIR)/netbox/bin:$(PATH)
 
 $(info $(BR2_EXTERNAL))
 ARCH ?= $(shell uname -m)
