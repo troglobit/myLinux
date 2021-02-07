@@ -1,0 +1,20 @@
+#
+# Disable BusyBox Init and utility programs like; halt, poweroff
+#
+# CONFIG_BOOTCHARTD is not set
+# CONFIG_FEATURE_BOOTCHARTD_BLOATED_HEADER is not set
+# CONFIG_FEATURE_BOOTCHARTD_CONFIG_FILE is not set
+# CONFIG_HALT is not set
+# CONFIG_POWEROFF is not set
+# CONFIG_REBOOT is not set
+# CONFIG_FEATURE_WAIT_FOR_INIT is not set
+# CONFIG_FEATURE_CALL_TELINIT is not set
+# CONFIG_INIT is not set
+# CONFIG_LINUXRC is not set
+# CONFIG_FEATURE_USE_INITTAB is not set
+# CONFIG_FEATURE_KILL_REMOVED is not set
+# CONFIG_FEATURE_INIT_SCTTY is not set
+# CONFIG_FEATURE_INIT_SYSLOG is not set
+# CONFIG_FEATURE_INIT_QUIET is not set
+# CONFIG_FEATURE_INIT_COREDUMPS is not set
+# CONFIG_FEATURE_INIT_MODIFY_CMDLINE is not set

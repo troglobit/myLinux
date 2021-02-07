@@ -1,0 +1,4 @@
+# Add -b to udhcpc options when called from ifupdown
+# this makes it go to background if it fails to get
+# a lease on the first try.  Otherwise it exits.
+CONFIG_IFUPDOWN_UDHCPC_CMD_OPTIONS="-b -R -n -O search"
