@@ -15,7 +15,8 @@ endef
 
 define MDNSD_INSTALL_FINIT_SVC
 	$(INSTALL) -D -m 0644 $(BR2_EXTERNAL_MYLINUX_PATH)/package/mdnsd/mdnsd.svc \
-		$(TARGET_DIR)/etc/finit.d/enabled/mdnsd.conf
+		$(TARGET_DIR)/etc/finit.d/available/mdnsd.conf
+	ln -sf ../available/mdnsd.conf $(FINIT_D)/enabled/mdnsd.conf
 endef
 
 MDNSD_POST_INSTALL_TARGET_HOOKS += MDNSD_INSTALL_SAMPLE_CONFIG
