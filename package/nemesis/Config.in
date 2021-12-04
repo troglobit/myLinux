@@ -1,0 +1,14 @@
+config BR2_PACKAGE_NEMESIS
+	bool "nemesis"
+        depends on BR2_USE_MMU # fork()
+	select BR2_PACKAGE_LIBNET
+	help
+	  A command-line network packet crafting and injection utility.
+	  Key features:
+	    - ARP/RARP, DNS, ETHERNET, ICMP, IGMP, IP, OSPF, RIP, TCP and UDP
+	    - Layer 2 or Layer 3 injection on UNIX-like systems
+	    - Layer 2 injection (only) on Windows systems
+	    - Packet payload from file
+	    - IP and TCP options from file
+
+	  https://github.com/libnet/nemesis
