@@ -1,0 +1,24 @@
+From 046ecfa3293bd4af67a90520e83e52a0a00cc68a Mon Sep 17 00:00:00 2001
+From: Joachim Wiberg <troglobit@gmail.com>
+Date: Mon, 14 Jun 2021 13:16:14 +0200
+Subject: [PATCH] Fix #180: user managed services started by initctl reload
+
+Signed-off-by: Joachim Wiberg <troglobit@gmail.com>
+---
+ src/service.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/service.c b/src/service.c
+index 8e94ce5..90c3be9 100644
+--- a/src/service.c
++++ b/src/service.c
+@@ -1282,7 +1282,8 @@ int service_register(int type, char *cfg, struct rlimit rlimit[], char *file)
+ 		svc->type = type;
+ 
+ 		/* e.g., if missing cmd or env before */
+-		svc_unblock(svc);
++		if (!manual)
++			svc_unblock(svc);
+ 	}
+ 
+ 	/* Always clear svc PID file, for now.  See TODO */

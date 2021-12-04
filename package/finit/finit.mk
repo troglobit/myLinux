@@ -1,0 +1,89 @@
+################################################################################
+#
+# finit
+#
+################################################################################
+
+FINIT_VERSION = 4.1
+FINIT_SOURCE = finit-$(FINIT_VERSION).tar.gz
+FINIT_SITE = https://github.com/troglobit/finit/releases/download/$(FINIT_VERSION)
+FINIT_LICENSE = MIT
+FINIT_LICENSE_FILES = LICENSE
+FINIT_INSTALL_STAGING = YES
+FINIT_DEPENDENCIES = host-pkgconf libite libuev
+FINIT_D = $(TARGET_DIR)/etc/finit.d
+
+# Create configure script using autoreconf when building from git
+#FINIT_VERSION = 099672f
+#FINIT_SITE = git://github.com/troglobit/finit.git
+#FINIT_AUTORECONF = YES
+#FINIT_DEPENDENCIES += host-automake host-autoconf host-libtool
+
+# Buildroot defaults to /usr for both prefix and exec-prefix, this we
+# must override because we want to install into /sbin and /bin for the
+# finit and initctl programs, respectively.  The expected plugin path is
+# /lib/finit/ and scripts in /libexec, both are set by --exec-prefix.
+# The localstatedir is set to the correct system path by Buildroot, so
+# no override necessary there.
+FINIT_CONF_OPTS =					\
+	--prefix=/usr					\
+	--exec-prefix=					\
+	--disable-doc					\
+	--disable-contrib				\
+	--with-group=$(BR2_PACKAGE_FINIT_INITCTL_GROUP)
+
+# Disable/Enable features
+ifeq ($(BR2_PACKAGE_FINIT_KEVENTD),y)
+FINIT_CONF_OPTS += --with-keventd
+else
+FINIT_CONF_OPTS += --without-keventd
+endif
+
+ifeq ($(BR2_PACKAGE_FINIT_WATCHDOG),y)
+FINIT_CONF_OPTS += --with-watchdog=$(BR2_PACKAGE_FINIT_WATCHDOG_DEV)
+else
+FINIT_CONF_OPTS += --without-watchdog
+endif
+
+ifeq ($(BR2_PACKAGE_FINIT_PLUGIN_HOTPLUG),y)
+FINIT_CONF_OPTS += --enable-hotplug-plugin
+else
+FINIT_CONF_OPTS += --disable-hotplug-plugin
+endif
+
+ifeq ($(BR2_PACKAGE_FINIT_PLUGIN_RTC),y)
+FINIT_CONF_OPTS += --enable-rtc-plugin
+else
+FINIT_CONF_OPTS += --disable-rtc-plugin
+endif
+
+ifeq ($(BR2_PACKAGE_FINIT_PLUGIN_URANDOM),y)
+FINIT_CONF_OPTS += --enable-urandom-plugin
+else
+FINIT_CONF_OPTS += --disable-urandom-plugin
+endif
+
+ifneq ($(SKELETON_INIT_COMMON_HOSTNAME),)
+FINIT_CONF_OPTS += --with-hostname="$(SKELETON_INIT_COMMON_HOSTNAME)"
+endif
+
+# Disable/Enable features depending on other packages
+ifeq ($(BR2_PACKAGE_ALSA_UTILS),y)
+FINIT_CONF_OPTS += --enable-alsa-utils-plugin
+else
+FINIT_CONF_OPTS += --disable-alsa-utils-plugin
+endif
+
+ifeq ($(BR2_PACKAGE_DBUS),y)
+FINIT_CONF_OPTS += --enable-dbus-plugin
+else
+FINIT_CONF_OPTS += --disable-dbus-plugin
+endif
+
+ifeq ($(BR2_PACKAGE_XORG7),y)
+FINIT_CONF_OPTS += --enable-x11-common-plugin
+else
+FINIT_CONF_OPTS += --disable-x11-common-plugin
+endif
+
+$(eval $(autotools-package))
