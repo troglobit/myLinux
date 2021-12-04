@@ -1,5 +1,5 @@
-export BR2_EXTERNAL := $(CURDIR):$(CURDIR)/netbox
-export PATH         := $(CURDIR)/bin:$(CURDIR)/netbox/bin:$(PATH)
+export BR2_EXTERNAL := $(CURDIR)
+export PATH         := $(CURDIR)/utils:$(PATH)
 export BOARD         = `cat output/.config | grep BR2_DEFCONFIG | sed 's/.*\/\(.*\)_defconfig"/\1/'`
 
 $(info $(BR2_EXTERNAL))
@@ -7,10 +7,10 @@ ARCH ?= $(shell uname -m)
 O    ?= $(CURDIR)/output
 
 config := $(O)/.config
-bmake   = $(MAKE) -C netbox/buildroot O=$(O) $1
+bmake   = $(MAKE) -C buildroot O=$(O) $1
 
 
-all: $(config) netbox/buildroot/Makefile
+all: $(config) buildroot/Makefile
 	@+$(call bmake,$@)
 
 $(config):
@@ -20,10 +20,10 @@ $(config):
 	@echo "'make <board>_defconfig' before building an image."
 	@exit 1
 
-%: netbox/buildroot/Makefile
+%: buildroot/Makefile
 	@+$(call bmake,$@)
 
-netbox/buildroot/Makefile:
+buildroot/Makefile:
 	@git submodule update --init --recursive
 
 $(O)/images/qemu.cfg: $(config)

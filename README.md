@@ -13,10 +13,9 @@
 Introduction
 ------------
 
-myLinux is a small UNIX like  OS for embedded systems based on [Westermo
-NetBox][], which in turn is based on the fine [Buildroot][] project.  It
-serves as a testing ground  for various embedded networking hardware and
-open source software projects by the main author.
+myLinux is a UNIX like OS for embedded systems based on [Buildroot][].
+It serves as a testing ground for various embedded networking hardware
+and open source software projects by the main author.
 
 myLinux can be used to test software components in Qemu before deploying
 to an embedded target, or as a reference to other embedded Linux systems.
@@ -129,7 +128,6 @@ system, or glue, that ties  the various Open Source components together.
 Each project included comes with  source code, and sometimes local patch
 files, all with their own license and restrictions.
 
-[GNU GPL]:          COPYING
-[Buildroot]:        https://buildroot.org
-[manual]:           https://buildroot.org/downloads/manual/manual.html
-[Westermo NetBox]:  https://github.com/westermo/netbox
+[GNU GPL]:   COPYING
+[Buildroot]: https://buildroot.org
+[manual]:    https://buildroot.org/downloads/manual/manual.html
