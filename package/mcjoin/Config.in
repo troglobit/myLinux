@@ -1,0 +1,11 @@
+config BR2_PACKAGE_MCJOIN
+	bool "mcjoin"
+	help
+	  Simple and easy-to-use tool for testing multicast:
+	    - a multicast generator (server)
+	    - a multicast data sink (client)
+	    - support for join/send to one or more groups
+	    - support for both ASM (*,G) and SSM (S,G)
+ 	    - support for both IPv4 & IPv6
+
+	  https://github.com/troglobit/mcjoin

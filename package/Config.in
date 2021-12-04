@@ -1,4 +1,5 @@
 source "$BR2_EXTERNAL_MYLINUX_PATH/package/finit/Config.in"
+source "$BR2_EXTERNAL_MYLINUX_PATH/package/mcjoin/Config.in"
 source "$BR2_EXTERNAL_MYLINUX_PATH/package/mdnsd/Config.in"
 source "$BR2_EXTERNAL_MYLINUX_PATH/package/nemesis/Config.in"
 source "$BR2_EXTERNAL_MYLINUX_PATH/package/sntpd/Config.in"
