@@ -1,0 +1,255 @@
+#!/bin/sh
+# This script reads env variables (see below) and the current .config to
+# generate an executable output/images/qemu.sh start script.
+#
+# shellcheck disable=SC2039 disable=SC1090
+
+usage()
+{
+	cat <<EOF
+Usage:
+    genqemush output/.config output/images/
+
+Variables in .config that impact geqemush:
+
+    QEMU_ARCH - QEMU arch
+	     *: Launch QEMU as qemu-system-\${QEMU_ARCH}
+       default: None, mandatory
+
+    QEMU_MACH - QEMU machine, with optional machine extras
+	     *: Argument to QEMU -M \${QEMU_MACH}
+       default: None, mandatory
+
+    V - Show kernel boot messages
+	   "1": Show boot messages
+	     *: Silent kernel boot
+
+    QEMU_APPEND - Commandline options to pass to the kernel
+       default: None
+
+    QEMU_DTB - Path to device tree to use
+       default: No device tree
+
+    QEMU_EXTRA - Commandline options to pass to QEMU
+       default: None
+
+    QEMU_GDB - Enable kernel & user GDB connections to target
+       default: Disabled
+
+    QEMU_GDB_KPORT - TCP port to listen for GDB connections to kernel
+       default: 4711
+
+    QEMU_GDB_KWAIT - Wait for user to attach to kernel before booting
+       default: Don't wait
+
+    QEMU_GDB_UPORT - TCP port to listen for GDB connections to userspace
+       default: 4712
+
+    QEMU_MNT - JFFS2 image to mount as /mnt
+       default: None
+
+    QEMU_HOST - Directory to passthrough-mount (9p) as /host
+       default: None
+
+    QEMU_N_NICS - Number of Network adapters
+       default: 1
+
+    QEMU_NIC - Network adapter model
+       default: virtio-net
+
+    QEMU_NET - Network mode
+      "bridge": Bridge the quests interface to the host's QEMU_BRIDGE
+	 "tap": Guest interface is exported as exported to host as qtap
+        "user": User (NAT) networking, no root or capabilities required,
+                note, only a single interface is created
+       default: "bridge"
+
+    QEMU_BRIDGE - Host-side bridge to attach interfaces to
+       default: "virbr0"
+
+EOF
+}
+
+# Return ${2} if set, else ${1}
+default()
+{
+	[ -z ${2} ] && echo ${1} || echo ${2}
+}
+
+# debug        :: enable Finit debug mode, used to be --debug
+# quiet        :: no kernel logs, except for warnings + errors
+# rescue       :: enter rescue mode, bypasses all .conf files
+# splash       :: display splash screen and progress bar
+# single, or S :: enter single user mode, runlevel 1 or
+append_args()
+{
+	if [ "${V}" != "1" ]; then
+		echo -n "quiet "
+	else
+		echo -n "debug finit.debug=1 finit.show_status=0 "
+	fi
+
+	echo -n "${QEMU_APPEND} "
+	echo -n "console=hvc0 "
+
+	if [ "${1}" = "-r" ]; then
+		# Size of initrd, rounded up to nearest kb
+		size=$((($(find "${2}" -printf %s)+1023) >> 10))
+		echo -n "root=/dev/ram ramdisk_size=${size} "
+		echo -n "block2mtd.block2mtd=/dev/sda,,Config "
+	else
+		echo -n "root=/dev/vda "
+	fi
+}
+
+dtb_args()
+{
+	if [ -z "${QEMU_DTB}" ]; then
+		return
+	fi
+
+	echo -n "-dtb ${IMAGEDIR}/${QEMU_DTB}"
+}
+
+host_args()
+{
+	[ -z "${QEMU_HOST}" ] && return
+
+	echo "-virtfs local,path=${QEMU_HOST},security_model=none,writeout=immediate,mount_tag=hostfs"
+}
+
+net_args()
+{
+	brname=${QEMU_BRIDGE:-virbr0}
+	model=${QEMU_NIC}
+	mode=${QEMU_NET:-bridge}
+
+	if [ "${mode}" = "user" ]; then
+		/bin/echo -n "-net nic,model=virtio -net user "
+		return
+	fi
+
+	for n in $(seq 0 $((${QEMU_N_NICS:-1} - 1)) ); do
+		if [ "${mode}" = "bridge" ] && [ "${n}" -eq 0 ]; then
+			# new style -nic config allows no ifname in bridged mode
+			echo -n "-nic bridge,br=${brname}"
+		else
+			# ignore any enslave script for unbridged ports
+			echo -n "-nic tap,ifname=qtap${n},script=no"
+		fi
+
+		# Use qemu-system default if no model is given
+		if [ -n "${model}" ]; then
+			echo -n ",model=${model} "
+		else
+			echo -n " "
+		fi
+	done
+}
+
+console_args()
+{
+	echo -n "-device virtio-serial "
+
+	echo -n "-chardev stdio,mux=on,id=hvc0 "
+	echo -n "-device virtconsole,chardev=hvc0 "
+
+	echo -n "-mon chardev=hvc0 "
+}
+
+gdb_args()
+{
+	if [ -z "$QEMU_GDB" ]; then
+		return
+	fi
+
+	echo -n "-gdb tcp::${QEMU_GDB_KPORT:-4711} "
+	if [ -n "${QEMU_GDB_KWAIT}" ]; then
+		echo -n "-S "
+	fi
+
+	addr="port=${QEMU_GDB_UPORT:-4712},host=localhost"
+	echo -n "-chardev socket,id=hvc1,${addr},server=on,wait=off "
+	echo -n "-device virtconsole,name=gdb,chardev=hvc1"
+}
+
+# Assume available from current directory
+cfg=output/.config
+dir=output/images
+[ -n "$1" ] && cfg=$1
+[ -n "$2" ] && dir=$2
+
+if [ ! -f "$cfg" ] || [ ! -d "$dir" ]; then
+	echo "genqemush: missing .config or output directory."
+	exit 1
+fi
+
+# Ignore sourcing errors, we just want the QEMU_ variables
+. "$cfg" 2>/dev/null
+
+if [ -z "${QEMU_ARCH}" ] || [ -z "${QEMU_MACH}" ] || [ -z "${QEMU_KERNEL}" ]; then
+	echo "genqemush: One or more of the following settings are missing:"
+	echo "QEMU_ARCH   : $QEMU_ARCH"
+	echo "QEMU_MACH   : $QEMU_MACH"
+	echo "QEMU_KERNEL : $QEMU_KERNEL"
+	exit 1;
+fi
+
+cat <<-EOF > "$dir/qemu.sh"
+	#!/bin/sh
+
+	MY_CPU="${QEMU_MACH}"
+	MY_SMP="${QEMU_SMP}"
+	MY_MEM="${QEMU_MEM}"
+	MY_ARG="${QEMU_EXTRA}"
+	# Kernel and kernel cmdline
+	MY_KRN=$dir/${QEMU_KERNEL}
+	MY_CMD="$(append_args -d)"
+	# Disk images to use as / and /mnt
+	MY_DRV=$dir/${QEMU_DISK}
+	MY_MNT=~/.cache/mylinux-config-${QEMU_ARCH}.img
+
+	cpu_args()
+	{
+	    if [ -n "\$MY_SMP" ]; then
+	        MY_CPU="\$MY_CPU -smp \$MY_SMP"
+	    fi
+	    echo -n "-m \$MY_MEM -M \${MY_CPU} \${MY_ARG} "
+	}
+
+	drv_args()
+	{
+	    echo -n "-drive file=\$MY_DRV,if=virtio,format=raw"
+	}
+
+	mnt_args()
+	{
+	    [ -z "\$MY_MNT" ] && return
+	    if [ ! -e "\$MY_MNT" ] && [ -d \$(dirname "\$MY_MNT") ]; then
+	        dd if=/dev/zero bs=16384 count=960 2>/dev/null | tr '\000' '\377' > "\$MY_MNT"
+	    fi
+	    echo -n "-device ${QEMU_SCSI},id=scsi0 -device scsi-hd,bus=scsi0.0,drive=drive0 "
+	    echo -n "-drive file=\$MY_MNT,if=none,format=raw,discard=unmap,id=drive0"
+	}
+
+	# Disable pulseaudio warning
+	export QEMU_AUDIO_DRV=none
+
+	# Save current line settings, then disable all of them so that
+	# everything is passed through to the guest (C-c, C-z etc.).
+	line=\$(stty -g)
+	stty raw
+
+	qemu-system-${QEMU_ARCH} -display none \$(cpu_args)    \\
+	    -kernel "\$MY_KRN" -append "\$MY_CMD" $(dtb_args)  \\
+	    \$(drv_args) \$(mnt_args) $(host_args) $(net_args) \\
+	    $(console_args) $(gdb_args)
+	rc=\$?
+
+	# Restore TTY from Qemu target
+	stty "\$line"
+
+	exit \$rc
+EOF
+
+chmod 0755 "$dir/qemu.sh"

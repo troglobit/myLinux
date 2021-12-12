@@ -1,1 +1,67 @@
+menu "Emulator options"
+
+config QEMU_ARCH
+	string
+	default "arm"     if BR2_arm926t
+	default "aarch64" if BR2_aarch64
+	default "x86_64"  if BR2_x86_64
+	default BR2_ARCH
+
+config QEMU_MACH
+	string "Machine"
+	default "q35,accel=kvm -cpu host -enable-kvm" if BR2_x86_64
+	default "virt -cpu cortex-a53"                if BR2_x86_64
+	default ""
+	help
+	 The arch specific machine (CPU board) to emulate and any specific args.
+
+config QEMU_SMP
+	string "SMP number of cores"
+	help
+	 Number of CPU cores for SMP operation.
+
+config QEMU_MEM
+	string "RAM size"
+	default "256M"
+	help
+	 Amount of RAM for board.
+
+config QEMU_EXTRA
+	string "Extra args"
+	default " -watchdog i6300esb -rtc clock=host"
+
+config QEMU_NIC
+	string "Ethernet NIC"
+	default "virtio-net-pci"
+	help
+	 Ethernet NIC to emulate.
+
+config QEMU_SCSI
+	string "Disk controller"
+	default "virtio-scsi-pci"
+	help
+	 SCSI disk interface to emulate.
+
+config QEMU_KERNEL
+	string
+	default "bzImage" if BR2_LINUX_KERNEL_BZIMAGE
+	default "zImage"  if BR2_LINUX_KERNEL_ZIMAGE
+	default "Image"   if BR2_LINUX_KERNEL_IMAGE
+
+config QEMU_DISK
+	string
+	default "rootfs.ext2" if BR2_TARGET_ROOTFS_EXT2
+	default ""
+
+config QEMU_INITRD
+	string
+	default "rootfs.squashfs" if BR2_TARGET_ROOTFS_SQUASHFS
+	default ""
+
+endmenu
+
+menu Packages
+
 source "$BR2_EXTERNAL_MYLINUX_PATH/package/Config.in"
+
+endmenu
