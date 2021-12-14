@@ -1,1 +1,1 @@
-service [2345] /usr/sbin/sntpd -sn -- Simple NTP daemon
+service [2345] <net/route/default> /usr/sbin/sntpd -sn -- Simple NTP daemon
