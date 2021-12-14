@@ -1,7 +1,6 @@
 #!/bin/sh
 
 # alt: sun12x22 -d
-setfont cybercafe -d
-
-loadkeys sv-latin1
+#setfont cybercafe -d
+#loadkeys sv-latin1
 
