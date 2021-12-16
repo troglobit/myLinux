@@ -8,7 +8,7 @@ MY_VERSION=$(git describe --always --dirty --tags)
 # original Buildroot information.
 rm $TARGET_DIR/etc/os-release
 
-echo "NAME=myLinux"                           > "$TARGET_DIR/etc/os-release"
+echo "NAME=\"myLinux\""                       > "$TARGET_DIR/etc/os-release"
 echo "VERSION=${MY_VERSION}"                 >> "$TARGET_DIR/etc/os-release"
 echo "ID=mylinux"                            >> "$TARGET_DIR/etc/os-release"
 echo "VERSION_ID=${MY_VERSION}"              >> "$TARGET_DIR/etc/os-release"
