@@ -33,7 +33,7 @@ config BR2_PACKAGE_FINIT_KEVENTD
 
 config BR2_PACKAGE_FINIT_WATCHDOG
 	bool "finit-watchdogd"
-	default y
+	default n
 	help
 	  Build bundled finit-watchdogd, which provides a simplistic
 	  watchdog daemon that runs in the background, kicking the
