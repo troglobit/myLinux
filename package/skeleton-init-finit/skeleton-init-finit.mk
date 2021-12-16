@@ -56,12 +56,12 @@ endif
 ifeq ($(BR2_PACKAGE_SYSKLOGD),y)
 define SKELETON_INIT_FINIT_SET_SYSLOGD
 	ln -sf ../available/sysklogd.conf $(FINIT_D)/enabled/sysklogd.conf
-	rm $(FINIT_D)/enabled/syslogd.conf
+	rm -f $(FINIT_D)/enabled/syslogd.conf
 endef
 else
 define SKELETON_INIT_FINIT_SET_SYSLOGD
 	ln -sf ../available/syslogd.conf $(FINIT_D)/enabled/syslogd.conf
-	rm $(FINIT_D)/enabled/sysklogd.conf
+	rm -f $(FINIT_D)/enabled/sysklogd.conf
 endef
 endif
 SKELETON_INIT_FINIT_TARGET_FINALIZE_HOOKS += SKELETON_INIT_FINIT_SET_SYSLOGD
