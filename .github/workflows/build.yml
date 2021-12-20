@@ -1,0 +1,30 @@
+name: Bob the Builder
+
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        config: [ x86_64_defconfig ]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: buildroot-external-st
+      - uses: actions/checkout@v2
+      - name: Configure myLinux
+        run: make ${{ matrix.config }}
+      - name: Build myLinux
+        run: make
+      - name: Run legal-info
+        run: make legal-info
+      - name: Compress images
+        run: |
+	  cd output/
+	  tar cfJ images.tar.xz iamges
+      - name: Store images
+        uses: actions/upload-artifact@v2
+        with:
+          name: image-${{ matrix.config }}
+          path: output/images.tar.xz
