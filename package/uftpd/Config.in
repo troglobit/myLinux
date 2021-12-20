@@ -1,0 +1,15 @@
+config BR2_PACKAGE_UFTPD
+	bool "uftpd"
+	help
+	  uftpd is a UNIX daemon with sane built-in defaults.  It just works.
+
+	    - FTP and/or TFTP
+	    - No complex configuration file
+	    - Runs from standard UNIX inetd, or standalone
+	    - Uses $HOME from ftp user in /etc/passwd, or custom path
+	    - Uses ftp/tcp and tftp/udp from /etc/services, or custom ports
+	    - Privilege separation, drops root privileges having bound to ports
+	    - Possible to use symlinks outside of the FTP home directory
+	    - Possible to have group writable FTP home directory
+
+	  https://github.com/troglobit/mcjoin

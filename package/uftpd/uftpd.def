@@ -1,0 +1,8 @@
+# uftpd [-l LEVEL] [-o OPTS] [PATH]
+#  -l LEVEL   Set log level: none, err, notice (default), info, debug
+#  -o OPT     Options:
+#                      ftp=PORT
+#                      tftp=PORT
+#                      pasv_addr=ADDR
+#                      writable
+UFTPD_ARGS="-o writable /srv/ftp"
