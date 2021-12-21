@@ -4,7 +4,7 @@
 header "Status" "Wireless" "@TR<<Wireless Status>>"
 ?>
 
-<pre><? iwconfig 2>&1 | grep -v 'no wireless' | grep '\w' ?></pre>
+<pre><? which iwconfig && iwconfig 2>&1 | grep -v 'no wireless' | grep '\w' ?></pre>
 
 <? footer ?>
 <!--
