@@ -1,0 +1,30 @@
+#!/bin/sh
+#
+# S50webif
+# 
+
+case "$1" in
+    start)
+        echo $"Starting the webif service"
+        
+        # run the busybox httpd
+        /bin/httpd -p 8080 -h /var/webif -r MyBook &
+        ;;
+    stop)
+        echo $"Stopping the webif service"
+        # run the keyring
+        killall -q httpd
+        
+        # create the fifo
+        ;;
+    restart)
+        $0 stop
+        $0 start
+        ;;
+    *)
+        echo $"Usage:" $0 $"(start|stop|restart)"
+        exit 1
+esac
+
+# leave happy
+exit 0
