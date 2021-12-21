@@ -1,19 +1,18 @@
 #!/usr/bin/webif-page
-<? 
+<?
+. /etc/os-release
 . /usr/lib/webif/webif.sh
 header "Info" "Router Info" "@TR<<Router Info>>"
 
 ?>
 <pre><?
-_version=$( grep "(" /etc/banner )
-_version="${_version%% ---*}"
-_kversion="$( cat /proc/version )"
+_version="${VERSION}"
+_kversion="$(uname -a)"
 _date="$(date)"
 _mac="$(/sbin/ifconfig eth0 | grep HWaddr | cut -b39-)"
-sed -e 's/&/&amp;/g' < /etc/banner
+sed -e 's/&/&amp;/g' < /etc/motd
 cat <<EOF
 </pre>
-<br />
 <br />
 <table style="width: 90%; text-align: left;" border="0" cellpadding="2" cellspacing="2" align="center">
 <tbody>
