@@ -1,6 +1,6 @@
 libdir=/usr/lib/webif
-wwwdir=/www
-cgidir=/www/cgi-bin/webif
+wwwdir=/var/www
+cgidir=/var/www/cgi-bin/webif
 rootdir=/cgi-bin/webif
 indexpage=index.sh
 
