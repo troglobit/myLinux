@@ -1,6 +1,5 @@
 #!/usr/bin/webif-page
 <?
-. /etc/os-release
 . /usr/lib/webif/webif.sh
 header "Info" "Router Info" "@TR<<Router Info>>"
 

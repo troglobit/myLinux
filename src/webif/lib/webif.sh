@@ -1,3 +1,5 @@
+. /etc/os-release
+
 libdir=/usr/lib/webif
 wwwdir=/var/www
 cgidir=/var/www/cgi-bin/webif
@@ -64,7 +66,7 @@ header() {
 	_uptime="${_uptime#*up }"
 	_uptime="${_uptime%%,*}"
 	_hostname=$(cat /proc/sys/kernel/hostname)
-	_version=$( grep "(" /etc/banner )
+	_version="${VERSION}"
 	_version="${_version%% ---*}"
 	_head="${3:+<div class=\"settings-block-title\"><h2>$3$_saved_title</h2></div>}"
 	_form="${5:+<form enctype=\"multipart/form-data\" action=\"$5\" method=\"post\"><input type=\"hidden\" name=\"submit\" value=\"1\" />}"
