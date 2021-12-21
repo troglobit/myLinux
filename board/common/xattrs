@@ -1,1 +1,3 @@
-/var/www r 750 www-data www-data - - - - -
+# httpd runs as www-data user, needs to verify webif login
+/etc/shadow f 640 root     www-data  - - - - -
+/var/www    r 755 www-data www-data  - - - - -
