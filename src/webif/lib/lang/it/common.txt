@@ -16,7 +16,7 @@ more... => altro...
 Add => Aggiungi
 Remove => Elimina
 Warning => Attenzione
-Password_warning => non e' stata ancora impostata una password di protezione per il router (accesso web o ssh). Per favore, inseriscine una ora (il nome utente sara': 'root')
+Password_warning => non e' stata ancora impostata una password di protezione per il router (accesso web o ssh). Per favore, inseriscine una ora (il nome utente sara': 'admin')
 
 # Categories
 Info => Info

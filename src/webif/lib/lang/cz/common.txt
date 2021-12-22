@@ -16,7 +16,7 @@ more... => v&#237;ce...
 Add => P&#345;idat
 Remove => Odebrat
 Warning => Varov&#225;n&#237;
-Password_warning => nen&#237; nastaveno &#382;&#225;dn&#233; heslo pro p&#345;&#237;stup do webov&#233; administrace a p&#345;es SSH.<br />Nastavte jej pros&#237;m nyn&#237; (Login ve webu pou&#382;&#237;vejte: 'root').
+Password_warning => nen&#237; nastaveno &#382;&#225;dn&#233; heslo pro p&#345;&#237;stup do webov&#233; administrace a p&#345;es SSH.<br />Nastavte jej pros&#237;m nyn&#237; (Login ve webu pou&#382;&#237;vejte: 'admin').
 
 # Categories
 Info => Info

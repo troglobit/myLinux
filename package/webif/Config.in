@@ -7,8 +7,8 @@ config BR2_PACKAGE_WEBIF
 	  requires awk support on the system, either the one provided by
 	  Busybox or gawk.
 
-	  The default login on the status web pages are root/root and
-	  admin/admin. This can be changed in the etc/httpd.conf file.
+	  The default login (user/pass) on the status web pages are admin/admin.
+	  This can be changed in the httpd.conf file, or using 'passwd'.
 
 config BR2_PACKAGE_WEBIF_INSTALL_INDEX_HTML
 	bool "instal index.html in /www which redirects to webif"

@@ -16,7 +16,7 @@ more... => Wi&#281;cej Informacji...
 Add => Dodaj
 Remove => Usu&#324;
 Warning => Uwaga
-Password_warning => Niemasz ustawionego has&#322;a dost&#281;pu do WWW oraz SSH<br />Prosze wpisz je teraz(nazwa u&#380;ytkownika to 'root')
+Password_warning => Niemasz ustawionego has&#322;a dost&#281;pu do WWW oraz SSH<br />Prosze wpisz je teraz(nazwa u&#380;ytkownika to 'admin')
 
 # Categories
 Info => Info

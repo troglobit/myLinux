@@ -7,6 +7,7 @@ BR2_TARGET_GENERIC_HOSTNAME="anarchy"
 BR2_TARGET_GENERIC_ISSUE="myLinux - Troglobit Software Inc."
 BR2_INIT_NONE=y
 BR2_ROOTFS_DEVICE_TABLE="system/device_table.txt $(BR2_EXTERNAL_MYLINUX_PATH)/board/common/xattrs"
+BR2_ROOTFS_USERS_TABLES="$(BR2_EXTERNAL_MYLINUX_PATH)/board/common/users_table.txt"
 BR2_ROOTFS_OVERLAY="$(BR2_EXTERNAL_MYLINUX_PATH)/board/common/rootfs $(BR2_EXTERNAL_MYLINUX_PATH)/board/x86_64/rootfs"
 BR2_ROOTFS_POST_BUILD_SCRIPT="$(BR2_EXTERNAL_MYLINUX_PATH)/board/common/post-build.sh"
 BR2_ROOTFS_POST_IMAGE_SCRIPT="$(BR2_EXTERNAL_MYLINUX_PATH)/board/common/post-image.sh"

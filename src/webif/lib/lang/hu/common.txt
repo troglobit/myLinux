@@ -16,7 +16,7 @@ more... => Tov&aacute;bbi inform&aacute;ci&oacute;k...
 Add => Hozz&aacute;ad
 Remove => Elt&aacute;vol&iacute;t
 Warning => Vigy&aacute;zat
-Password_warning => A Web-Adminisztr&aacute;toenak &eacute;s az SSH hozz&aacute;f&eacute;r&eacute;shez m&eacute;g nincs jelsz&oacute; be&aacute;ll&iacute;tva.<br />Adjon meg most egy &uacute;j jelsz&oacute;t (felhaszn&aacute;l&oacute;n&eacute;v a b&ouml;ng&eacute;sz&#337;ben: 'root').
+Password_warning => A Web-Adminisztr&aacute;toenak &eacute;s az SSH hozz&aacute;f&eacute;r&eacute;shez m&eacute;g nincs jelsz&oacute; be&aacute;ll&iacute;tva.<br />Adjon meg most egy &uacute;j jelsz&oacute;t (felhaszn&aacute;l&oacute;n&eacute;v a b&ouml;ng&eacute;sz&#337;ben: 'admin').
 
 # Categories
 Info => Inform&aacute;ci&oacute;

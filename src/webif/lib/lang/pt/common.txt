@@ -34,7 +34,7 @@ Remove => Eliminar
 
 Warning => Atenção
 
-Password_warning => Não foi estabelecida uma palavra-chave para o acesso ao router (acesso web e ssh). Por favor, estabeleça uma palavra-chave agora (o nome de utilizador será ‘root’)
+Password_warning => Não foi estabelecida uma palavra-chave para o acesso ao router (acesso web e ssh). Por favor, estabeleça uma palavra-chave agora (o nome de utilizador será ‘admin’)
 
  
 

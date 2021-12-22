@@ -16,7 +16,7 @@ more... => Weitere Informationen...
 Add => Hinzuf&uuml;gen
 Remove => Entfernen
 Warning => Warnung
-Password_warning => es wurde noch kein Passwort f&uuml;r Web-Administration und SSH gesetzt.<br />Bitte geben Sie jetzt ein neues Passwort ein (Benutzername im Browser: 'root').
+Password_warning => es wurde noch kein Passwort f&uuml;r Web-Administration und SSH gesetzt.<br />Bitte geben Sie jetzt ein neues Passwort ein (Benutzername im Browser: 'admin').
 
 # Categories
 Info => Info

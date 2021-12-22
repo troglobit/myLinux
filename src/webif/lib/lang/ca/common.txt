@@ -16,7 +16,7 @@ more... => més...
 Add => Afegir
 Remove => Eliminar
 Warning => Atenció
-Password_warning => No heu establert una clau d'accés pel router (accés web i ssh). Per favor, elegiu-ne una ara (el nom d'usuari serà 'root')
+Password_warning => No heu establert una clau d'accés pel router (accés web i ssh). Per favor, elegiu-ne una ara (el nom d'usuari serà 'admin')
 
 # Categories
 Info => Info

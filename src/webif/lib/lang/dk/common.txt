@@ -16,7 +16,7 @@ more... => mere...
 Add => Tilf&oslash;je
 Remove => Fjern
 Warning => Advarsel
-Password_warning => Der er ikke sat noget kodeord eller l&oslash;sen p&aring; hverken Webadministration eller SSH.<br />V&aelig;r venlig at v&aelig;lge og/eller indtaste dit kodeord (Brugernavn er 'root' med sm&aring; bogstaver).
+Password_warning => Der er ikke sat noget kodeord eller l&oslash;sen p&aring; hverken Webadministration eller SSH.<br />V&aelig;r venlig at v&aelig;lge og/eller indtaste dit kodeord (Brugernavn er 'admin' med sm&aring; bogstaver).
 
 # Categories
 Info => Info

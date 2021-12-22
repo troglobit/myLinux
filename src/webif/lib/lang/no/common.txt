@@ -16,7 +16,7 @@ more... => mer...
 Add => Legg til
 Remove => Fjern
 Warning => Advarsel
-Password_warning => Det er ikke satt et passord p&aring; hverken Webadministrasjon eller SSH.<br />Vennligst velg eller tast inn ditt passord (Brukernavn er 'root' med sm&aring; bokstaver).
+Password_warning => Det er ikke satt et passord p&aring; hverken Webadministrasjon eller SSH.<br />Vennligst velg eller tast inn ditt passord (Brukernavn er 'admin' med sm&aring; bokstaver).
 
 # Categories
 Info => Info

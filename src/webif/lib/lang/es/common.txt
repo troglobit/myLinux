@@ -16,7 +16,7 @@ more... => m&aacute;s...
 Add => A&ntilde;adir
 Remove => Eliminar
 Warning => Atenci&oacute;n
-Password_warning => no has establecido una contrase&ntilde;a de protecci&oacute;n para el router (acceso web y ssh). Por favor, elija una ahora (el nombre de usuario ser&aacute; 'root')
+Password_warning => no has establecido una contrase&ntilde;a de protecci&oacute;n para el router (acceso web y ssh). Por favor, elija una ahora (el nombre de usuario ser&aacute; 'admin')
 
 # Categories
 Info => Info

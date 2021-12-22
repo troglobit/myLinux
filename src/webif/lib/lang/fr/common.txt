@@ -19,7 +19,7 @@ Add => Ajouter
 Remove => Enlever
 
 Warning => Attention
-Password_warning => vous n'avez pas configur&eacute; de mot de passe pour l'interface Web et l'acc&egrave;s SSH<br /> Entrez en un maintenant (le nom d'utilisateur dans le navigateur sera 'root'). 
+Password_warning => vous n'avez pas configur&eacute; de mot de passe pour l'interface Web et l'acc&egrave;s SSH<br /> Entrez en un maintenant (le nom d'utilisateur dans le navigateur sera 'admin'). 
 
 # Categories
 Info => Info

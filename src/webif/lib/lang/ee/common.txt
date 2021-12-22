@@ -16,7 +16,7 @@ more... => veel...
 Add => Lisa
 Remove => Eemalda
 Warning => Hoiatus
-Password_warning => veebilidese ja SSH salas&otilde;na on seadmata<br />Palun, sisesta see (veebiliidese kasutajanimi on 'root').
+Password_warning => veebilidese ja SSH salas&otilde;na on seadmata<br />Palun, sisesta see (veebiliidese kasutajanimi on 'admin').
  
 # Categories 
 Info => Info

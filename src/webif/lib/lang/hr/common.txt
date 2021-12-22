@@ -18,7 +18,7 @@ Add => Dodaj
 Remove => Makni
 Warning => Upozorenje
 Password_warning => Niste postavili lozinku za Web su&egrave;elje i SSH pristup
-Molimo vas unesite lozinku (korisni&egrave;ko ime u va&scaron;em pregledniku &aelig; biti 'root').
+Molimo vas unesite lozinku (korisni&egrave;ko ime u va&scaron;em pregledniku &aelig; biti 'admin').
 # Categories
 Info => Informacije
 About => Opis

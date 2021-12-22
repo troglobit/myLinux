@@ -1,5 +1,6 @@
 . /etc/os-release
 
+defusr=admin
 libdir=/usr/lib/webif
 wwwdir=/var/www
 cgidir=/var/www/cgi-bin/webif
@@ -51,6 +52,14 @@ update_changes() {
 	CHANGES=$(($( (cat /tmp/.webif/config-* ; ls /tmp/.webif/file-*) 2>&- | wc -l)))
 }
 
+no_passwd() {
+    if grep -q "$defuser:x" /etc/passwd; then
+	grep -q "$defuser::" /etc/shadow
+    else
+	grep "$defuser:!" /etc/passwd >&- 2>&-
+    fi
+}
+
 header() {
 	empty "$ERROR" && {
 		_saved_title="${SAVED:+: @TR<<Settings saved>>}"
@@ -74,7 +83,7 @@ header() {
 	_categories=$(categories $1)
 	_subcategories=${2:+$(subcategories "$1" "$2")}
 	
-	empty "$REMOTE_USER" && neq "${SCRIPT_NAME#/cgi-bin/}" "webif.sh" && grep 'root:!' /etc/passwd >&- 2>&- && {
+	empty "$REMOTE_USER" && neq "${SCRIPT_NAME#/cgi-bin/}" "webif.sh" && no_passwd && {
 		_nopasswd=1
 		_form=""
 		_savebutton=""
@@ -124,7 +133,7 @@ EOF
 				echo "$FORM_passwd1"
 				sleep 1
 				echo "$FORM_passwd2"
-			) | passwd root 2>&1 && apply_passwd
+			) | passwd $defuser 2>&1 && apply_passwd
 			echo '</pre>'
 			footer
 			exit
@@ -135,7 +144,7 @@ EOF
 <br />
 <br />
 <br />
-<h3>@TR<<Warning>>: @TR<<Password_warning|you haven't set a password for the Web interface and SSH access<br />Please enter one now (the user name in your browser will be 'root').>></h3>
+<h3>@TR<<Warning>>: @TR<<Password_warning|you haven't set a password for the Web interface and SSH access<br />Please enter one now (the user name in your browser will be 'admin').>></h3>
 <br />
 <br />
 EOF
@@ -191,7 +200,7 @@ EOF
 apply_passwd() {
 	case ${SERVER_SOFTWARE%% *} in
 		mini_httpd/*)
-			grep '^root:' /etc/passwd | cut -d: -f1,2 > $cgidir/.htpasswd
+			grep "^$defuser:" /etc/passwd | cut -d: -f1,2 > $cgidir/.htpasswd
 			killall -HUP mini_httpd
 			;;
 	esac

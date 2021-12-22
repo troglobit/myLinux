@@ -16,7 +16,7 @@ more... => mer...
 Add => L&auml;gg till
 Remove => Ta bort
 Warning => Varning
-Password_warning => Du har inte satt n&aring;got l&ouml;senord f&ouml;r Web-gr&auml;nssnittet och SSH accessen <br />Var v&auml;nlig och g&ouml;r detta nu (anv&auml;ndarnamnet i din browser kommer vara 'root').
+Password_warning => Du har inte satt n&aring;got l&ouml;senord f&ouml;r Web-gr&auml;nssnittet och SSH accessen <br />Var v&auml;nlig och g&ouml;r detta nu (anv&auml;ndarnamnet i din browser kommer vara 'admin').
 # Categories
 Info => Info
 About => Om

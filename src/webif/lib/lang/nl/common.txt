@@ -16,7 +16,7 @@ more... => meer...
 Add => Bijvoegen
 Remove => Verwijder
 Warning => Waarschuwing
-Password_warning => U hebt nog geen wachtwoord ingesteld voor de Web interface en SSH toegang. Gelieve er nu een in te geven (de gebruikersnaam in uw browser zal 'root' zijn).
+Password_warning => U hebt nog geen wachtwoord ingesteld voor de Web interface en SSH toegang. Gelieve er nu een in te geven (de gebruikersnaam in uw browser zal 'admin' zijn).
 
 # Categories
 Info => Info
