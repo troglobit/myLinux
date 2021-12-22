@@ -5,7 +5,7 @@ header "Info" "Router Info" "@TR<<Router Info>>"
 
 ?>
 <pre><?
-_version="${VERSION}"
+_version="${PRETTY_NAME}"
 _kversion="$(uname -a)"
 _date="$(date)"
 _mac="$(/sbin/ifconfig eth0 | grep HWaddr | cut -b39-)"
