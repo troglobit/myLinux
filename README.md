@@ -15,10 +15,13 @@ Introduction
 
 myLinux is a UNIX like OS for embedded systems based on [Buildroot][].
 It serves as a testing ground for various embedded networking hardware
-and open source software projects by the main author.
+and open source software projects by the main author.  E.g., the init
+system is [Finit][], not BusyBox init which is default in Buildroot.
 
-myLinux can be used to test software components in Qemu before deploying
-to an embedded target, or as a reference to other embedded Linux systems.
+myLinux can be used to verify software components in a emulated setup,
+myLinuxusing Qemu, before deploying to an embedded target, or as a reference
+to other embedded Linux systems.  Therefore, all defconfigs are set up
+to include support for running under Qemu.
 
 
 Building
@@ -116,7 +119,7 @@ Bugs & Feature Requests
 
 Feel free to report bugs and request features, or even submit your own
 [pull requests](https://help.github.com/articles/using-pull-requests/)
-using [GitHub](https://github.com/troglobit/myLinux)
+using [GitHub][Home].
 
 
 Licensing & References
@@ -128,6 +131,8 @@ system, or glue, that ties  the various Open Source components together.
 Each project included comes with  source code, and sometimes local patch
 files, all with their own license and restrictions.
 
+[Home]:      https://github.com/troglobit/myLinux
+[Finit]:     https://github.com/troglobit/finit
 [GNU GPL]:   COPYING
 [Buildroot]: https://buildroot.org
 [manual]:    https://buildroot.org/downloads/manual/manual.html
