@@ -29,6 +29,7 @@ endef
 define WEBIF_INSTALL_FINIT_SVC
 	$(INSTALL) -D -m 0644 $(BR2_EXTERNAL_MYLINUX_PATH)/package/webif/webif.svc \
 		$(TARGET_DIR)/etc/finit.d/available/webif.conf
+	$(INSTALL) -d -m 0755 $(FINIT_D)/enabled
 	ln -sf ../available/webif.conf $(FINIT_D)/enabled/webif.conf
 endef
 
