@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Use /etc/mactab to rename interfaces before grouping
-nameif -s
+[ -f /etc/mactab ] && nameif -s
 
 # Place all eth* interfaces in the "port" group, such that we can
 # reference them together later, e.g. in /etc/network/interfaces.
@@ -10,3 +10,4 @@ awk -F: '
         print("link set dev", $1, " group port");
     }' </proc/net/dev | ip -batch -
 
+exit 0
