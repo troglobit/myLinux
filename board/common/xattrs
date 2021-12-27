@@ -1,3 +1,4 @@
 # httpd runs as www-data user, needs to verify webif login
+/etc        r  -1 root     wheel     - - - - -
 /etc/shadow f 640 root     www-data  - - - - -
 /var/www    r 755 www-data www-data  - - - - -
