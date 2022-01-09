@@ -1,4 +1,2 @@
-# /etc/mdns.d/http.service -- mDNS-SD advertisement of SSH service
-name myLinux
 type _ssh._tcp
 port 22
