@@ -30,8 +30,14 @@ config QEMU_EXTRA
 	string "Extra args"
 	default " -watchdog i6300esb -rtc clock=host"
 
+config QEMU_N_NICS
+	int "Number of Ethernet interfaces"
+	default 1
+	help
+	 Number of Ethernet interfaces to emulate.
+
 config QEMU_NIC
-	string "Ethernet NIC"
+	string "Ethernet NIC model"
 	default "virtio-net-pci"
 	help
 	 Ethernet NIC to emulate.
