@@ -6,7 +6,7 @@
 # Place all eth* interfaces in the "port" group, such that we can
 # reference them together later, e.g. in /etc/network/interfaces.
 awk -F: '
-    /^\s*eth/ {
+    /^\s*eth|^\s*lan/ {
         print("link set dev", $1, " group port");
     }' </proc/net/dev | ip -batch -
 
