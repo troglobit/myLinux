@@ -125,7 +125,7 @@ net_args()
 	mode=${QEMU_NET:-bridge}
 
 	if [ "${mode}" = "user" ]; then
-		/bin/echo -n "-net nic,model=virtio -net user "
+		/bin/echo -n "-net nic,model=virtio -net user,hostfwd=tcp::2222-:22 "
 		return
 	fi
 
