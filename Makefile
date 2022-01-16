@@ -26,6 +26,6 @@ buildroot/Makefile:
 
 run:
 	@echo "Starting Qemu  ::  Ctrl-a x -- exit | Ctrl-a c -- toggle console/monitor"
-	@$(O)/images/qemu.sh
+	@(cd $(O)/images && ./qemu.sh)
 
 .PHONY: all run
