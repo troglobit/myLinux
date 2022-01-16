@@ -1,2 +1,6 @@
 *~
-/output
+.gdb_history
+/.ccache
+/dl
+/output*
+/local.mk
