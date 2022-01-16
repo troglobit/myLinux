@@ -1,3 +1,0 @@
-# We need mount helper for /etc/fstab #-p commands
-CONFIG_FEATURE_MOUNT_HELPERS=y
-CONFIG_FEATURE_MOUNT_LABEL=y
