@@ -30,11 +30,44 @@ config QEMU_EXTRA
 	string "Extra args"
 	default " -watchdog i6300esb -rtc clock=host"
 
+choice
+	bool "Network mode"
+	default QEMU_NET_BRIDGE
+	help
+	 Select Qemu network mode.
+
+config QEMU_NET_BRIDGE
+	bool "bridge"
+	help
+	 Bridged with, e.g., host virbr0
+
+config QEMU_NET_TAP
+	bool "tap"
+	help
+	   Creates qtapN interface(s), see QEMU_N_NICS
+
+config QEMU_NET_USER
+	bool "user"
+	help
+	 Qemu user networking -- non-root option
+
+endchoice
+
+config QEMU_NET
+	string
+	default "bridge" if QEMU_NET_BRIDGE
+	default "tap"    if QEMU_NET_TAP
+	default "user"   if QEMU_NET_USER
+
+if ! QEMU_NET_USER
+
 config QEMU_N_NICS
 	int "Number of Ethernet interfaces"
 	default 1
 	help
 	 Number of Ethernet interfaces to emulate.
+
+endif
 
 config QEMU_NIC
 	string "Ethernet NIC model"
