@@ -89,6 +89,14 @@ endef
 SKELETON_INIT_FINIT_TARGET_FINALIZE_HOOKS += SKELETON_INIT_FINIT_SET_WATCHDOGD
 endif
 
+# Enable gdbserver when running in Qemu mode
+ifeq ($(QEMU_GDB),y)
+define SKELETON_INIT_FINIT_SET_GDBSERVER
+	ln -sf ../available/gdbserver.conf $(FINIT_D)/enabled/gdbserver.conf
+endef
+SKELETON_INIT_FINIT_TARGET_FINALIZE_HOOKS += SKELETON_INIT_FINIT_SET_GDBSERVER
+endif
+
 # Workaround, should be in ifupdown-scripts package
 ifeq ($(BR2_PACKAGE_IFUPDOWN_SCRIPTS),y)
 define SKELETON_INIT_FINIT_IFUPDOWN_WORKAROUND

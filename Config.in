@@ -48,6 +48,12 @@ config QEMU_SCSI
 	help
 	 SCSI disk interface to emulate.
 
+config QEMU_GDB
+	bool "Enable GDB console"
+	default n
+	help
+	  Enable GDB socket with hvc1 console for gdbserver.
+
 config QEMU_KERNEL
 	string
 	default "bzImage" if BR2_LINUX_KERNEL_BZIMAGE
