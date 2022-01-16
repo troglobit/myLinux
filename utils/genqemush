@@ -203,10 +203,10 @@ cat <<-EOF > "$dir/qemu.sh"
 	MY_MEM="${QEMU_MEM}"
 	MY_ARG="${QEMU_EXTRA}"
 	# Kernel and kernel cmdline
-	MY_KRN=$dir/${QEMU_KERNEL}
+	MY_KRN=${QEMU_KERNEL}
 	MY_CMD="$(append_args -d)"
 	# Disk images to use as / and /mnt
-	MY_DRV=$dir/${QEMU_DISK}
+	MY_DRV=${QEMU_DISK}
 	MY_MNT=~/.cache/mylinux-config-${QEMU_ARCH}.img
 
 	cpu_args()
@@ -224,7 +224,7 @@ cat <<-EOF > "$dir/qemu.sh"
 
 	mnt_args()
 	{
-	    [ -z "\$MY_MNT" ] && return
+	    echo "\$MY_DRV" |egrep -q '(ext2|ext3|ext4)' || [ -z "\$MY_MNT" ] && return
 	    if [ ! -e "\$MY_MNT" ] && [ -d \$(dirname "\$MY_MNT") ]; then
 	        dd if=/dev/zero bs=16384 count=960 2>/dev/null | tr '\000' '\377' > "\$MY_MNT"
 	    fi
