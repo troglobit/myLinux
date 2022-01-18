@@ -1,0 +1,160 @@
+#!/bin/sh
+# Based on the buildroot udhcpc script edited by Tim Riker <Tim@Rikers.org>
+# Changes made by Joachim Wiberg <troglobit@gmail.com>:
+#  - s/avahi-autoipd/zcip/g
+#  - s/ifconfig/ip addr/g    TODO
+#
+# shellcheck disable=SC2154 # variables set by udhcpc on entry
+
+[ -z "$1" ] && echo "Error: should be called from udhcpc" && exit 1
+
+# ZeroConf options
+zcip=$(command -v zcip)
+zcip_pid="/var/run/zcip-$interface.pid"
+zcip_cache="/var/cache/zcip-$interface.cache"
+zcip_script="/usr/share/zcip/default.script"
+export LOGGING=none
+
+# DHCP options
+ACTION="$1"
+RESOLV_CONF="/etc/resolv.conf"
+tag="udhcpc"
+[ -e $RESOLV_CONF ] || touch $RESOLV_CONF
+[ -n "$broadcast" ] && BROADCAST="broadcast $broadcast"
+[ -n "$subnet" ] && NETMASK="netmask $subnet"
+# Handle stateful DHCPv6 like DHCPv4
+[ -n "$ipv6" ] && ip="$ipv6/128"
+
+if [ -z "${IF_WAIT_DELAY}" ]; then
+	IF_WAIT_DELAY=10
+fi
+
+status_zcip() {
+    [ -f "$zcip_pid" ] || return 1
+
+    pid=$(cat "$zcip_pid")
+    comm=$(cat "/proc/$pid/comm")
+    [ "$comm" = "zcip" ] || return 1
+
+    return 0
+}
+
+start_zcip() {
+    [ -z "$zcip" ] && return
+    status_zcip && return
+
+    if [ -f "$zcip_cache" ]; then
+	ARGS="-r $(cat $zcip_cache)"
+    fi
+
+    start-stop-daemon -Sq -bmp "$zcip_pid" -x "$zcip" -- \
+		$ARGS -f "$interface" "$zcip_script"
+}
+
+stop_zcip() {
+    [ -z "$zcip" ] && return
+    status_zcip || return
+
+    start-stop-daemon -Kq -p "$zcip_pid" -x "$zcip"
+}
+
+wait_for_ipv6_default_route() {
+	logger -it "$tag" -p daemon.info "$interface: waiting for IPv6 default route to appear ..."
+	while [ $IF_WAIT_DELAY -gt 0 ]; do
+		if ip -6 route list 2>/dev/null | grep -q default; then
+			return
+		fi
+		sleep 1
+		: $((IF_WAIT_DELAY -= 1))
+	done
+	logger -it "$tag" -p daemon.info "$interface: IPv6 default route timeout!"
+}
+
+case "$ACTION" in
+	deconfig)
+		logger -it "$tag" -p daemon.debug "$interface: initializing ..."
+	 	/sbin/ifconfig $interface up
+		/sbin/ifconfig $interface 0.0.0.0
+
+		# drop info from this interface
+		# resolv.conf may be a symlink to /tmp/, so take care
+		TMPFILE=$(mktemp)
+		grep -vE "# $interface\$" $RESOLV_CONF > $TMPFILE
+		cat $TMPFILE > $RESOLV_CONF
+		rm -f $TMPFILE
+
+		stop_zcip
+		;;
+
+	leasefail|nak)
+		logger -it "$tag" -p daemon.info "$interface: no response from DHCP server"
+		start_zcip
+		;;
+
+	renew|bound)
+		stop_zcip
+
+		logger -it "$tag" -p daemon.info "$interface: got DHCP lease $ip"
+		/sbin/ifconfig $interface $ip $BROADCAST $NETMASK
+		if [ -n "$ipv6" ] ; then
+			wait_for_ipv6_default_route
+		fi
+
+		# RFC3442: If the DHCP server returns both a Classless
+		# Static Routes option and a Router option, the DHCP
+		# client MUST ignore the Router option.
+		if [ -n "$staticroutes" ]; then
+			logger -it "$tag" -p daemon.debug "$interface: deleting routers"
+			route -n | while read dest gw mask flags metric ref use iface; do
+				[ "$iface" != "$interface" -o "$gw" = "0.0.0.0" ] || \
+					route del -net "$dest" netmask "$mask" gw "$gw" dev "$interface"
+			done
+
+			# format: dest1/mask gw1 ... destn/mask gwn
+			set -- $staticroutes
+			while [ -n "$1" -a -n "$2" ]; do
+				route add -net "$1" gw "$2" dev "$interface"
+				shift 2
+			done
+		elif [ -n "$router" ] ; then
+			logger -it "$tag" -p daemon.debug "$interface: deleting routers"
+			while route del default gw 0.0.0.0 dev $interface 2> /dev/null; do
+				:
+			done
+
+			for i in $router ; do
+				route add default gw $i dev $interface
+			done
+		fi
+
+		# drop info from this interface
+		# resolv.conf may be a symlink to /tmp/, so take care
+		TMPFILE=$(mktemp)
+		grep -vE "# $interface\$" $RESOLV_CONF > $TMPFILE
+		cat $TMPFILE > $RESOLV_CONF
+		rm -f $TMPFILE
+
+		# prefer rfc3397 domain search list (option 119) if available
+		if [ -n "$search" ]; then
+			search_list=$search
+		elif [ -n "$domain" ]; then
+			search_list=$domain
+		fi
+
+		[ -n "$search_list" ] &&
+			echo "search $search_list # $interface" >> $RESOLV_CONF
+
+		for i in $dns ; do
+			logger -it "$tag" -p daemon.debug "$interface: adding dns $i"
+			echo "nameserver $i # $interface" >> $RESOLV_CONF
+		done
+		;;
+esac
+
+HOOK_DIR="$0.d"
+for hook in "${HOOK_DIR}/"*; do
+    [ -f "${hook}" -a -x "${hook}" ] || continue
+    "${hook}" "$ACTION"
+done
+
+exit 0
