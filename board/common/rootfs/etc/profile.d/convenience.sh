@@ -1,4 +1,5 @@
 alias vim='vi'
+alias view='vi -R'
 alias emacs='mg'
 alias edit='mg'
 alias editor=edit
