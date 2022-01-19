@@ -25,6 +25,10 @@ buildroot/Makefile:
 	@git submodule update --init --recursive
 
 run:
+	@if [ ! -f $(O)/images/qemu.sh ]; then \
+		echo ">>> Qemu not supported yet for this target."; \
+		exit 1; \
+	fi
 	@echo "Starting Qemu  ::  Ctrl-a x -- exit | Ctrl-a c -- toggle console/monitor"
 	@(cd $(O)/images && ./qemu.sh)
 

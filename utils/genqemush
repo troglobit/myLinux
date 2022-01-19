@@ -188,11 +188,12 @@ fi
 . "$cfg" 2>/dev/null
 
 if [ -z "${QEMU_ARCH}" ] || [ -z "${QEMU_MACH}" ] || [ -z "${QEMU_KERNEL}" ]; then
-	echo "genqemush: One or more of the following settings are missing:"
+	echo "genqemush: skipping qemu.sh for this build.  One or more of the"
+	echo "           following settings are missing:"
 	echo "QEMU_ARCH   : $QEMU_ARCH"
 	echo "QEMU_MACH   : $QEMU_MACH"
 	echo "QEMU_KERNEL : $QEMU_KERNEL"
-	exit 1;
+	exit 0;
 fi
 
 cat <<-EOF > "$dir/qemu.sh"
