@@ -3,3 +3,5 @@ iface lo inet loopback
 
 auto eth0
 iface eth0 inet dhcp
+
+source-directory /etc/network/interfaces.d
