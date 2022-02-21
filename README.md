@@ -42,6 +42,8 @@ To see available defconfigs for supported targets, use:
 
     make list-defconfigs
 
+> **Note:** build dependencies: <kbd>sudo apt install make libssl-dev</kbd>
+
 
 Monitoring with SNMP
 --------------------
