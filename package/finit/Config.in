@@ -56,7 +56,6 @@ endif
 
 config BR2_PACKAGE_FINIT_PLUGIN_HOTPLUG
 	bool "hotplug plugin (mdev/udev)"
-	default y
 	help
 	  By default, Finit builds and launches its hotplug plugin.
 	  It is responsible for detecting and starting the mdev tool,
@@ -67,9 +66,24 @@ config BR2_PACKAGE_FINIT_PLUGIN_HOTPLUG
 
 	  For lxc/docker application builds you do not need this.
 
+config BR2_PACKAGE_FINIT_PLUGIN_MODULES_LOAD
+	bool "Scan /etc/modules-load.d"
+	help
+	  Scans /etc/modules-load.d for modules to load.
+
+	  For lxc/docker application builds you do not need this.
+
+config BR2_PACKAGE_FINIT_PLUGIN_MODPROBE
+	bool "Coldplug modules using modalias magic"
+	help
+	  Coldplug modules using modalias magic.  Everything is
+	  handled automatically based on device trees and their
+	  matching kernel modules.
+
+	  For lxc/docker application builds you do not need this.
+
 config BR2_PACKAGE_FINIT_PLUGIN_RTC
 	bool "RTC plugin"
-	default y
 	help
 	  By default, Finit builds and launches its RTC plugin.  It is
 	  responsible for restoring the system clock from the RTC clock
@@ -77,9 +91,15 @@ config BR2_PACKAGE_FINIT_PLUGIN_RTC
 
 	  For lxc/docker application builds you do not need this.
 
+config BR2_PACKAGE_FINIT_PLUGIN_TTY
+	bool "TTY plugin"
+	help
+	  Automatically resart tty services that are plugged in.
+
+	  For lxc/docker application builds you do not need this.
+
 config BR2_PACKAGE_FINIT_PLUGIN_URANDOM
 	bool "/dev/urandom plugin"
-	default y
 	help
 	  By default, Finit builds and launches its urandom plugin.  It
 	  is responsible for seeding /dev/urandom from a previously saved

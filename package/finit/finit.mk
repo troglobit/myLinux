@@ -52,10 +52,28 @@ else
 FINIT_CONF_OPTS += --disable-hotplug-plugin
 endif
 
+ifeq ($(BR2_PACKAGE_FINIT_PLUGIN_MODULES_LOAD),y)
+FINIT_CONF_OPTS += --enable-modules-load-plugin
+else
+FINIT_CONF_OPTS += --disable-modules-load-plugin
+endif
+
+ifeq ($(BR2_PACKAGE_FINIT_PLUGIN_MODPROBE),y)
+FINIT_CONF_OPTS += --enable-modprobe-plugin
+else
+FINIT_CONF_OPTS += --disable-modprobe-plugin
+endif
+
 ifeq ($(BR2_PACKAGE_FINIT_PLUGIN_RTC),y)
 FINIT_CONF_OPTS += --enable-rtc-plugin
 else
 FINIT_CONF_OPTS += --disable-rtc-plugin
+endif
+
+ifeq ($(BR2_PACKAGE_FINIT_PLUGIN_TTY),y)
+FINIT_CONF_OPTS += --enable-tty-plugin
+else
+FINIT_CONF_OPTS += --disable-tty-plugin
 endif
 
 ifeq ($(BR2_PACKAGE_FINIT_PLUGIN_URANDOM),y)
