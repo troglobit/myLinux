@@ -32,4 +32,9 @@ run:
 	@echo "Starting Qemu  ::  Ctrl-a x -- exit | Ctrl-a c -- toggle console/monitor"
 	@(cd $(O)/images && ./qemu.sh)
 
-.PHONY: all run
+debug:
+	@[ -f $(O)/staging/.gdbinit ]    || cp $(CURDIR)/.gdbinit $(O)/staging/.gdbinit
+	@[ -f $(O)/staging/.gdbinit.py ] || cp $(CURDIR)/.gdbinit.py $(O)/staging/.gdbinit.py
+	@(cd $(O)/staging/ && gdb-multiarch)
+
+.PHONY: all run debug
