@@ -5,9 +5,10 @@
 #############################################################
 
 WEBIF_VERSION = 0.2
-WEBIF_LICENSE = GPL-2.0
 WEBIF_SITE_METHOD = local
 WEBIF_SITE = $(BR2_EXTERNAL_MYLINUX_PATH)/src/webif
+WEBIF_LICENSE = GPL-2.0
+WEBIF_INSTALL_STAGING = YES
 
 define WEBIF_BUILD_CMDS
         $(TARGET_MAKE_ENV) $(TARGET_CONFIGURE_OPTS) $(MAKE) -C $(@D) \

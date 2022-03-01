@@ -8,6 +8,7 @@ UFTPD_VERSION = 2.15
 UFTPD_SITE = https://github.com/troglobit/uftpd/releases/download/v$(UFTPD_VERSION)
 UFTPD_LICENSE = ISC
 UFTPD_LICENSE_FILES = LICENSE
+UFTPD_INSTALL_STAGING = YES
 
 define UFTPD_INSTALL_FINIT_SVC
 	$(INSTALL) -D -m 0644 $(BR2_EXTERNAL_MYLINUX_PATH)/package/uftpd/uftpd.def \

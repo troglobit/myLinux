@@ -9,5 +9,6 @@ NEMESIS_SITE    = https://github.com/libnet/nemesis/releases/download/v$(NEMESIS
 NEMESIS_LICENSE = BSD-3-Clause
 NEMESIS_LICENSE_FILES = LICENSE
 NEMESIS_DEPENDENCIES = libnet
+NEMESIS_INSTALL_STAGING = YES
 
 $(eval $(autotools-package))
