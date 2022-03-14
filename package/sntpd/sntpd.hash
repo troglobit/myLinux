@@ -1,6 +1,5 @@
-# Upstream .md5 from GitHub
-md5 029f5084416d485f65e53b1a4511b6a3  sntpd-3.0.tar.gz
+# Upstream .sha256 from GitHub
+sha256 f8020edddd91d9b99a454c56a0c1dfce3c2c214d911c97083f55dbe3c729e482  sntpd-3.1.tar.gz
 
 # Locally computed
-sha256 53b2003a0eb776376511d2db616cc91b56503a1253b2bb9d8e31ffa926f496a3  sntpd-3.0.tar.gz
 sha256 ab15fd526bd8dd18a9e77ebc139656bf4d33e97fc7238cd11bf60e2b9b8666c6  COPYING
