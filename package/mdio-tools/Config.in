@@ -1,0 +1,12 @@
+config BR2_PACKAGE_MDIO_TOOLS
+	bool "mdio-tools"
+	depends on BR2_PACKAGE_LIBMNL
+	help
+	  Provides a low-level interface to MDIO buses on the
+	  system. In contrast to similar tools, mdio-tools will
+	  address the MDIO bus directly, without requiring a network
+	  interface with a connection to that bus. It will also safely
+	  perform operations that require executing multiple MDIO
+	  accesses atomically.
+
+	  https://github.com/wkz/mdio-tools
