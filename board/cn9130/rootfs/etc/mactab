@@ -1,0 +1,6 @@
+# Remap qemu default MAC addresses to emulate espressobin
+# Ultra has four ports exposed, the older ones only three
+wan	52:54:00:12:34:56
+lan0	52:54:00:12:34:57
+lan1	52:54:00:12:34:58
+lan2	52:54:00:12:34:59
