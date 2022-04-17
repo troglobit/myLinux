@@ -22,7 +22,7 @@ jobs:
       - name: Compress images
         run: |
           cd output/
-          tar cfJ images.tar.xz iamges
+          tar cfJ images.tar.xz images
       - name: Store images
         uses: actions/upload-artifact@v2
         with:
