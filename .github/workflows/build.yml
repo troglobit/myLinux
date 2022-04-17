@@ -7,14 +7,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        config: [ x86_64_defconfig ]
+        config: [espressobin, x86_64]
     steps:
       - uses: actions/checkout@v2
         with:
           path: buildroot-external-st
       - uses: actions/checkout@v2
       - name: Configure myLinux
-        run: make ${{ matrix.config }}
+        run: make ${{ matrix.config }}_defconfig
       - name: Build myLinux
         run: make
       - name: Run legal-info
