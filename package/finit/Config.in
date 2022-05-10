@@ -31,6 +31,20 @@ config BR2_PACKAGE_FINIT_KEVENTD
 
 	  For lxc/docker application builds you do not need this.
 
+config BR2_PACKAGE_FINIT_SULOGIN
+	bool "finit-sulogin"
+	default n
+	help
+	  Build bundled finit-sulogin, which handles rescue mode
+	  and cases where fsck fails.  Its job is to ask for the
+	  password for the root user, and start a login shell so
+	  an administrator can perform corrective maintenance.
+
+	  This is disabled by default since most users prefer the
+	  distribution specific (Busybox) sulogin instead.
+
+	  For lxc/docker application builds you do not need this.
+
 config BR2_PACKAGE_FINIT_WATCHDOG
 	bool "finit-watchdogd"
 	default n

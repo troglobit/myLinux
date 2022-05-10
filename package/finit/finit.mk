@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-FINIT_VERSION = 4.3-rc1
+FINIT_VERSION = 4.3-rc2
 FINIT_SITE = https://github.com/troglobit/finit/releases/download/$(FINIT_VERSION)
 FINIT_LICENSE = MIT
 FINIT_LICENSE_FILES = LICENSE
@@ -38,6 +38,12 @@ ifeq ($(BR2_PACKAGE_FINIT_KEVENTD),y)
 FINIT_CONF_OPTS += --with-keventd
 else
 FINIT_CONF_OPTS += --without-keventd
+endif
+
+ifeq ($(BR2_PACKAGE_FINIT_SULOGIN),y)
+FINIT_CONF_OPTS += --with-sulogin
+else
+FINIT_CONF_OPTS += --without-sulogin
 endif
 
 ifeq ($(BR2_PACKAGE_FINIT_WATCHDOG),y)
