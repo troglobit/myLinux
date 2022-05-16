@@ -12,6 +12,20 @@ config BR2_PACKAGE_FINIT
 
 if BR2_PACKAGE_FINIT
 
+config BR2_PACKAGE_FINIT_CUSTOM_FSTAB
+	string "Custom /etc/fstab"
+	help
+	  In certain use-cases, e.g., embedded systems with a secondary
+	  partition, or when testing in factory production.  Users may
+	  want to mount system partitions from an fstab file other than
+	  /etC/fstab.
+
+	  This menuconfing setting changes the default fstab Finit looks
+	  for.  To select a different at boot time, use kernel command
+	  line option finit.fstab=/etc/fstab.alt, as usual, for command
+	  line options destined for PID 1, remember the -- separator and
+	  put them last.
+
 config BR2_PACKAGE_FINIT_INITCTL_GROUP
 	string "Group for /run/finit/socket"
 	default "wheel"
@@ -79,6 +93,20 @@ config BR2_PACKAGE_FINIT_PLUGIN_HOTPLUG
 	  systems.
 
 	  For lxc/docker application builds you do not need this.
+
+config BR2_PACKAGE_FINIT_PLUGIN_HOOK_SCRIPTS
+	bool "hook scripts"
+	default n
+	help
+	  Adds a run-parts(8) script runner for Finit hook points.  When
+	  enabled, it allows extending and customizing the boot process
+	  and do early boot debugging long before regular services are
+	  available.
+
+	  For example, say that you want to enable some kernel tracing
+	  before modules are loaded.  With hook-scripts, you can just
+	  drop in a shell script in /libexec/finit/hook/mount/all/ that
+	  will poke the right control files in tracefs.
 
 config BR2_PACKAGE_FINIT_PLUGIN_MODULES_LOAD
 	bool "Scan /etc/modules-load.d"

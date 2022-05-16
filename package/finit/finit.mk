@@ -34,6 +34,12 @@ FINIT_CONF_OPTS =					\
 	--with-group=$(BR2_PACKAGE_FINIT_INITCTL_GROUP)
 
 # Disable/Enable features
+ifeq ($(BR2_PACKAGE_FINIT_CUSTOM_FSTAB),)
+FINIT_CONF_OPTS += --with-fstab=yes
+else
+FINIT_CONF_OPTS += --with-fstab=$(BR2_PACKAGE_FINIT_CUSTOM_FSTAB)
+endif
+
 ifeq ($(BR2_PACKAGE_FINIT_KEVENTD),y)
 FINIT_CONF_OPTS += --with-keventd
 else
@@ -56,6 +62,12 @@ ifeq ($(BR2_PACKAGE_FINIT_PLUGIN_HOTPLUG),y)
 FINIT_CONF_OPTS += --enable-hotplug-plugin
 else
 FINIT_CONF_OPTS += --disable-hotplug-plugin
+endif
+
+ifeq ($(BR2_PACKAGE_FINIT_PLUGIN_HOOK_SCRIPTS),y)
+FINIT_CONF_OPTS += --enable-hook-scripts-plugin
+else
+FINIT_CONF_OPTS += --disable-hook-scripts-plugin
 endif
 
 ifeq ($(BR2_PACKAGE_FINIT_PLUGIN_MODULES_LOAD),y)
