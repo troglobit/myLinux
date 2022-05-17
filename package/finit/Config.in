@@ -14,6 +14,7 @@ if BR2_PACKAGE_FINIT
 
 config BR2_PACKAGE_FINIT_CUSTOM_FSTAB
 	string "Custom /etc/fstab"
+	default "/etc/fstab"
 	help
 	  In certain use-cases, e.g., embedded systems with a secondary
 	  partition, or when testing in factory production.  Users may
