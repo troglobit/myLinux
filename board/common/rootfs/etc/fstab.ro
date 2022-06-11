@@ -1,0 +1,33 @@
+# Common fstab for systems with read-only root (squashfs) and read-write
+# overlay from either an MTD (jffs2) or external disk, with fallback to
+# a tmpfs to always allow the system to boot.
+#
+# Make sure CONFIG_FEATURE_MOUNT_HELPERS is enabled if you use the
+# BusyBox mount tool.  This is required create the /dev/{pts,shm}
+# directories.
+
+devtmpfs	/dev			devtmpfs	defaults			0	0
+mkdir#-p	/dev/pts		helper		none				0	0
+devpts		/dev/pts		devpts		mode=620,ptmxmode=0666		0	0
+mkdir#-p	/dev/shm		helper		none				0	0
+tmpfs		/dev/shm		tmpfs		mode=0777			0	0
+hostfs		/host			9p		nofail,cache=none,msize=16384	0	0
+tmpfs		/mnt			tmpfs		mode=0755,nosuid,nodev		0	0
+proc		/proc			proc		defaults			0	0
+tmpfs		/run			tmpfs		mode=0755,nosuid,nodev		0	0
+mkdir#-p	/run/dropbear		helper		none				0	0
+sysfs		/sys			sysfs		defaults			0	0
+debugfs		/sys/kernel/debug	debugfs		nofail				0	0
+tmpfs		/tmp			tmpfs		mode=1777,nosuid,nodev		0	0
+
+mkdir#-p#-m0755	/mnt/rw			helper		none				0	0
+mtd:Config	/mnt/rw			jffs2		noauto,noatime,nodiratime	0	0
+LABEL=Config	/mnt/rw			auto		noauto,noatime,nodiratime	0	0
+tmpfs-Config	/mnt/rw			tmpfs		noauto,noatime,nodiratime	0	0
+/libexec/mnt#	/mnt/rw			helper		none				0	0
+
+var  /var     overlay lowerdir=/var,upperdir=/mnt/var.u,workdir=/mnt/var.w		0	0
+vlib /var/lib overlay lowerdir=/var/lib,upperdir=/mnt/rw/vlib.u,workdir=/mnt/rw/vlib.w	0	0
+etc  /etc     overlay lowerdir=/etc,upperdir=/mnt/rw/etc.u,workdir=/mnt/rw/etc.w	0	0
+root /root    overlay lowerdir=/root,upperdir=/mnt/rw/root.u,workdir=/mnt/rw/root.w	0	0
+home /home    overlay lowerdir=/home,upperdir=/mnt/rw/home.u,workdir=/mnt/rw/home.w	0	0

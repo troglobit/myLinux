@@ -86,19 +86,23 @@ append_args()
 	if [ "${V}" != "1" ]; then
 		echo -n "quiet "
 	else
-		echo -n "debug finit.debug=1 finit.show_status=0 "
+		echo -n "loglevel=7 "
+	fi
+
+	echo -n "console=hvc0 "
+
+	if [ -n "${QEMU_INITRD}" ]; then
+		# Size of initrd, rounded up to nearest kb
+		size=$((($(find "$dir" -name "${QEMU_INITRD}" -printf %s)+1023) >> 10))
+		echo -n "root=/dev/ram ramdisk_size=${size} "
+		echo -n "block2mtd.block2mtd=/dev/vda,,Config "
+	else
+		echo -n "root=/dev/vda "
 	fi
 
 	echo -n "${QEMU_APPEND} "
-	echo -n "console=hvc0 "
-
-	if [ "${1}" = "-r" ]; then
-		# Size of initrd, rounded up to nearest kb
-		size=$((($(find "${2}" -printf %s)+1023) >> 10))
-		echo -n "root=/dev/ram ramdisk_size=${size} "
-		echo -n "block2mtd.block2mtd=/dev/sda,,Config "
-	else
-		echo -n "root=/dev/vda "
+	if [ -n "${QEMU_INITRD}" ]; then
+		echo -n " -- finit.fstab=/etc/fstab.ro"
 	fi
 }
 
@@ -203,12 +207,12 @@ cat <<-EOF > "$dir/qemu.sh"
 	MY_SMP="${QEMU_SMP}"
 	MY_MEM="${QEMU_MEM}"
 	MY_ARG="${QEMU_EXTRA}"
-	# Kernel and kernel cmdline
 	MY_KRN=${QEMU_KERNEL}
-	MY_CMD="$(append_args -d)"
-	# Disk images to use as / and /mnt
+	MY_CMD="$(append_args)"
+	MY_IRD=${QEMU_INITRD}
 	MY_DRV=${QEMU_DISK}
-	MY_MNT=~/.cache/mylinux-config-${QEMU_ARCH}.img
+	MY_MNT=~/.cache/mylinux-$(basename "$BR2_DEFCONFIG" | sed 's/_defconfig//')-config.img
+	MY_USB=""
 
 	cpu_args()
 	{
@@ -220,17 +224,30 @@ cat <<-EOF > "$dir/qemu.sh"
 
 	drv_args()
 	{
-	    echo -n "-drive file=\$MY_DRV,if=virtio,format=raw"
+	    if [ -n "\${MY_IRD}" ]; then
+	        echo -n "-initrd \${MY_IRD}"
+	    else
+	        echo -n "-drive file=\$MY_DRV,if=virtio,format=raw"
+	    fi
 	}
 
 	mnt_args()
 	{
-	    echo "\$MY_DRV" |egrep -q '(ext2|ext3|ext4)' || [ -z "\$MY_MNT" ] && return
+	    [ -z "\${MY_IRD}" ] || [ -z "\$MY_MNT" ] && return
 	    if [ ! -e "\$MY_MNT" ] && [ -d \$(dirname "\$MY_MNT") ]; then
 	        dd if=/dev/zero bs=16384 count=960 2>/dev/null | tr '\000' '\377' > "\$MY_MNT"
 	    fi
+	    echo -n "-drive file=\$MY_MNT,if=virtio,format=raw,discard=unmap"
+	}
+
+	usb_args()
+	{
+	    [ -z "\${MY_USB}" ] && return
+	    if [ ! -e "\$MY_USB" ] && [ -d \$(dirname "\$MY_USB") ]; then
+	        dd if=/dev/zero bs=16384 count=960 2>/dev/null | tr '\000' '\377' > "\$MY_USB"
+	    fi
 	    echo -n "-device ${QEMU_SCSI},id=scsi0 -device scsi-hd,bus=scsi0.0,drive=drive0 "
-	    echo -n "-drive file=\$MY_MNT,if=none,format=raw,discard=unmap,id=drive0"
+	    echo -n "-drive file=\$MY_USB,if=none,format=raw,discard=unmap,id=drive0"
 	}
 
 	# Disable pulseaudio warning

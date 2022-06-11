@@ -1,0 +1,52 @@
+#!/bin/sh
+
+ident=$(basename "$0")
+opt="-k"
+rc=0
+
+mp=/mnt/rw
+dirs="/mnt/var.u /mnt/var.w /mnt/var.u $mp/vlib.u $mp/vlib.w $mp/etc.u $mp/etc.w\
+      $mp/root.u $mp/root.w $mp/home.u $mp/home.w"
+resetme="$mp/factory-reset.now"
+
+mnt()
+{
+    fstab=""
+
+    if [ -n "$FSTAB_FILE" ]; then
+	    fstab="-T$FSTAB_FILE"
+    fi
+
+    mountpoint -q "$mp"         && return 0
+    mount "$fstab"   mtd:Config && return 0
+    mount "$fstab" LABEL=Config && return 0
+
+    return 1
+}
+
+# fall back to console logging if sysklogd is too old
+if ! logger -? |grep -q "Log to kernel"; then
+    opt="-c"
+fi
+
+if ! mnt; then
+    logger $opt -p user.crit -t "$ident" \
+	   "No persistent backing store available, falling back to tmpfs."
+    mount "$fstab" tmpfs-Config
+    rc=1
+fi
+
+chgrp wheel "$mp" && chmod g+w "$mp"
+
+for dir in $dirs; do
+	mkdir -m 0755 "$dir" 2> /dev/null
+done
+
+if [ -f "$resetme" ]; then
+   logger $opt -p user.crit -t "$ident" \
+	  "Resetting to factory default settings."
+   rm -rf "$mp/*.u" "$mp/*.w"
+   rm "$resetme"
+fi
+
+exit $rc
