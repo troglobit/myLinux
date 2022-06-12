@@ -115,13 +115,6 @@ dtb_args()
 	echo -n "-dtb ${IMAGEDIR}/${QEMU_DTB}"
 }
 
-host_args()
-{
-	[ -z "${QEMU_HOST}" ] && return
-
-	echo "-virtfs local,path=${QEMU_HOST},security_model=none,writeout=immediate,mount_tag=hostfs"
-}
-
 net_args()
 {
 	brname=${QEMU_BRIDGE:-virbr0}
@@ -154,10 +147,8 @@ net_args()
 console_args()
 {
 	echo -n "-device virtio-serial "
-
-	echo -n "-chardev stdio,mux=on,id=hvc0 "
+	echo    "-chardev stdio,mux=on,id=hvc0 \\"
 	echo -n "-device virtconsole,chardev=hvc0 "
-
 	echo -n "-mon chardev=hvc0 "
 }
 
@@ -208,11 +199,12 @@ cat <<-EOF > "$dir/qemu.sh"
 	MY_MEM="${QEMU_MEM}"
 	MY_ARG="${QEMU_EXTRA}"
 	MY_KRN=${QEMU_KERNEL}
-	MY_CMD="$(append_args)"
+	MY_CMD="\${MY_APPEND} $(append_args) \${MY_CMD}"
 	MY_IRD=${QEMU_INITRD}
 	MY_DRV=${QEMU_DISK}
 	MY_MNT=~/.cache/mylinux-$(basename "$BR2_DEFCONFIG" | sed 's/_defconfig//')-config.img
-	MY_USB=""
+	MY_USB="\${MY_USB:-}"
+	MY_HST="\${MY_HOST:-}"
 
 	cpu_args()
 	{
@@ -250,6 +242,12 @@ cat <<-EOF > "$dir/qemu.sh"
 	    echo -n "-drive file=\$MY_USB,if=none,format=raw,discard=unmap,id=drive0"
 	}
 
+	host_args()
+	{
+	    [ -z "\${MY_HST}" ] && return
+	    echo "-virtfs local,path=\${MY_HST},security_model=none,writeout=immediate,mount_tag=hostfs"
+	}
+
 	# Disable pulseaudio warning
 	export QEMU_AUDIO_DRV=none
 
@@ -258,10 +256,12 @@ cat <<-EOF > "$dir/qemu.sh"
 	line=\$(stty -g)
 	stty raw
 
-	qemu-system-${QEMU_ARCH} -display none \$(cpu_args)    \\
-	    -kernel "\$MY_KRN" -append "\$MY_CMD" $(dtb_args)  \\
-	    \$(drv_args) \$(mnt_args) $(host_args) $(net_args) \\
-	    $(console_args) $(gdb_args)
+	qemu-system-${QEMU_ARCH} -display none \$(cpu_args) -kernel "\$MY_KRN" \\
+	    -append "\$MY_CMD" $(dtb_args) \\
+	    \$(drv_args) \$(mnt_args) \$(host_args) \\
+	    $(net_args) \\
+	    $(console_args) \\
+	    $(gdb_args)
 	rc=\$?
 
 	# Restore TTY from Qemu target
