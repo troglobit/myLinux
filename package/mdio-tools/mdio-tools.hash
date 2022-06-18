@@ -1,5 +1,5 @@
 # Upstream .sha256 from GitHub
-sha256 226810221cfa25c0130a7fc97a4e72ccec21855172488761c70e2d1a2fce77a8  mdio-tools-1.0.1.tar.gz
+sha256 7705f4986211f3cd1ded38707ca791895abebead2aab897cbd5ba6ab04d1ee3d  mdio-tools-1.1.1.tar.gz
 
 # Locally computed
 sha256 8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643  COPYING
