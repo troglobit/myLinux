@@ -19,7 +19,7 @@ and open source software projects by the main author.  E.g., the init
 system is [Finit][], not BusyBox init which is default in Buildroot.
 
 myLinux can be used to verify software components in a emulated setup,
-myLinuxusing Qemu, before deploying to an embedded target, or as a reference
+using Qemu, before deploying to an embedded target, or as a reference
 to other embedded Linux systems.  Therefore, all defconfigs are set up
 to include support for running under Qemu.
 
