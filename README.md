@@ -7,7 +7,8 @@
 * [Dropbear SSH](#dropbear-ssh)
 * [Using Telnet](#using-telnet)
 * [Bugs & Feature Requests](#bugs--feature-requests)
-- [Licensing & References](licensing--references)
+* [Try Before Flashing](¤try-before-flashing)
+* [Licensing & References](licensing--references)
 
 
 Introduction
@@ -122,6 +123,23 @@ Bugs & Feature Requests
 Feel free to report bugs and request features, or even submit your own
 [pull requests](https://help.github.com/articles/using-pull-requests/)
 using [GitHub][Home].
+
+
+Try Before Flashing
+-------------------
+
+One of the most tedious things as an embedded engineer is to watch the
+new firmware image update, only after five minutes to find the device no
+longer booting!  One way to reduce turnaround times when working is to
+test and develop your image in Qemu.
+
+myLinux has built-in support for calling `make run` after a successful
+build.  This is just a wrapper for calling the `qemu.sh` script that has
+been generated in your `output/images/` directory.  It comes with a few
+environment variables control the behavior.
+
+ - `MY_HOST=/path/to/host/share`: When this is set Qemu shares the full
+   path argument as `/host` inside your target system.
 
 
 Licensing & References
