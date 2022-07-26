@@ -20,43 +20,43 @@ perform at first boot:
   2. The device uses DHCP to acquire an address
   3. Find the device using, e.g., `mdns-scan` on Linux:
 
-        $ mdns-scan
-        + anarchy._ssh._tcp.local
-        ...
+          $ mdns-scan
+          + anarchy._ssh._tcp.local
+          ...
 
   4. Ping the device `ping anarchy.local`
   5. Log in using ssh (accept the host key):
 
-        $ ssh root@anarchy.local
-        root@anarchy.local's password:
-                         ___    __
-         .--------.--.--|   |  |__.-----.--.--.--.--.  (@-
-         |        |  |  |.  |  |  |     |  |  |_   _|  //\  :: Troglobit Software
-         |__|__|__|___  |.  |__|__|__|__|_____|__.__|  V_/_ :: https://troglobit.com
-                          |_____|:  1   |
-                        |::.. . | A N A R C H Y rel.
-                        `-------'
-        root@anarchy:~#
+          $ ssh root@anarchy.local
+          root@anarchy.local's password:
+                           ___    __
+           .--------.--.--|   |  |__.-----.--.--.--.--.  (@-
+           |        |  |  |.  |  |  |     |  |  |_   _|  //\  :: Troglobit Software
+           |__|__|__|___  |.  |__|__|__|__|_____|__.__|  V_/_ :: https://troglobit.com
+                            |_____|:  1   |
+                          |::.. . | A N A R C H Y rel.
+                          `-------'
+          root@anarchy:~#
 
   6. Change your system password, use `pwgen` for inspiration:
 
-        root@anarchy:~# passwd
+          root@anarchy:~# passwd
 
   7. Change hostname, skip if you don't need it:
 
-        root@anarchy:~# edit /etc/hostname
-        root@anarchy:~# edit /etc/hosts
+          root@anarchy:~# edit /etc/hostname
+          root@anarchy:~# edit /etc/hosts
 
      Changes take effect on next reboot, or: `hostname /etc/hostname`
 
   9. Configure your WiFi network, the sample config should be helpful:
 
-        root@anarchy:~# edit /etc/wpa_supplicant.conf
+          root@anarchy:~# edit /etc/wpa_supplicant.conf
 
   9. Enable the wpa_supplicant Finit service:
 
-        root@anarchy:~# initctl enable wpa_supplicant
-        root@anarchy:~# initctl reload
+          root@anarchy:~# initctl enable wpa_supplicant
+          root@anarchy:~# initctl reload
 
      Check status of service with: `initctl status wpa_supplicant`
 
