@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        config: [espressobin, macchiatobin, amd64]
+        config: [espressobin, macchiatobin, amd64, zero]
     steps:
       - uses: actions/checkout@v2
         with:
