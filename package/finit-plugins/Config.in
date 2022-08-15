@@ -1,0 +1,10 @@
+if BR2_PACKAGE_FINIT
+
+config BR2_PACKAGE_FINIT_PLUGINS
+	bool "finit plugins"
+	help
+	  Repository of 3rd party plugins for Finit.
+
+          https://github.com/troglobit/finit-plugins
+
+endif
