@@ -30,7 +30,7 @@ config QEMU_MEM
 
 config QEMU_EXTRA
 	string "Extra args"
-	default " -watchdog i6300esb -rtc clock=host"
+	default " -device i6300esb -rtc clock=host"
 
 choice
 	bool "Network mode"
