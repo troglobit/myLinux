@@ -7,4 +7,14 @@ config BR2_PACKAGE_FINIT_PLUGINS
 
           https://github.com/troglobit/finit-plugins
 
+if BR2_PACKAGE_FINIT_PLUGINS
+
+config BR2_PACKAGE_FINIT_PLUGINS_CHRONY
+	bool "chrony plugin"
+
+config BR2_PACKAGE_FINIT_PLUGINS_QMI_PROXY
+	bool "qmi-proxy plugin"
+
+endif
+
 endif
