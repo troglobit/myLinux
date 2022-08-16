@@ -65,6 +65,12 @@ else
 FINIT_CONF_OPTS += --disable-hotplug-plugin
 endif
 
+ifeq ($(BR2_PACKAGE_FINIT_PLUGIN_MDEVD),y)
+FINIT_CONF_OPTS += --enable-mdevd-plugin
+else
+FINIT_CONF_OPTS += --disable-mdevd-plugin
+endif
+
 ifeq ($(BR2_PACKAGE_FINIT_PLUGIN_HOOK_SCRIPTS),y)
 FINIT_CONF_OPTS += --enable-hook-scripts-plugin
 else
