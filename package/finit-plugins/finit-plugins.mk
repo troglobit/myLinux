@@ -8,7 +8,7 @@ FINIT_PLUGINS_VERSION = 1.0
 FINIT_PLUGINS_SITE = $(call github,troglobit,finit-plugins,$(FINIT_PLUGINS_VERSION))
 FINIT_PLUGINS_LICENSE = MIT
 FINIT_PLUGINS_LICENSE_FILES = LICENSE
-FINIT_PLUGINS_DEPENDENCIES = host-pkgconf libite
+FINIT_PLUGINS_DEPENDENCIES = host-pkgconf libite finit
 FINIT_PLUGINS_CONF_OPTS = --prefix=/usr --disable-silent-rules
 
 # Only when building from GIT hash
