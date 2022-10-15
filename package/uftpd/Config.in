@@ -1,5 +1,8 @@
 config BR2_PACKAGE_UFTPD
 	bool "uftpd"
+	depends on BR2_USE_MMU # fork()
+	select BR2_PACKAGE_LIBITE
+	select BR2_PACKAGE_LIBUEV
 	help
 	  uftpd is a UNIX daemon with sane built-in defaults.  It just works.
 
