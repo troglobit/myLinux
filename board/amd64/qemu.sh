@@ -15,7 +15,7 @@ stty raw
 
 # Start Qemu -nographic or -display none
 qemu-system-x86_64 -M q35,accel=kvm -smp 2 -nographic -m 256M -cpu host -enable-kvm	\
-	-watchdog i6300esb -rtc clock=host -kernel output/images/bzImage		\
+	-device i6300esb -rtc clock=host -kernel output/images/bzImage			\
 	-drive file=output/images/rootfs.ext2,if=virtio,format=raw -append "$ARGS"	\
 	-net nic,model=virtio -net user -net nic,model=virtio -net user
 
