@@ -24,17 +24,4 @@ $(config):
 buildroot/Makefile:
 	@git submodule update --init --recursive
 
-run:
-	@if [ ! -f $(O)/images/qemu.sh ]; then \
-		echo ">>> Qemu not supported yet for this target."; \
-		exit 1; \
-	fi
-	@echo "Starting Qemu  ::  Ctrl-a x -- exit | Ctrl-a c -- toggle console/monitor"
-	@(cd $(O)/images && ./qemu.sh)
-
-debug:
-	@[ -f $(O)/staging/.gdbinit ]    || cp $(CURDIR)/.gdbinit $(O)/staging/.gdbinit
-	@[ -f $(O)/staging/.gdbinit.py ] || cp $(CURDIR)/.gdbinit.py $(O)/staging/.gdbinit.py
-	@(cd $(O)/staging/ && gdb-multiarch)
-
 .PHONY: all run debug

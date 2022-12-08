@@ -251,6 +251,8 @@ cat <<-EOF > "$dir/qemu.sh"
 	# Disable pulseaudio warning
 	export QEMU_AUDIO_DRV=none
 
+	echo "Starting Qemu  ::  Ctrl-a x -- exit | Ctrl-a c -- toggle console/monitor"
+
 	# Save current line settings, then disable all of them so that
 	# everything is passed through to the guest (C-c, C-z etc.).
 	line=\$(stty -g)
