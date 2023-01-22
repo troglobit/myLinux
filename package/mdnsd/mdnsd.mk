@@ -3,11 +3,25 @@
 # mdnsd
 #
 ################################################################################
-MDNSD_VERSION = 0.11
+
+MDNSD_VERSION = 0.12
 MDNSD_SITE = https://github.com/troglobit/mdnsd/releases/download/v$(MDNSD_VERSION)
 MDNSD_LICENSE = BSD-3-Clause
 MDNSD_LICENSE_FILES = LICENSE
 MDNSD_INSTALL_STAGING = YES
+
+ifeq ($(BR2_PACKAGE_MDNSD_MQUERY),y)
+MDNSD_CONF_OPTS += --with-mquery
+else
+MDNSD_CONF_OPTS += --without-mquery
+endif
+
+ifeq ($(BR2_PACKAGE_SYSTEMD),y)
+MDNSD_DEPENDENCIES += systemd
+MDNSD_CONF_OPTS += --with-systemd
+else
+MDNSD_CONF_OPTS += --without-systemd
+endif
 
 ifeq ($(BR2_PACKAGE_MDNSD_FTP_SERVICE),y)
 define MDNSD_INSTALL_FTP_SERVICE
@@ -48,6 +62,15 @@ define MDNSD_INSTALL_SSH_SERVICE
 endef
 MDNSD_POST_INSTALL_TARGET_HOOKS += MDNSD_INSTALL_SSH_SERVICE
 endif
+
+define MDNSD_INSTALL_INIT_SYSV
+	$(INSTALL) -m 755 -D package/mdnsd/S50mdnsd $(TARGET_DIR)/etc/init.d/
+endef
+
+define MDNSD_INSTALL_INIT_SYSTEMD
+	$(INSTALL) -D -m 644 $(@D)/mdnsd.service \
+		$(TARGET_DIR)/usr/lib/systemd/system/mdnsd.service
+endef
 
 define MDNSD_INSTALL_FINIT_SVC
 	$(INSTALL) -D -m 0644 $(BR2_EXTERNAL_MYLINUX_PATH)/package/mdnsd/mdnsd.svc \
