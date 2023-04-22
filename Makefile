@@ -7,7 +7,7 @@ O      ?= $(CURDIR)/output
 config := $(O)/.config
 bmake   = $(MAKE) -C buildroot O=$(O) $1
 
-
+.PHONY: all
 all: $(config) buildroot/Makefile
 	@+$(call bmake,$@)
 
@@ -18,10 +18,9 @@ $(config):
 	@echo "'make <board>_defconfig' before building an image."
 	@exit 1
 
-%: buildroot/Makefile
+%: | buildroot/Makefile
 	@+$(call bmake,$@)
 
 buildroot/Makefile:
 	@git submodule update --init --recursive
 
-.PHONY: all run debug
