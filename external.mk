@@ -1,9 +1,9 @@
 include $(sort $(wildcard $(BR2_EXTERNAL_MYLINUX_PATH)/package/*/*.mk))
 
-.PHONY: local.mk
-local.mk:
-	@echo "Installing local override for certain packages ..."
-	@(cd $O && ln -s $(BR2_EXTERNAL_MYLINUX_PATH)/local.mk .)
+.PHONY: override
+override:
+	@printf "\e[7m>>> Installing local override for certain packages ...\e[0m\n"
+	@(cd $O && ln -sf $(BR2_EXTERNAL_MYLINUX_PATH)/local.mk .)
 
 .PHONY: run
 run:
