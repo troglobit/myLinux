@@ -111,16 +111,6 @@ config BR2_PACKAGE_FINIT_PLUGIN_HOTPLUG
 
 	  For lxc/docker application builds you do not need this.
 
-config BR2_PACKAGE_FINIT_PLUGIN_MDEVD
-	bool "mdevd plugin (complement to hotplug)"
-	help
-	  By default, Finit builds and launches its hotplug plugin,
-	  which starts either udev or mdev (BusyBox).  In contrast
-	  mdevd replaces mdev, so enabling this plugin will cause
-	  hotplug to essentially ne bypassed.
-
-	  For lxc/docker application builds you do not need this.
-
 config BR2_PACKAGE_FINIT_PLUGIN_HOOK_SCRIPTS
 	bool "hook scripts"
 	default n
