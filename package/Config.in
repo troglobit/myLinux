@@ -1,4 +1,5 @@
 source "$BR2_EXTERNAL_MYLINUX_PATH/package/cligen/Config.in"
+source "$BR2_EXTERNAL_MYLINUX_PATH/package/clixon/Config.in"
 source "$BR2_EXTERNAL_MYLINUX_PATH/package/finit/Config.in"
 source "$BR2_EXTERNAL_MYLINUX_PATH/package/finit-plugins/Config.in"
 source "$BR2_EXTERNAL_MYLINUX_PATH/package/skeleton-init-finit/Config.in"
