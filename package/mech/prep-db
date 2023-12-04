@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-FACTORY=/mnt/tmp/infix/db/factory_db
+FACTORY=/run/clixon/db/factory_db
 
 # TODO: Maybe copy in a proper factory config from
 # /usr/share/vendor/<hardware-id>_db or similar.
@@ -16,4 +16,4 @@ cat <<EOF >$FACTORY
 </config>
 EOF
 
-[ -f /cfg/startup_db ] || cp "$FACTORY" /cfg/startup_db
+[ -f /var/lib/misc/startup_db ] || cp "$FACTORY" /var/lib/misc/startup_db
