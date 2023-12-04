@@ -4,6 +4,7 @@
 #define MECH_COMMON_H_
 
 #include <stdbool.h>
+#include <signal.h>
 #include <cligen/cligen.h>
 #include <clixon/clixon.h>
 #include <clixon/clixon_backend.h>

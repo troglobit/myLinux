@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 #include <syslog.h>
-
+#include <signal.h>
 #include <cligen/cligen.h>
 #include <clixon/clixon.h>
 #include <clixon/clixon_backend.h>

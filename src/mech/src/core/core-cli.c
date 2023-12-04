@@ -2,7 +2,7 @@
 
 #include <glob.h>
 #include <stdio.h>
-
+#include <signal.h>
 #include <cligen/cligen.h>
 #include <clixon/clixon.h>
 #include <clixon/clixon_cli.h>
