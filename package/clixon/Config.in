@@ -2,6 +2,7 @@ config BR2_PACKAGE_CLIXON
 	bool "clixon"
 	depends on BR2_USE_MMU
 	select BR2_PACKAGE_CLIGEN
+	select BR2_PACKAGE_OPENSSL
 #	select BR2_PACKAGE_LIBCURL
 #	select BR2_PACKAGE_LIBXML2
 	help
