@@ -1,1 +1,2 @@
-admin -1 wheel -1 =admin - /bin/sh - Administrator
+clicon   -1 clicon   -1 *      - -             wheel Clixon backend
+www-data -1 www-data -1 *      - -             clicon www-data
