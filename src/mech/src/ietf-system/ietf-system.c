@@ -327,7 +327,7 @@ disable:
 		remove(fn);
 
 	if (run("initctl cond get hook/sys/up")) {
-		clicon_log(LOG_ERR, "ietf-system: failed cond get hook/sys/up");
+//		clicon_log(LOG_ERR, "ietf-system: failed cond get hook/sys/up");
 		return 0;
 	}
 
