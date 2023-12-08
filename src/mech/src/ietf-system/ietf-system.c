@@ -155,11 +155,9 @@ int ietf_sys_tr_commit_hostname(cxobj *src, cxobj *tgt)
  */
 int ietf_sys_tr_commit_clock(cxobj *src, cxobj *tgt)
 {
-	const char *fn = "/etc/timezone";
 	char *timezone;
 	char cmd[512];
 	cxobj *obj;
-	FILE *fp;
 
 	if (!tgt)
 		return 0;
@@ -169,6 +167,17 @@ int ietf_sys_tr_commit_clock(cxobj *src, cxobj *tgt)
 		return 0;
 
 	timezone = xml_body(obj);
+
+#ifdef __UCLIBC__
+	snprintf(cmd, sizeof(cmd), "ln -sf /usr/share/zoneinfo/uclibc/%s /etc/TZ", timezone);
+	if (run(cmd)) {
+		clicon_log(LOG_WARNING, "ietf-system: failed setting timezone %s", timezone);
+		return -1;
+	}
+	return 0;
+#else
+	const char *fn = "/etc/timezone";
+	FILE *fp;
 
 	snprintf(cmd, sizeof(cmd), "cp /usr/share/zoneinfo/%s /etc/localtime", timezone);
 	if (run(cmd)) {
@@ -184,6 +193,7 @@ int ietf_sys_tr_commit_clock(cxobj *src, cxobj *tgt)
 	fprintf(fp, "%s\n", timezone);
 
 	return fclose(fp);
+#endif
 }
 
 int ietf_sys_tr_commit_ntp(cxobj *src, cxobj *tgt)
