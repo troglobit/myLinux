@@ -73,6 +73,7 @@ define CLIXON_INSTALL_EXTRA
 	ln -sf clixon_cli $(TARGET_DIR)/usr/bin/clish
 	grep -qsE '^/usr/bin/clish$$' "$(TARGET_DIR)/etc/shells" \
 		|| echo "/usr/bin/clish" >> "$(TARGET_DIR)/etc/shells"
+	echo "alias cli=clish" > "$(TARGET_DIR)/etc/profile.d/clixon.sh"
 endef
 CLIXON_POST_INSTALL_TARGET_HOOKS += CLIXON_INSTALL_EXTRA
 
