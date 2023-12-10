@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-FINIT_VERSION = 4.5-rc5
+FINIT_VERSION = 4.6
 FINIT_SITE = https://github.com/troglobit/finit/releases/download/$(FINIT_VERSION)
 FINIT_LICENSE = MIT
 FINIT_LICENSE_FILES = LICENSE
@@ -14,11 +14,10 @@ FINIT_INSTALL_STAGING = YES
 FINIT_D = $(TARGET_DIR)/etc/finit.d
 
 # Create configure script using autoreconf when building from git
-FINIT_VERSION = d5738da3077792f5a97daf8802750ffd25121c6c
-FINIT_SITE = https://github.com/troglobit/finit.git
-FINIT_SITE_METHOD = git
-FINIT_AUTORECONF = YES
-FINIT_DEPENDENCIES += host-automake host-autoconf host-libtool
+#FINIT_VERSION = 438d6b4e638418a2a22024a3cead2f47909d72b9
+#FINIT_SITE = $(call github,troglobit,finit,$(FINIT_VERSION))
+#FINIT_AUTORECONF = YES
+#FINIT_DEPENDENCIES += host-automake host-autoconf host-libtool
 
 # Buildroot defaults to /usr for both prefix and exec-prefix, this we
 # must override because we want to install into /sbin and /bin for the
@@ -117,6 +116,12 @@ ifeq ($(BR2_PACKAGE_ALSA_UTILS),y)
 FINIT_CONF_OPTS += --enable-alsa-utils-plugin
 else
 FINIT_CONF_OPTS += --disable-alsa-utils-plugin
+endif
+
+ifeq ($(BR2_PACKAGE_BASH_COMPLETION),y)
+FINIT_CONF_OPTS += --with-bash-completiond-dir
+else
+FINIT_CONF_OPTS += --without-bash-completiond-dir
 endif
 
 ifeq ($(BR2_PACKAGE_DBUS),y)

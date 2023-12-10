@@ -102,7 +102,6 @@ endif
 config BR2_PACKAGE_FINIT_PLUGIN_HOTPLUG
 	bool "Start (udevd/mdev -df) at boot"
 	help
-
 	  By default, Finit installs /lib/finit/system/10-hotplug.conf
 	  which detects if the system has udevd or mdev daemon.  They
 	  are both used to probe for devices, load modules and firmware
