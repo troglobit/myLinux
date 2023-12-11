@@ -9,7 +9,7 @@ configure @datamodelmode, cli_auto_edit("basemodel");  # XXX: should edit 'nativ
 up, cli_auto_up("basemodel");      # XXX: remove
 end, cli_auto_up("basemodel");
 top, cli_auto_top("basemodel");    # XXX: remove
-leave, cli_auto_top("basemodel");  # XXX: should leave configure mode and validate candiate
+leave, cli_validate(), cli_commit(), cli_auto_top("basemodel");  # XXX: should leave configure mode and validate candiate
 set @datamodel, cli_auto_set();
 merge @datamodel, cli_auto_merge();
 create @datamodel, cli_auto_create();
