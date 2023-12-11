@@ -120,7 +120,7 @@ int ietf_sys_tr_commit_hostname(cxobj *src, cxobj *tgt)
 	char **hosts, *old;
 
 	if (src && xml_flag(src, XML_FLAG_DEL))
-		new = "infix";	/* XXX: derive from global "options.h" */
+		new = "default";	/* XXX: derive from global "options.h" */
 	else if (tgt && xml_flag(tgt, XML_FLAG_ADD|XML_FLAG_CHANGE))
 		new = xml_body(tgt);
 	else
