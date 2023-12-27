@@ -1,0 +1,41 @@
+From 0d4053018e7e49adc4737c741157f1497b2a3e68 Mon Sep 17 00:00:00 2001
+From: Joachim Wiberg <troglobit@gmail.com>
+Date: Wed, 27 Dec 2023 11:26:06 +0100
+Subject: [PATCH 2/3] ntpd: always create PID file
+
+Regardless if the process runs in foregrund or background, as a courtesy
+to users, we should always create the PID file.  Modern init systems run
+daemons in the foreground to monitor them, and some use the creation of
+PID file as a sign to start any other process that may depend on it.
+
+Signed-off-by: Joachim Wiberg <troglobit@gmail.com>
+---
+ networking/ntpd.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/networking/ntpd.c b/networking/ntpd.c
+index a044804a0..e19ff8b43 100644
+--- a/networking/ntpd.c
++++ b/networking/ntpd.c
+@@ -2451,9 +2451,6 @@ static NOINLINE void ntp_init(char **argv)
+ 		G.stratum = 1;
+ 	}
+ 
+-	if (!(opts & OPT_n)) /* only if backgrounded: */
+-		write_pidfile_std_path_and_ext("ntpd");
+-
+ 	/* If network is up, syncronization occurs in ~10 seconds.
+ 	 * We give "ntpd -q" 10 seconds to get first reply,
+ 	 * then another 50 seconds to finish syncing.
+@@ -2480,6 +2477,8 @@ static NOINLINE void ntp_init(char **argv)
+ 		, SIG_IGN
+ 	);
+ //TODO: free unused elements of key_entries?
++
++	write_pidfile_std_path_and_ext("ntpd");
+ }
+ 
+ int ntpd_main(int argc UNUSED_PARAM, char **argv) MAIN_EXTERNALLY_VISIBLE;
+-- 
+2.34.1
+

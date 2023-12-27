@@ -1,0 +1,72 @@
+From 6f50c87b0637e16e4c3250b140d0dd88c560884f Mon Sep 17 00:00:00 2001
+From: Joachim Wiberg <troglobit@gmail.com>
+Date: Sat, 9 May 2020 13:11:40 +0200
+Subject: [PATCH 1/3] ntpd: support logging to syslog even if running in
+ foreground
+
+Signed-off-by: Joachim Wiberg <troglobit@gmail.com>
+---
+ networking/ntpd.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/networking/ntpd.c b/networking/ntpd.c
+index dcbdb8e60..a044804a0 100644
+--- a/networking/ntpd.c
++++ b/networking/ntpd.c
+@@ -72,7 +72,7 @@
+ //kbuild:lib-$(CONFIG_NTPD) += ntpd.o
+ 
+ //usage:#define ntpd_trivial_usage
+-//usage:	"[-dnqNw"IF_FEATURE_NTPD_SERVER("l] [-I IFACE")"] [-S PROG]"
++//usage:	"[-dnqsNw"IF_FEATURE_NTPD_SERVER("l] [-I IFACE")"] [-S PROG]"
+ //usage:	IF_NOT_FEATURE_NTP_AUTH(" [-p PEER]...")
+ //usage:	IF_FEATURE_NTP_AUTH(" [-k KEYFILE] [-p [keyno:N:]PEER]...")
+ //usage:#define ntpd_full_usage "\n\n"
+@@ -82,6 +82,7 @@
+ //usage:     "\n	-q	Quit after clock is set"
+ //usage:     "\n	-N	Run at high priority"
+ //usage:     "\n	-w	Do not set time (only query peers), implies -n"
++//usage:     "\n	-s	Log to syslog, even if running in foreground, -n"
+ //usage:     "\n	-S PROG	Run PROG after stepping time, stratum change, and every 11 min"
+ //usage:	IF_NOT_FEATURE_NTP_AUTH(
+ //usage:     "\n	-p PEER	Obtain time from PEER (may be repeated)"
+@@ -107,6 +108,7 @@
+ 
+ #include "libbb.h"
+ #include <math.h>
++#include <syslog.h>
+ #include <netinet/ip.h> /* For IPTOS_DSCP_AF21 definition */
+ #include <sys/timex.h>
+ #ifndef IPTOS_DSCP_AF21
+@@ -374,6 +376,7 @@ enum {
+ 	OPT_S = (1 << (6+ENABLE_FEATURE_NTP_AUTH)),
+ 	OPT_l = (1 << (7+ENABLE_FEATURE_NTP_AUTH)) * ENABLE_FEATURE_NTPD_SERVER,
+ 	OPT_I = (1 << (8+ENABLE_FEATURE_NTP_AUTH)) * ENABLE_FEATURE_NTPD_SERVER,
++	OPT_s = (1 << (9+ENABLE_FEATURE_NTP_AUTH)) * ENABLE_FEATURE_NTPD_SERVER,
+ 	/* We hijack some bits for other purposes */
+ 	OPT_qq = (1 << 31),
+ };
+@@ -2287,6 +2290,7 @@ static NOINLINE void ntp_init(char **argv)
+ 			IF_FEATURE_NTP_AUTH("k:")  /* compat */
+ 			"wp:*S:"IF_FEATURE_NTPD_SERVER("l") /* NOT compat */
+ 			IF_FEATURE_NTPD_SERVER("I:") /* compat */
++			"s"    /* NOT compat */
+ 			"d" /* compat */
+ 			"46aAbgL" /* compat, ignored */
+ 				"\0"
+@@ -2383,6 +2387,12 @@ static NOINLINE void ntp_init(char **argv)
+ 		config_close(parser);
+ 	}
+ #endif
++
++	if (opts & OPT_s) {
++		openlog(applet_name, LOG_PID, LOG_DAEMON);
++		logmode = LOGMODE_SYSLOG;
++	}
++
+ 	if (peers) {
+ #if ENABLE_FEATURE_NTP_AUTH
+ 		while (peers) {
+-- 
+2.34.1
+
