@@ -100,6 +100,9 @@ append_args()
 		echo -n "root=/dev/vda "
 	fi
 
+	# Disable useless interfaces: dummy0, gre0, gretap0, erspan0, ip_vti0, ip6tnl0
+	echo -n "bonding.max_bonds=0 dummy.numdummies=0 fb_tunnels=none "
+
 	echo -n "${QEMU_APPEND} "
 	if [ -n "${QEMU_INITRD}" ]; then
 		echo -n " -- finit.fstab=/etc/fstab.ro"
