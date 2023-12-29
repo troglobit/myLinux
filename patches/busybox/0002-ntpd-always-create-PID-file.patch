@@ -1,7 +1,7 @@
 From 0d4053018e7e49adc4737c741157f1497b2a3e68 Mon Sep 17 00:00:00 2001
 From: Joachim Wiberg <troglobit@gmail.com>
 Date: Wed, 27 Dec 2023 11:26:06 +0100
-Subject: [PATCH 2/3] ntpd: always create PID file
+Subject: [PATCH 2/4] ntpd: always create PID file
 
 Regardless if the process runs in foregrund or background, as a courtesy
 to users, we should always create the PID file.  Modern init systems run
