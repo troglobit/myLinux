@@ -1,15 +1,8 @@
 auto lo
 iface lo inet loopback
+    post-up ip link set state up dev lo
 
-auto eth1
-iface eth1 inet dhcp
-
-auto br0
-iface br0 inet static
-    address 192.168.0.1
-    network 192.168.0.0
-    netmask 255.255.255.0
-    broadcast 192.168.0.255
-    bridge_ports lan1 lan2 lan3 lan4 lan5 lan6
+auto eth0
+iface eth0 inet dhcp
 
 source-directory /etc/network/interfaces.d
