@@ -14,8 +14,6 @@ SNTPD_INSTALL_STAGING = YES
 define SNTPD_INSTALL_FINIT_SVC
 	$(INSTALL) -D -m 0644 $(BR2_EXTERNAL_MYLINUX_PATH)/package/sntpd/sntpd.svc \
 		$(FINIT_D)/available/sntpd.conf
-	$(INSTALL) -d -m 0755 $(FINIT_D)/enabled
-	ln -sf ../available/sntpd.conf $(FINIT_D)/enabled/sntpd.conf
 endef
 
 SNTPD_POST_INSTALL_TARGET_HOOKS += SNTPD_INSTALL_FINIT_SVC
