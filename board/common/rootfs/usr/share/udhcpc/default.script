@@ -100,6 +100,15 @@ case "$ACTION" in
 			wait_for_ipv6_default_route
 		fi
 
+		# Create before setting default route, which starts ntpd
+		if [ -n "$ntpsrv" ]; then
+		    logger -it "$tag" -p daemon.debug "$interface: NTP server $ntpsrv"
+		    truncate -s 0 /etc/ntp.conf
+		    for srv in $ntpsrv; do
+			echo "server $srv" >> /etc/ntp.conf
+		    done
+		fi
+
 		# RFC3442: If the DHCP server returns both a Classless
 		# Static Routes option and a Router option, the DHCP
 		# client MUST ignore the Router option.
