@@ -1,0 +1,2 @@
+# Allow passwordless login by default (for first setup)
+DROPBEAR_ARGS=-B
