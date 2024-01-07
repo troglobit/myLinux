@@ -1,0 +1,1 @@
+WATCHDOG_ARGS="-T 60 -R 30 /dev/watchdog"

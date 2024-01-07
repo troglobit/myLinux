@@ -1,0 +1,3 @@
+# -r SEC    Interface refresh interval (5-1800), default 600 sec
+# -i SEC    SSDP notify interval (30-900), default 300 sec
+SSDPD_ARGS="-r 5 -i 30"

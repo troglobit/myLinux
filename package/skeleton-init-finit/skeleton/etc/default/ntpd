@@ -1,0 +1,1 @@
+NTPD_ARGS="-l -I eth0"

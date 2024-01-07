@@ -1,0 +1,1 @@
+UDHCPD_ARGS="-S -P 67"
