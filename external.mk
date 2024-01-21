@@ -19,3 +19,10 @@ debug:
 	@[ -f $(O)/staging/.gdbinit.py ] || cp $(CURDIR)/.gdbinit.py $(O)/staging/.gdbinit.py
 	@(cd $(O)/staging/ && gdb-multiarch)
 
+#
+# Buildroot package extensions
+#
+
+ifeq ($(BR2_PACKAGE_LINUX_FIRMWARE_RTL_81XX),y)
+LINUX_FIRMWARE_FILES += rtlwifi/rtl8188fufw.bin
+endif
