@@ -1,0 +1,8 @@
+auto lo
+iface lo inet loopback
+    post-up ip link set state up dev lo
+
+auto eth0
+iface eth0 inet dhcp
+
+source-directory /etc/network/interfaces.d

@@ -1,0 +1,2 @@
+# Allow passwordless login by default (for first setup) on LAN interface
+DROPBEAR_ARGS=-B -p 192.168.0.1:22
