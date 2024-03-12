@@ -19,13 +19,13 @@ table ip filter {
     chain lan {
         icmp type echo-request accept
 
-	# allow DHCP, DNS and SSH from the private network
+        # allow DHCP, DNS and SSH from the private network
         ip protocol . th dport vmap {
-	    tcp . 22 : accept,
-	    udp . 53 : accept,
-	    tcp . 53 : accept,
-	    udp . 67 : accept
-	}
+            tcp . 22 : accept,
+            udp . 53 : accept,
+            tcp . 53 : accept,
+            udp . 67 : accept
+        }
     }
 
     chain input {
@@ -33,17 +33,17 @@ table ip filter {
 
         # Allow traffic from established and related packets, drop invalid
         ct state vmap {
-	    established : accept,
-	    related     : accept,
-	    invalid     : drop
-	}
+            established : accept,
+            related     : accept,
+            invalid     : drop
+        }
 
         # allow loopback traffic, anything else jump to chain for further evaluation
         iifname vmap {
-	    lo   : accept,
-	    $WAN : jump wan,
-	    $LAN : jump lan
-	}
+            lo   : accept,
+            $WAN : jump wan,
+            $LAN : jump lan
+        }
 
         # the rest is dropped by the above policy
     }
@@ -53,10 +53,10 @@ table ip filter {
 
         # Allow traffic from established and related packets, drop invalid
         ct state vmap {
-	    established : accept,
-	    related     : accept,
-	    invalid     : drop
-	}
+            established : accept,
+            related     : accept,
+            invalid     : drop
+        }
 
         # connections from LAN to the internet or to other intranets are allowed
         iifname $LAN accept
@@ -65,7 +65,6 @@ table ip filter {
     }
 }
 
-
 table ip nat {
     chain prerouting {
         type nat hook prerouting priority filter; policy accept;
@@ -73,6 +72,6 @@ table ip nat {
 
     chain postrouting {
         type nat hook postrouting priority srcnat; policy accept;
-	ip saddr $NET oif $WAN masquerade
+        ip saddr $NET oif $WAN masquerade
     }
 }
