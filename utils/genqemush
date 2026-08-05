@@ -95,7 +95,6 @@ append_args()
 		# Size of initrd, rounded up to nearest kb
 		size=$((($(find "$dir" -name "${QEMU_INITRD}" -printf %s)+1023) >> 10))
 		echo -n "root=/dev/ram ramdisk_size=${size} "
-		echo -n "block2mtd.block2mtd=/dev/vda,,Config "
 	else
 		echo -n "root=/dev/vda "
 	fi
@@ -230,7 +229,8 @@ cat <<-EOF > "$dir/qemu.sh"
 	{
 	    [ -z "\${MY_IRD}" ] || [ -z "\$MY_MNT" ] && return
 	    if [ ! -e "\$MY_MNT" ] && [ -d \$(dirname "\$MY_MNT") ]; then
-	        dd if=/dev/zero bs=16384 count=960 2>/dev/null | tr '\000' '\377' > "\$MY_MNT"
+	        dd if=/dev/zero bs=16384 count=960 of="\$MY_MNT" 2>/dev/null
+	        mkfs.ext4 -q -L Config -F "\$MY_MNT"
 	    fi
 	    echo -n "-drive file=\$MY_MNT,if=virtio,format=raw,discard=unmap"
 	}
@@ -250,6 +250,9 @@ cat <<-EOF > "$dir/qemu.sh"
 	    [ -z "\${MY_HST}" ] && return
 	    echo "-virtfs local,path=\${MY_HST},security_model=none,writeout=immediate,mount_tag=hostfs"
 	}
+
+	# mkfs.ext4 (mnt_args, first run) often lives in /sbin, not always in PATH
+	export PATH="/sbin:/usr/sbin:\$PATH"
 
 	# Disable pulseaudio warning
 	export QEMU_AUDIO_DRV=none
