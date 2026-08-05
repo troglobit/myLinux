@@ -1,1 +1,6 @@
-service [2345] env:-/etc/default/uftpd uftpd -sn $UFTPD_ARGS -- FTP/TFTP server
+service uftpd {
+    description = "FTP/TFTP server"
+    runlevel    = "2345"
+    envfile     = "-/etc/default/uftpd"
+    command     = "uftpd -sn $UFTPD_ARGS"
+}

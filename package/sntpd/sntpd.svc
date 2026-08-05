@@ -1,1 +1,6 @@
-service [2345] <net/route/default> /usr/sbin/sntpd -sn -- Simple NTP daemon
+service sntpd {
+    description = "Simple NTP daemon"
+    runlevel    = "2345"
+    conditions  = { "net/route/default" }
+    command     = "/usr/sbin/sntpd -sn"
+}

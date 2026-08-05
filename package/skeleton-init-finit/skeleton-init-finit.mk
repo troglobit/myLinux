@@ -16,15 +16,14 @@ SKELETON_INIT_FINIT_AVAILABLE = $(SKELETON_INIT_FINIT_PKGDIR)/skeleton/etc/finit
 # Enable when BR2_INIT_FINT
 #SKELETON_INIT_FINIT_PROVIDES = skeleton
 
-# Prefer Finit built-in getty unless options are set, squash zero baudrate
+# Prefer Finit built-in getty unless options are set, baud 0 keeps kernel default
 define SKELETON_INIT_FINIT_GETTY
 	if [ -z "$(SYSTEM_GETTY_OPTIONS)" ]; then \
-		if [ $(SYSTEM_GETTY_BAUDRATE) -eq 0 ]; then \
-			SYSTEM_GETTY_BAUDRATE=""; \
-		fi; \
-		echo "tty [12345789] $(SYSTEM_GETTY_PORT) $(SYSTEM_GETTY_BAUDRATE) $(SYSTEM_GETTY_TERM) noclear passenv"; \
+		printf 'tty %s {\n    runlevel = "12345789"\n    device   = "%s"\n    baud     = %s\n    term     = "%s"\n    noclear  = true\n    passenv  = true\n}\n' \
+			"$(SYSTEM_GETTY_PORT)" "$(SYSTEM_GETTY_PORT)" "$(SYSTEM_GETTY_BAUDRATE)" "$(SYSTEM_GETTY_TERM)"; \
 	else \
-		echo "tty [12345789] /sbin/getty -L $(SYSTEM_GETTY_OPTIONS) $(SYSTEM_GETTY_BAUDRATE) $(SYSTEM_GETTY_PORT) $(SYSTEM_GETTY_TERM)"; \
+		printf 'tty %s {\n    runlevel = "12345789"\n    command  = "/sbin/getty -L %s %s %s %s"\n}\n' \
+			"$(SYSTEM_GETTY_PORT)" "$(SYSTEM_GETTY_OPTIONS)" "$(SYSTEM_GETTY_BAUDRATE)" "$(SYSTEM_GETTY_PORT)" "$(SYSTEM_GETTY_TERM)"; \
 	fi
 endef
 
@@ -48,7 +47,7 @@ endif
 
 ifeq ($(BR2_PACKAGE_AVAHI_AUTOIPD),y)
 define SKELETON_INIT_FINIT_SET_AVAHI_AUTOIPD
-	echo "service [2345789] name:zeroconf :%i avahi-autoipd --force-bind --syslog %i -- ZeroConf for %i" \
+	printf 'service zeroconf:%%i {\n    description = "ZeroConf for %%i"\n    runlevel    = "2345789"\n    command     = "avahi-autoipd --force-bind --syslog %%i"\n}\n' \
 		> $(FINIT_D)/available/zeroconf@.conf
 endef
 SKELETON_INIT_FINIT_POST_INSTALL_TARGET_HOOKS += SKELETON_INIT_FINIT_SET_AVAHI_AUTOIPD
