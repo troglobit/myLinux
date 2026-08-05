@@ -207,7 +207,7 @@ cat <<-EOF > "$dir/qemu.sh"
 	MY_DRV=${QEMU_DISK}
 	MY_MNT=~/.cache/mylinux-$(basename "$BR2_DEFCONFIG" | sed 's/_defconfig//')-config.img
 	MY_USB="\${MY_USB:-}"
-	MY_HST="\${MY_HOST:-}"
+	MY_HST="\${MY_HOST:-\$HOME}"
 
 	cpu_args()
 	{
