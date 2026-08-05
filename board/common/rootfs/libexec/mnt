@@ -17,8 +17,13 @@ mnt()
 	    fstab="-T$FSTAB_FILE"
     fi
 
-    mountpoint -q "$mp"         && return 0
-    mount "$fstab"   mtd:Config && return 0
+    mountpoint -q "$mp" && return 0
+
+    # Only try the MTD backing when a Config partition exists, else the
+    # failed lookup spams MTD errors on eMMC/disk (LABEL=Config) systems.
+    if grep -q '"Config"' /proc/mtd 2>/dev/null; then
+        mount "$fstab"   mtd:Config && return 0
+    fi
     mount "$fstab" LABEL=Config && return 0
 
     return 1
