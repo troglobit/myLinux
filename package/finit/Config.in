@@ -51,6 +51,15 @@ config BR2_PACKAGE_FINIT_INITCTL_GROUP
 	  to their shared UNIX group, usually "wheel", to allow
 	  them to start/stop services and reboot the system.
 
+config BR2_PACKAGE_FINIT_DBUS
+	bool "native D-Bus support"
+	default y
+	help
+	  Expose the running init system on D-Bus, so initctl and generic
+	  D-Bus tooling can drive and observe services.  No dbus-daemon is
+	  required; also install the dbus package to make Finit visible on
+	  the system bus.
+
 config BR2_PACKAGE_FINIT_KEVENTD
 	bool "finit-keventd"
 	default n

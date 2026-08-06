@@ -33,6 +33,14 @@ FINIT_CONF_OPTS =					\
 	--disable-silent-rules				\
 	--with-group=$(BR2_PACKAGE_FINIT_INITCTL_GROUP)
 
+# Native, broker-less D-Bus support; the system-bus presence only
+# kicks in when the dbus package is installed.
+ifeq ($(BR2_PACKAGE_FINIT_DBUS),y)
+FINIT_CONF_OPTS += --enable-dbus
+else
+FINIT_CONF_OPTS += --disable-dbus
+endif
+
 ifeq ($(BR2_PACKAGE_FINIT_ADVANCED),y)
 ifneq ($(BR2_PACKAGE_FINIT_CUSTOM_FSTAB),)
 FINIT_CONF_OPTS += --with-fstab=$(BR2_PACKAGE_FINIT_CUSTOM_FSTAB)
