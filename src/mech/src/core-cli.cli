@@ -126,6 +126,11 @@ show("Show various system state and configuration") {
 			}
 		}
 	}
+	factory("Show factory-config, the built-in defaults (stored form)"), cli_show_factory();
+	startup("Show startup-config as JSON"),      cli_show_auto_mode("startup", "json", true, false);
+	running("Show running-config as JSON"),      cli_show_auto_mode("running", "json", true, false);
+	operational("Show operational data as JSON"), cli_show_auto_mode("running", "json", true, true);
+
 	yang("Show yang specs"), show_yang(); {
 		clixon-example("Show clixon-example yang spec"), show_yang("clixon-example");
 	}

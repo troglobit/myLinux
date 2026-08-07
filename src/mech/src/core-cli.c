@@ -43,6 +43,13 @@ int cli_exec_show(clicon_handle h, cvec *cvv, cvec *argv)
 	return exec(h, cmd);
 }
 
+int cli_show_factory(clicon_handle h, cvec *cvv, cvec *argv)
+{
+	/* The factory config is a static seed, not a live datastore Clixon
+	 * can render, so dump it in its stored form. */
+	return exec(h, "cat /run/clixon/db/factory_db 2>/dev/null");
+}
+
 int cli_exec_log(clicon_handle h, cvec *cvv, cvec *argv)
 {
 	char cmd[128], arg[32];
