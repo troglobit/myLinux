@@ -1,6 +1,9 @@
 #!/bin/sh
+# Host keys live on persistent storage so the device keeps its SSH
+# identity across reboots -- /etc is a ramdisk.  A factory-reset wipes
+# /mnt (and this with it), so a fresh identity is generated next boot.
 tmp=$(mktemp)
-dir=$(dirname "$(grep -r '^HostKey' /etc/ssh/* |tail -1 | awk '{print $2}')")
+dir=/var/lib/ssh
 
 log()
 {
@@ -15,33 +18,30 @@ log()
 check()
 {
     if sshd -t >"$tmp" 2>&1; then
-	log "SSH hostkeys OK, setting ssh-hostkeys condition"
+	log "SSH host keys OK"
 	return 0
     fi
     return 1
 }
+
+mkdir -p "$dir" && chmod 0700 "$dir"
 
 rc=0
 if ! check; then
     files=$(awk '/invalid format/{print $6}' "$tmp" | sed 's/.*"\(.*\)".*/\1/')
     for file in $files; do
 	log -p warn "Removing $file: invalid format!"
-	invalid=yes
- 	rm "$file"
+	rm "$file"
     done
 
-    if [ -n "$invalid" ]; then
-	log "Invalid hostkeys detected, regenerating all SSH hostkeys ..."
-    else
-	log "Generating SSH hostkeys ..."
-    fi
+    log "Generating SSH host keys ..."
+    for type in rsa ecdsa ed25519; do
+	key="$dir/ssh_host_${type}_key"
+	[ -f "$key" ] || ssh-keygen -q -t "$type" -f "$key" -N ""
+    done
 
-    if ssh-keygen -A; then
-	mkdir -p "$dir"
-	mv /etc/ssh/ssh_host_* "$dir/"
-    fi
     if ! check; then
-	log -p err "Failed generating SSH hostkeys!"
+	log -p err "Failed generating SSH host keys!"
 	rc=1
     fi
 fi
