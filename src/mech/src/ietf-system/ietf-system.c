@@ -3,11 +3,14 @@
 #include <augeas.h>
 #include <ctype.h>
 #include <errno.h>
+#include <pwd.h>
+#include <shadow.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <syslog.h>
+#include <sys/stat.h>
 #include <sys/utsname.h>
 #include <sys/sysinfo.h>
 #include <sys/wait.h>
@@ -17,6 +20,10 @@
 #include "common.h"
 
 #define XMLNS "urn:ietf:params:xml:ns:yang:ietf-system"
+
+#define LOGIN_SHELL "/bin/sh"
+#define ADMIN_GROUP "wheel"		/* until NACM maps roles, see infix-parity */
+#define SHADOW_FILE "/etc/shadow"
 
 static augeas *aug;
 static char   *ver = NULL;
@@ -345,6 +352,203 @@ disable:
 	return run("resolvconf -u");
 }
 
+/*
+ * User names reach system() and file paths below, so constrain them to
+ * a safe character set (letters, digits, and _-.) before use -- no '/'
+ * to escape /home, no shell metacharacters to inject commands.
+ */
+static int is_valid_username(const char *user)
+{
+	size_t i;
+
+	if (!user || !user[0])
+		return 0;
+
+	if (!isalpha((unsigned char)user[0]) && user[0] != '_')
+		return 0;
+
+	for (i = 1; user[i]; i++) {
+		char c = user[i];
+
+		if (!isalnum((unsigned char)c) && c != '_' && c != '-' && c != '.')
+			return 0;
+	}
+
+	return 1;
+}
+
+/*
+ * Install a user's password hash straight into /etc/shadow.  BusyBox
+ * chpasswd is not built, so we rewrite the file the way Infix confd does,
+ * clearing the aging fields since the wall clock is unreliable at boot.
+ * An empty hash disables password login ("*") but still permits key auth.
+ */
+static int set_password(const char *user, const char *hash)
+{
+	const char *pw = (hash && *hash) ? hash : "*";
+	struct spwd *sp;
+	FILE *fp;
+	int fd;
+
+	if (lckpwdf()) {
+		clicon_log(LOG_WARNING, "ietf-system: cannot lock %s", SHADOW_FILE);
+		return -1;
+	}
+
+	setspent();
+	fp = fopen(SHADOW_FILE "+", "w");
+	if (!fp)
+		goto fail;
+
+	fd = fileno(fp);
+	if (fd == -1 || fchown(fd, 0, 0) || fchmod(fd, 0600)) {
+		fclose(fp);
+		goto fail;
+	}
+
+	while ((sp = getspent())) {
+		struct spwd usp;
+
+		if (!strcmp(sp->sp_namp, user)) {
+			usp = *sp;
+			usp.sp_pwdp   = (char *)pw;
+			usp.sp_lstchg = -1;
+			usp.sp_min    = -1;
+			usp.sp_max    = -1;
+			usp.sp_warn   = -1;
+			usp.sp_inact  = -1;
+			usp.sp_expire = -1;
+			sp = &usp;
+		}
+
+		if (putspent(sp, fp)) {
+			fclose(fp);
+			goto fail;
+		}
+	}
+
+	if (fclose(fp) || rename(SHADOW_FILE "+", SHADOW_FILE))
+		goto fail;
+
+	endspent();
+	ulckpwdf();
+
+	return 0;
+fail:
+	endspent();
+	ulckpwdf();
+	clicon_log(LOG_WARNING, "ietf-system: failed setting password for user %s", user);
+
+	return -1;
+}
+
+/*
+ * Public keys go in a root-owned authorized_keys so sshd's StrictModes is
+ * satisfied and users cannot tamper with their own key set.  This moves to
+ * /run/ssh/%u once we wire AuthorizedKeysFile (see infix-parity).
+ */
+static void set_authorized_keys(cxobj *user, const char *name)
+{
+	cxobj *key = NULL;
+	char path[256];
+	FILE *fp;
+
+	run("mkdir -p /home/%s/.ssh", name);
+
+	snprintf(path, sizeof(path), "/home/%s/.ssh/authorized_keys", name);
+	fp = fopen(path, "w");
+	if (!fp) {
+		clicon_log(LOG_WARNING, "ietf-system: cannot write %s", path);
+		return;
+	}
+
+	while ((key = xml_child_each(user, key, CX_ELMNT))) {
+		const char *alg, *data, *kn;
+
+		if (strcmp(xml_name(key), "authorized-key"))
+			continue;
+
+		alg  = get_str(key, "algorithm");
+		data = get_str(key, "key-data");
+		kn   = get_str(key, "name");
+
+		/* Guard against a stray newline forging extra key lines. */
+		if (!alg || !data || strpbrk(alg, " \t\r\n") || strpbrk(data, " \t\r\n"))
+			continue;
+		if (kn && strpbrk(kn, "\r\n"))
+			kn = NULL;
+
+		fprintf(fp, "%s %s %s\n", alg, data, kn ? kn : name);
+	}
+
+	fclose(fp);
+	chmod(path, 0644);
+}
+
+static int usr_del(const char *name)
+{
+	if (!is_valid_username(name))
+		return 0;
+
+	if (run("deluser --remove-home %s", name))
+		clicon_log(LOG_WARNING, "ietf-system: failed deleting user %s", name);
+
+	return 0;
+}
+
+static int usr_set(cxobj *user)
+{
+	const char *name = get_str(user, "name");
+
+	if (!is_valid_username(name)) {
+		clicon_log(LOG_WARNING, "ietf-system: rejecting invalid user name \"%s\"",
+			   name ? name : "(null)");
+		return 0;
+	}
+
+	if (!getpwnam(name)) {
+		if (run("adduser -D -s %s %s", LOGIN_SHELL, name)) {
+			clicon_log(LOG_WARNING, "ietf-system: failed creating user %s", name);
+			return 0;
+		}
+		run("adduser %s %s", name, ADMIN_GROUP);
+	}
+
+	set_password(name, get_str(user, "password"));
+	set_authorized_keys(user, name);
+
+	return 0;
+}
+
+/*
+ * RFC 7317 local users.  Deletions come from the source (running) tree,
+ * additions and changes from the target (candidate).  On the startup
+ * commit every user is flagged as an addition -- that is how the factory
+ * admin user is created on first boot.
+ */
+int ietf_sys_tr_commit_auth(cxobj *src, cxobj *tgt)
+{
+	cxobj *user;
+
+	user = NULL;
+	while (src && (user = xml_child_each(src, user, CX_ELMNT))) {
+		if (strcmp(xml_name(user), "user"))
+			continue;
+		if (xml_flag(user, XML_FLAG_DEL))
+			usr_del(get_str(user, "name"));
+	}
+
+	user = NULL;
+	while (tgt && (user = xml_child_each(tgt, user, CX_ELMNT))) {
+		if (strcmp(xml_name(user), "user"))
+			continue;
+		if (xml_flag(user, XML_FLAG_ADD | XML_FLAG_CHANGE))
+			usr_set(user);
+	}
+
+	return 0;
+}
+
 int ietf_sys_tr_commit(clicon_handle h, transaction_data td)
 {
 	cxobj *src = transaction_src(td), *tgt = transaction_target(td);
@@ -378,6 +582,11 @@ int ietf_sys_tr_commit(clicon_handle h, transaction_data td)
 
 	err = ietf_sys_tr_commit_dns(slen ? xml_find(ssys[0], "dns-resolver") : NULL,
 				     tlen ? xml_find(tsys[0], "dns-resolver") : NULL);
+	if (err)
+		goto err;
+
+	err = ietf_sys_tr_commit_auth(slen ? xml_find(ssys[0], "authentication") : NULL,
+				      tlen ? xml_find(tsys[0], "authentication") : NULL);
 	if (err)
 		goto err;
 err:

@@ -7,6 +7,9 @@
   <CLICON_FEATURE>ietf-system:timezone-name</CLICON_FEATURE>
   <CLICON_FEATURE>ietf-system:ntp</CLICON_FEATURE>
   <CLICON_FEATURE>ietf-system:ntp-udp-port</CLICON_FEATURE>
+  <CLICON_FEATURE>ietf-system:authentication</CLICON_FEATURE>
+  <CLICON_FEATURE>ietf-system:local-users</CLICON_FEATURE>
+  <CLICON_FEATURE>iana-crypt-hash:crypt-hash-sha-512</CLICON_FEATURE>
   <CLICON_YANG_DIR>@DATAROOTDIR@/clixon</CLICON_YANG_DIR>
   <CLICON_YANG_DIR>@DATAROOTDIR@/yang</CLICON_YANG_DIR>
   <CLICON_YANG_MODULE_MAIN>infix</CLICON_YANG_MODULE_MAIN>
