@@ -5,7 +5,7 @@ opt="-k"
 rc=0
 
 mp=/mnt/rw
-dirs="/mnt/var.u /mnt/var.w /mnt/var.u $mp/vlib.u $mp/vlib.w $mp/etc.u $mp/etc.w\
+dirs="/mnt/var.u /mnt/var.w /mnt/etc.u /mnt/etc.w $mp/vlib.u $mp/vlib.w\
       $mp/root.u $mp/root.w $mp/home.u $mp/home.w"
 resetme="$mp/factory-reset.now"
 

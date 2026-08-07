@@ -28,6 +28,6 @@ tmpfs-Config	/mnt/rw			tmpfs		noauto,noatime,nodiratime	0	0
 
 var  /var     overlay lowerdir=/var,upperdir=/mnt/var.u,workdir=/mnt/var.w		0	0
 vlib /var/lib overlay lowerdir=/var/lib,upperdir=/mnt/rw/vlib.u,workdir=/mnt/rw/vlib.w	0	0
-etc  /etc     overlay lowerdir=/etc,upperdir=/mnt/rw/etc.u,workdir=/mnt/rw/etc.w	0	0
+etc  /etc     overlay lowerdir=/etc,upperdir=/mnt/etc.u,workdir=/mnt/etc.w		0	0
 root /root    overlay lowerdir=/root,upperdir=/mnt/rw/root.u,workdir=/mnt/rw/root.w	0	0
 home /home    overlay lowerdir=/home,upperdir=/mnt/rw/home.u,workdir=/mnt/rw/home.w	0	0
