@@ -1,7 +1,17 @@
 #!/bin/sh
 set -e
 
-FACTORY=/run/clixon/db/factory_db
+DBDIR=/run/clixon/db
+FACTORY=$DBDIR/factory_db
+STARTUP=/var/lib/misc/startup_db
+
+# Own our directories and the startup symlink here rather than relying on
+# tmpfiles having run first: clixon reads $DBDIR/startup_db, and if that
+# link (or the dirs) is not in place before clixon loads -s startup we
+# boot with an empty startup and no admin user, silently.  $DBDIR is on a
+# ramdisk; the startup config itself persists on /var/lib.
+mkdir -p "$DBDIR" /var/lib/misc
+ln -sf "$STARTUP" "$DBDIR/startup_db"
 
 # TODO: Maybe copy in a proper factory config from
 # /usr/share/vendor/<hardware-id>_db or similar.
@@ -29,4 +39,10 @@ cat <<'EOF' >"$FACTORY"
 </config>
 EOF
 
-[ -f /var/lib/misc/startup_db ] || cp "$FACTORY" /var/lib/misc/startup_db
+# Seed the startup config from the factory on first boot or after a reset.
+# Test -s, not -f: a stray empty startup_db (e.g. one clixon wrote before
+# we seeded) must be reseeded too, else it sticks as an empty config.
+if [ ! -s "$STARTUP" ]; then
+	cp "$FACTORY" "$STARTUP"
+	logger -sik -p user.notice -t prep-db "Seeded startup-config from factory"
+fi
