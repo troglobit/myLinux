@@ -10,10 +10,6 @@ AC_CONFIG_FILES([
 	clixon.xml
 	Makefile
 	src/Makefile
-	src/common/Makefile
-	src/core/Makefile
-	src/ietf-interfaces/Makefile
-	src/ietf-system/Makefile
 	yang/Makefile
 ])
 
