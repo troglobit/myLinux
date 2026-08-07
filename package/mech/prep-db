@@ -6,13 +6,26 @@ FACTORY=/run/clixon/db/factory_db
 # TODO: Maybe copy in a proper factory config from
 # /usr/share/vendor/<hardware-id>_db or similar.
 # Right now we generate one from probed data.
-cat <<EOF >$FACTORY
+#
+# The quoted heredoc keeps the shell from mangling the '$6$' password
+# hash.  'admin' logs in with password 'admin' until a real factory-reset
+# flow lets the operator set their own; mech creates the UNIX account
+# (in group wheel) when this config is applied on first boot.
+cat <<'EOF' >"$FACTORY"
 <config>
-<restconf xmlns="http://clicon.org/restconf">
-   <enable>true</enable>
-   <auth-type>none</auth-type>
-   <fcgi-socket>/run/clixon/restconf.sock</fcgi-socket>
-</restconf>
+  <system xmlns="urn:ietf:params:xml:ns:yang:ietf-system">
+    <authentication>
+      <user>
+        <name>admin</name>
+        <password>$6$mylinuxadmin$RVLCgKhKzYZtNSL/3d7suu99ECntGXGbtt.4N9o0mhyo03RUcP1NgLbf2MWzmhFNZ/1oxuoEk1w9VDp6G4a8D.</password>
+      </user>
+    </authentication>
+  </system>
+  <restconf xmlns="http://clicon.org/restconf">
+    <enable>true</enable>
+    <auth-type>none</auth-type>
+    <fcgi-socket>/run/clixon/restconf.sock</fcgi-socket>
+  </restconf>
 </config>
 EOF
 
