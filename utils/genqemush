@@ -196,6 +196,11 @@ fi
 cat <<-EOF > "$dir/qemu.sh"
 	#!/bin/sh
 
+	# Resolve bzImage, rootfs.*, and the config image relative to this
+	# script, so it can be launched from any directory, e.g. from the
+	# tree root as ./output/images/qemu.sh.
+	cd "\$(dirname "\$0")" || exit 1
+
 	MY_CPU="${QEMU_MACH}"
 	MY_SMP="${QEMU_SMP}"
 	MY_MEM="${QEMU_MEM}"
