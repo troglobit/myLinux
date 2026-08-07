@@ -37,6 +37,7 @@ if ! check; then
     fi
 
     if ssh-keygen -A; then
+	mkdir -p "$dir"
 	mv /etc/ssh/ssh_host_* "$dir/"
     fi
     if ! check; then

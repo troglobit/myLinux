@@ -1,0 +1,9 @@
+# Base sshd configuration.  Everything site-specific -- host keys,
+# subsystems, auth policy -- lives in drop-in snippets under
+# sshd_config.d/, which mech will render from startup-config once it
+# manages ssh (cf. Infix confd, src/confd/src/services.c).
+
+# Let clients pass locale through
+AcceptEnv LANG LC_*
+
+Include /etc/ssh/sshd_config.d/*.conf
