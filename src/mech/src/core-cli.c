@@ -114,22 +114,17 @@ int cli_factory_reset(clicon_handle h, cvec *cvv, cvec *argv)
 
 int cli_exec_log(clicon_handle h, cvec *cvv, cvec *argv)
 {
-	char cmd[128], arg[32];
+	const char *tool, *fn = "";
+	char cmd[128];
 	cg_var *cv;
 
-	/* cvv[0] is the whole command, e.g. 'show log btmp' */
-	if (!strncmp("follow", cv_string_get(cvec_i(cvv, 0)), 6))
-		snprintf(cmd, sizeof(cmd), "tail -F ");
-	else
-		snprintf(cmd, sizeof(cmd), "more ");
+	/* Reuse the shell log/follow tools.  cvv[0] is the whole command, so
+	 * 'follow ...' picks follow and 'show log ...' picks log. */
+	tool = strncmp("follow", cv_string_get(cvec_i(cvv, 0)), 6) ? "log" : "follow";
+	if ((cv = cvec_find(cvv, "fn")))
+		fn = cv_string_get(cv);
 
-	cv = cvec_find(cvv, "fn");
-	if (cv) {
-		snprintf(arg, sizeof(arg), _PATH_LOG "%s", cv_string_get(cv));
-		strcat(cmd, arg);
-	} else
-		strcat(cmd, _PATH_LOG "syslog");
-
+	snprintf(cmd, sizeof(cmd), "%s %s", tool, fn);
 	return exec(h, cmd);
 }
 

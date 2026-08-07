@@ -1,0 +1,17 @@
+#!/bin/sh
+# Page or follow a log file under /var/log, shared by the shell and the
+# CLI.  Run as 'log' to page a file (default syslog), or via the 'follow'
+# symlink to monitor it with tail -F -- Ctrl-C aborts.
+dir=/var/log
+file=${1:-syslog}
+case "$file" in
+    /*) ;;
+    *)  file="$dir/$file" ;;
+esac
+
+if [ "$(basename "$0")" = follow ]; then
+	echo "Following $file, press Ctrl-C to abort ..."
+	exec tail -F -n 40 "$file"
+fi
+
+exec less "$file"
