@@ -91,7 +91,7 @@ int logfiles(cligen_handle h, char *fn_str, cvec *cvv, cg_var *argv,
 }
 
 static clixon_plugin_api cli_api = {
-	.ca_name = "infix-cli",
+	.ca_name = "mylinux-cli",
 	.ca_init = clixon_plugin_init,
 };
 

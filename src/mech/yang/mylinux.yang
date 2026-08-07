@@ -1,7 +1,7 @@
-module infix {
+module mylinux {
     yang-version 1.1;
-    namespace "urn:kernelkit:infix";
-    prefix ix;
+    namespace "urn:mylinux";
+    prefix my;
 
     import ietf-datastores {
         prefix ds;
@@ -37,6 +37,10 @@ module infix {
     }
     revision 2023-03-16 {
       description "Add timezone deviations for system/clock.";
+      reference "N/A";
+    }
+    revision 2026-08-07 {
+      description "Rebrand the base model as mylinux.";
       reference "N/A";
     }
 

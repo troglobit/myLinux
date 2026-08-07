@@ -22,7 +22,7 @@
 #define XMLNS "urn:ietf:params:xml:ns:yang:ietf-system"
 
 #define LOGIN_SHELL "/bin/sh"
-#define ADMIN_GROUP "wheel"		/* until NACM maps roles, see infix-parity */
+#define ADMIN_GROUP "wheel"		/* until NACM maps roles */
 #define SHADOW_FILE "/etc/shadow"
 
 static augeas *aug;
@@ -379,8 +379,8 @@ static int is_valid_username(const char *user)
 
 /*
  * Install a user's password hash straight into /etc/shadow.  BusyBox
- * chpasswd is not built, so we rewrite the file the way Infix confd does,
- * clearing the aging fields since the wall clock is unreliable at boot.
+ * chpasswd is not built, so we rewrite the file directly, clearing the
+ * aging fields since the wall clock is unreliable at boot.
  * An empty hash disables password login ("*") but still permits key auth.
  */
 static int set_password(const char *user, const char *hash)
@@ -445,7 +445,7 @@ fail:
 /*
  * Public keys go in a root-owned authorized_keys so sshd's StrictModes is
  * satisfied and users cannot tamper with their own key set.  This moves to
- * /run/ssh/%u once we wire AuthorizedKeysFile (see infix-parity).
+ * /run/ssh/%u once we wire AuthorizedKeysFile.
  */
 static void set_authorized_keys(cxobj *user, const char *name)
 {

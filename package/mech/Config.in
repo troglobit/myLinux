@@ -4,5 +4,5 @@ config BR2_PACKAGE_MECH
 	select BR2_PACKAGE_AUGEAS
 	select BR2_PACKAGE_JANSSON
 	help
-	  Orchestrate an Infix node using any of the front-ends
+	  Orchestrate a myLinux node using any of the front-ends
 	  offered by Clixon, e.g. NETCONF, RESTCONF or SNMP.
