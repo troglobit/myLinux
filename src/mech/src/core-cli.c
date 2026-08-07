@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+#include <errno.h>
 #include <glob.h>
 #include <stdio.h>
 #include <signal.h>
@@ -9,6 +10,7 @@
 #include <clixon/cli_generate.h>
 
 #define _PATH_LOG "/var/log/"
+#define IETF_SYSTEM_NS "urn:ietf:params:xml:ns:yang:ietf-system"
 
 /* Not exported in the common Clixon API, needed to run external commands */
 void cli_signal_block(clicon_handle h);
@@ -50,17 +52,64 @@ int cli_show_factory(clicon_handle h, cvec *cvv, cvec *argv)
 	return exec(h, "cat /run/clixon/db/factory_db 2>/dev/null");
 }
 
+/*
+ * Reboot/poweroff go through the backend, which runs as root, so they
+ * work for any admin -- Finit only lets uid 0 issue the privileged
+ * halt/reboot, and the CLI runs as the logged-in user.
+ */
+static int send_system_rpc(clicon_handle h, const char *op)
+{
+	cxobj *xtop = NULL, *xrpc, *xret = NULL, *xerr;
+	int rc = -1;
+
+	if (clixon_xml_parse_va(YB_NONE, NULL, &xtop, NULL,
+				"<rpc xmlns=\"%s\" username=\"%s\" %s>"
+				"<%s xmlns=\"%s\"/></rpc>",
+				NETCONF_BASE_NAMESPACE, clicon_username_get(h),
+				NETCONF_MESSAGE_ID_ATTR, op, IETF_SYSTEM_NS) < 0)
+		goto done;
+
+	xrpc = xml_child_i(xtop, 0);
+	if (clicon_rpc_netconf_xml(h, xrpc, &xret, NULL) < 0)
+		goto done;
+
+	if ((xerr = xpath_first(xret, NULL, "//rpc-error")) != NULL) {
+		clixon_netconf_error(xerr, op, NULL);
+		goto done;
+	}
+
+	rc = 0;
+done:
+	if (xret)
+		xml_free(xret);
+	if (xtop)
+		xml_free(xtop);
+
+	return rc;
+}
+
+int cli_system_rpc(clicon_handle h, cvec *cvv, cvec *argv)
+{
+	if (cvec_len(argv) != 1) {
+		clicon_err(OE_PLUGIN, EINVAL, "usage: cli_system_rpc(\"<rpc>\")");
+		return -1;
+	}
+
+	return send_system_rpc(h, cv_string_get(cvec_i(argv, 0)));
+}
+
 int cli_factory_reset(clicon_handle h, cvec *cvv, cvec *argv)
 {
-	/* Arm the flag on the persistent store (wheel-writable) and reboot;
-	 * /libexec/mnt wipes /mnt/rw on the way back up.  The flag survives
-	 * a failed reboot, so an operator without reboot rights can still
-	 * complete the reset by power-cycling. */
-	return exec(h,
-		    "printf 'Reset to factory defaults and reboot now (y/N)? '; "
-		    "read ans; case \"$ans\" in [Yy]*) "
-		    "touch /mnt/rw/factory-reset.now && reboot ;; "
-		    "*) echo 'Aborted.' ;; esac");
+	/* Arm the flag on the persistent store (wheel-writable); /libexec/mnt
+	 * wipes /mnt/rw on the way back up.  The shell exits non-zero if the
+	 * operator declines, so we only reboot on confirmation. */
+	if (exec(h,
+		 "printf 'Reset to factory defaults and reboot now (y/N)? '; "
+		 "read ans; case \"$ans\" in [Yy]*) touch /mnt/rw/factory-reset.now ;; "
+		 "*) echo 'Aborted.'; exit 1 ;; esac") != 0)
+		return 0;
+
+	return send_system_rpc(h, "system-restart");
 }
 
 int cli_exec_log(clicon_handle h, cvec *cvv, cvec *argv)

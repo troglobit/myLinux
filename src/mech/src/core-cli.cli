@@ -44,6 +44,9 @@ discard("Discard edits (rollback 0)"), discard_changes();
 
 factory-reset("Erase all configuration and reboot to factory defaults"), cli_factory_reset();
 
+reboot("Reboot the system"), cli_system_rpc("system-restart");
+poweroff("Power off the system"), cli_system_rpc("system-shutdown");
+
 exit("Exit"), cli_quit();
 quit("Exit"), hide, cli_quit();
 
