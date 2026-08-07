@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+"""Attach to the DUT serial console (inside a 'make test-sh' shell).
+
+Bridges the terminal to the qemu console UNIX socket.  Press Ctrl-] to
+detach without disturbing the DUT.
+"""
+import os
+import select
+import socket
+import sys
+import termios
+import tty
+
+DETACH = 0x1d  # Ctrl-]
+
+
+def main():
+    path = os.environ.get("MYTEST_CONSOLE")
+    if not path:
+        sys.exit("No DUT console -- run inside 'make test-sh'.")
+    if not os.path.exists(path):
+        sys.exit(f"Console socket {path} not found "
+                 "(rebuild for MY_CONSOLE support).")
+
+    sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    sock.connect(path)
+    sys.stdout.write("Attached to DUT console -- press Ctrl-] to detach.\r\n")
+    sys.stdout.flush()
+
+    old = termios.tcgetattr(sys.stdin)
+    try:
+        tty.setraw(sys.stdin.fileno())
+        while True:
+            r, _, _ = select.select([sys.stdin, sock], [], [])
+            if sys.stdin in r:
+                data = os.read(sys.stdin.fileno(), 1024)
+                if not data or DETACH in data:
+                    break
+                sock.sendall(data)
+            if sock in r:
+                data = sock.recv(4096)
+                if not data:
+                    break
+                os.write(sys.stdout.fileno(), data)
+    finally:
+        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old)
+        sock.close()
+        sys.stdout.write("\r\nDetached.\r\n")
+
+
+if __name__ == "__main__":
+    main()

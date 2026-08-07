@@ -11,6 +11,14 @@ bmake   = $(MAKE) -C buildroot O=$(O) $1
 all: $(config) buildroot/Makefile
 	@+$(call bmake,$@)
 
+.PHONY: test
+test:
+	@python3 test/run.py
+
+.PHONY: test-sh
+test-sh:
+	@python3 test/run.py --shell
+
 $(config):
 	@+$(call bmake,list-defconfigs)
 	@echo "ERROR: No configuration selected."

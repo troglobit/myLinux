@@ -146,13 +146,6 @@ net_args()
 	done
 }
 
-console_args()
-{
-	echo -n "-device virtio-serial "
-	echo    "-chardev stdio,mux=on,id=hvc0 \\"
-	echo -n "-device virtconsole,chardev=hvc0 "
-	echo -n "-mon chardev=hvc0 "
-}
 
 gdb_args()
 {
@@ -209,9 +202,10 @@ cat <<-EOF > "$dir/qemu.sh"
 	MY_CMD="\${MY_APPEND} $(append_args) \${MY_CMD}"
 	MY_IRD=${QEMU_INITRD}
 	MY_DRV=${QEMU_DISK}
-	MY_MNT=~/.cache/mylinux-$(basename "$BR2_DEFCONFIG" | sed 's/_defconfig//')-config.img
+	MY_MNT="\${MY_MNT:-\$HOME/.cache/mylinux-$(basename "$BR2_DEFCONFIG" | sed 's/_defconfig//')-config.img}"
 	MY_USB="\${MY_USB:-}"
 	MY_HST="\${MY_HOST:-\$HOME}"
+	MY_CONSOLE="\${MY_CONSOLE:-}"
 
 	cpu_args()
 	{
@@ -256,6 +250,23 @@ cat <<-EOF > "$dir/qemu.sh"
 	    echo "-virtfs local,path=\${MY_HST},security_model=none,writeout=immediate,mount_tag=hostfs"
 	}
 
+	console_args()
+	{
+	    if [ -n "\$MY_CONSOLE" ]; then
+	        # Console on a UNIX socket, tee'd to a log: a headless harness
+	        # watches the boot via the log and attaches to the socket for a
+	        # live console.  No stdio here, so no monitor.
+	        echo -n "-device virtio-serial "
+	        echo -n "-chardev socket,id=hvc0,path=\$MY_CONSOLE,server=on,wait=off,logfile=\$MY_CONSOLE.log "
+	        echo -n "-device virtconsole,chardev=hvc0"
+	    else
+	        echo -n "-device virtio-serial "
+	        echo -n "-chardev stdio,mux=on,id=hvc0 "
+	        echo -n "-device virtconsole,chardev=hvc0 "
+	        echo -n "-mon chardev=hvc0"
+	    fi
+	}
+
 	# mkfs.ext4 (mnt_args, first run) often lives in /sbin, not always in PATH
 	export PATH="/sbin:/usr/sbin:\$PATH"
 
@@ -265,20 +276,24 @@ cat <<-EOF > "$dir/qemu.sh"
 	echo "Starting Qemu  ::  Ctrl-a x -- exit | Ctrl-a c -- toggle console/monitor"
 
 	# Save current line settings, then disable all of them so that
-	# everything is passed through to the guest (C-c, C-z etc.).
-	line=\$(stty -g)
-	stty raw
+	# everything is passed through to the guest (C-c, C-z etc.).  Skip
+	# it when stdin is not a tty, e.g. a headless test harness driving
+	# the console over a pipe.
+	if [ -t 0 ]; then
+	    line=\$(stty -g)
+	    stty raw
+	fi
 
 	qemu-system-${QEMU_ARCH} -display none \$(cpu_args) -kernel "\$MY_KRN" \\
 	    -append "\$MY_CMD" $(dtb_args) \\
 	    \$(drv_args) \$(mnt_args) \$(host_args) \\
 	    $(net_args) \\
-	    $(console_args) \\
+	    \$(console_args) \\
 	    $(gdb_args)
 	rc=\$?
 
 	# Restore TTY from Qemu target
-	stty "\$line"
+	[ -t 0 ] && stty "\$line"
 
 	exit \$rc
 EOF
