@@ -50,6 +50,19 @@ int cli_show_factory(clicon_handle h, cvec *cvv, cvec *argv)
 	return exec(h, "cat /run/clixon/db/factory_db 2>/dev/null");
 }
 
+int cli_factory_reset(clicon_handle h, cvec *cvv, cvec *argv)
+{
+	/* Arm the flag on the persistent store (wheel-writable) and reboot;
+	 * /libexec/mnt wipes /mnt/rw on the way back up.  The flag survives
+	 * a failed reboot, so an operator without reboot rights can still
+	 * complete the reset by power-cycling. */
+	return exec(h,
+		    "printf 'Reset to factory defaults and reboot now (y/N)? '; "
+		    "read ans; case \"$ans\" in [Yy]*) "
+		    "touch /mnt/rw/factory-reset.now && reboot ;; "
+		    "*) echo 'Aborted.' ;; esac");
+}
+
 int cli_exec_log(clicon_handle h, cvec *cvv, cvec *argv)
 {
 	char cmd[128], arg[32];

@@ -42,6 +42,8 @@ debug("Debugging parts of the system"){
 
 discard("Discard edits (rollback 0)"), discard_changes();
 
+factory-reset("Erase all configuration and reboot to factory defaults"), cli_factory_reset();
+
 exit("Exit"), cli_quit();
 quit("Exit"), hide, cli_quit();
 
