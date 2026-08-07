@@ -1,0 +1,47 @@
+module mylinux-system {
+    yang-version 1.1;
+    namespace "urn:mylinux:system";
+    prefix mysys;
+
+    import ietf-system {
+        prefix sys;
+    }
+
+    description
+        "myLinux augments to ietf-system, for features pioneered in
+         Infix's confd.";
+
+    revision 2026-08-07 {
+      description "Initial revision: per-user login shell.";
+      reference "N/A";
+    }
+
+    identity shell-type {
+      description "Base identity for a local user's login shell.";
+    }
+
+    identity sh {
+      base shell-type;
+      description "POSIX shell (BusyBox ash), the default login shell.";
+    }
+
+    identity false {
+      base shell-type;
+      description
+        "No interactive login; the account is usable for SSH keys or
+         file transfer only.";
+    }
+
+    augment "/sys:system/sys:authentication/sys:user" {
+      description "myLinux additions to a local user.";
+
+      leaf shell {
+        type identityref {
+          base shell-type;
+        }
+        description
+          "The user's login shell.  When omitted the account gets the
+           default POSIX shell.";
+      }
+    }
+}

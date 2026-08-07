@@ -496,6 +496,22 @@ static int usr_del(const char *name)
 	return 0;
 }
 
+/*
+ * The mylinux-system augment adds an identityref login shell.  The value
+ * may arrive prefixed (e.g. "mysys:false"); anything but the no-login
+ * identity maps to the default POSIX shell.  A shell change only takes on
+ * the next boot, when the ephemeral /etc rebuilds the account from config.
+ */
+static const char *usr_shell(cxobj *user)
+{
+	const char *sh = get_str(user, "shell");
+
+	if (sh && (strstr(sh, "false") || strstr(sh, "nologin")))
+		return "/bin/false";
+
+	return LOGIN_SHELL;
+}
+
 static int usr_set(cxobj *user)
 {
 	const char *name = get_str(user, "name");
@@ -507,7 +523,7 @@ static int usr_set(cxobj *user)
 	}
 
 	if (!getpwnam(name)) {
-		if (run("adduser -D -s %s %s", LOGIN_SHELL, name)) {
+		if (run("adduser -D -s %s %s", usr_shell(user), name)) {
 			clicon_log(LOG_WARNING, "ietf-system: failed creating user %s", name);
 			return 0;
 		}

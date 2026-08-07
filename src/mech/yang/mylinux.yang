@@ -11,6 +11,10 @@ module mylinux {
         prefix sys;
     }
 
+    import mylinux-system {
+        prefix mysys;
+    }
+
     import ietf-interfaces {
         prefix if;
     }
