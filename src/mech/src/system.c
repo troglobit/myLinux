@@ -22,7 +22,8 @@
 #define XMLNS "urn:ietf:params:xml:ns:yang:ietf-system"
 
 #define LOGIN_SHELL "/bin/sh"
-#define ADMIN_GROUP "wheel"		/* until NACM maps roles */
+#define ADMIN_USER  "admin"		/* reserved super-user, until NACM */
+#define ADMIN_GROUP "wheel"		/* UNIX group with admin access */
 #define SHADOW_FILE "/etc/shadow"
 
 static augeas *aug;
@@ -527,7 +528,11 @@ static int usr_set(cxobj *user)
 			clicon_log(LOG_WARNING, "ietf-system: failed creating user %s", name);
 			return 0;
 		}
-		run("adduser %s %s", name, ADMIN_GROUP);
+
+		/* For now only the reserved admin user gets admin rights;
+		 * later this follows NACM group membership. */
+		if (!strcmp(name, ADMIN_USER))
+			run("adduser %s %s", name, ADMIN_GROUP);
 	}
 
 	set_password(name, get_str(user, "password"));
