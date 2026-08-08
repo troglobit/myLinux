@@ -698,6 +698,7 @@ int ietf_sys_statedata(clicon_handle h, cvec *nsc, char *xpath, cxobj *xstate)
         struct sysinfo si;
         time_t now, boot;
         char buf[42];
+	char host[256];
 	cbuf *cb;
 	int rc;
 
@@ -711,6 +712,16 @@ int ietf_sys_statedata(clicon_handle h, cvec *nsc, char *xpath, cxobj *xstate)
         sysinfo(&si);
         now = time(NULL);
         boot = now - si.uptime;
+
+	/* The applied hostname, so operational reflects what is in effect
+	 * -- not just the config-false leaves under system-state. */
+	if (gethostname(host, sizeof(host)))
+		host[0] = 0;
+	host[sizeof(host) - 1] = 0;
+
+	cprintf(cb, "<system xmlns=\"%s\">", XMLNS);
+	cprintf(cb, "  <hostname>%s</hostname>\n", host);
+	cprintf(cb, "</system>");
 
 	cprintf(cb, "<system-state xmlns=\"%s\">", XMLNS);
 	cprintf(cb, "  <platform>\n");
