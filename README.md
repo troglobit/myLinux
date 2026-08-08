@@ -1,5 +1,5 @@
-<img align="right" src="doc/example.png" alt="Example Boot">
-<img class="left" src="doc/logo.png" alt="myLinux">
+<img align="right" width=450 src="doc/example.png" alt="Example Boot">
+<img src="doc/logo.svg" alt="myLinux" width="356">
 
 * [Introduction](#introduction)
 * [Building](#building)
