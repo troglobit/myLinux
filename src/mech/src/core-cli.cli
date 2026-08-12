@@ -79,16 +79,14 @@ save("Save candidate configuration to XML file") <filename:string>("Filename (lo
 }
 
 show("Show various system state and configuration") {
-	system-information("System information"),            cli_exec_show();
-	fdb("Show forwarding database (unicast)"),           cli_exec_show();
-	mdb("Show multicast forwarding database (unicast)"), cli_exec_show();
-	ports("Show ports available for bridging"),          cli_exec_show();
-	vlans("Show port groups in bridge"),                 cli_exec_show();
-	ifaces("Show interfaces and their addresses"),       cli_exec_show();
+	interface("Show interface status, default an overview of all"), cli_show_interface(); {
+		<name:string expand_ifaces()>("Interface name"), cli_show_interface();
+	}
+	system("Show system status"),                        cli_show_system();
+	version("Show operating system version"),            cli_show_version();
 	log("Show latest syslog entries"),                   cli_exec_log(); {
 		<fn:string logfiles()>(""),                  cli_exec_log();
 	}
-	version("Show operating system version"),            cli_exec_show();
 
 	auto("Show expand x") {
 		xml @datamodelshow, cli_show_auto("candidate", "xml", true, false, "report-all");

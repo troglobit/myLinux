@@ -32,19 +32,6 @@ int cli_exec_shell(clixon_handle h, cvec *cvv, cvec *argv)
 	return exec(h, "$SHELL -l");
 }
 
-int cli_exec_show(clixon_handle h, cvec *cvv, cvec *argv)
-{
-	char cmd[256] = "show -n ";
-	char *arg;
-
-	arg = cv_string_get(cvec_i(cvv, 0));
-	if (!arg)
-		return -1;
-
-	strncat(cmd, &arg[5], sizeof(cmd) - strlen(cmd) - 1);
-	return exec(h, cmd);
-}
-
 int cli_show_factory(clixon_handle h, cvec *cvv, cvec *argv)
 {
 	/* The factory config is a static seed, not a live datastore Clixon

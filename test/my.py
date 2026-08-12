@@ -6,6 +6,7 @@ A Dut either *owns* a throwaway qemu boot -- the default, e.g. 'make test'
 torn down on exit; attached DUTs are left running.
 """
 import os
+import shlex
 import signal
 import socket
 import subprocess
@@ -191,6 +192,20 @@ class Dut:
                f'</get>')
         with self.netconf() as nc:
             return nc.dispatch(to_ele(rpc)).xml
+
+    def cli(self, cmd):
+        """Run one admin-exec CLI command and return its output.
+
+        The CLI is clixon_cli; fed a command on stdin it echoes the
+        prompt and command, runs it, and exits at EOF.  Drop the prompt
+        lines (they start with '<user>@') and carriage returns so the
+        caller sees just what the command printed.
+        """
+        pipe = f"echo {shlex.quote(cmd)} | clixon_cli -f /etc/clixon.xml"
+        _, out = self.ssh(pipe)
+        lines = [ln for ln in out.replace("\r", "").splitlines()
+                 if not ln.startswith(f"{USER}@")]
+        return "\n".join(lines)
 
     @contextmanager
     def step(self, desc):
