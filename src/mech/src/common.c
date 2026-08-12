@@ -22,9 +22,9 @@ static void show_indented_xml_node(char *tag, cxobj *node, size_t indent)
 	cxobj *child = NULL;
 
 	if (!xml_body_get(node))
-		clixon_log(NULL, LOG_DEBUG, "%s: %s%s", tag, indent_str(indent), xml_name(node));
+		DBG("%s: %s%s", tag, indent_str(indent), xml_name(node));
 	else
-		clixon_log(NULL, LOG_DEBUG, "%s: %s%s = %s", tag, indent_str(indent), xml_name(node), xml_body(node));
+		DBG("%s: %s%s = %s", tag, indent_str(indent), xml_name(node), xml_body(node));
 
 	while ((child = xml_child_each(node, child, CX_ELMNT)))
 		show_indented_xml_node(tag, child, indent + 2);
@@ -43,19 +43,19 @@ void show_xml_node_vec(char *tag, cxobj **node_vec, size_t len)
 
 void show_transaction(char *tag, transaction_data td, bool show_data)
 {
-	clixon_log(NULL, LOG_DEBUG, "%s:   transaction ID = %lu", tag, transaction_id(td));
+	DBG("%s:   transaction ID = %lu", tag, transaction_id(td));
 	if (show_data) {
-		clixon_log(NULL, LOG_DEBUG, "%s:   transaction source:", tag);
+		DBG("%s:   transaction source:", tag);
 		show_xml_node(tag, transaction_src(td));
-		clixon_log(NULL, LOG_DEBUG, "%s:   transaction target:", tag);
+		DBG("%s:   transaction target:", tag);
 		show_xml_node(tag, transaction_target(td));
-		clixon_log(NULL, LOG_DEBUG, "%s:   transaction deleted:", tag);
+		DBG("%s:   transaction deleted:", tag);
 		show_xml_node_vec(tag, transaction_dvec(td), transaction_dlen(td));
-		clixon_log(NULL, LOG_DEBUG, "%s:   transaction added:", tag);
+		DBG("%s:   transaction added:", tag);
 		show_xml_node_vec(tag, transaction_avec(td), transaction_alen(td));
-		clixon_log(NULL, LOG_DEBUG, "%s:   transaction changed source:", tag);
+		DBG("%s:   transaction changed source:", tag);
 		show_xml_node_vec(tag, transaction_scvec(td), transaction_clen(td));
-		clixon_log(NULL, LOG_DEBUG, "%s:   transaction changed target:", tag);
+		DBG("%s:   transaction changed target:", tag);
 		show_xml_node_vec(tag, transaction_tcvec(td), transaction_clen(td));
 	}
 }

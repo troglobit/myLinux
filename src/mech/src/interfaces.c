@@ -101,12 +101,11 @@ static int if_configure(cxobj *iface)
 	FILE *fp;
 
 	if (!is_valid_ifname(ifname)) {
-		clixon_log(NULL, LOG_WARNING, "ietf-interfaces: rejecting invalid name \"%s\"",
-			   ifname ? ifname : "(null)");
+		WARN("ietf-interfaces: rejecting invalid name \"%s\"", ifname ? ifname : "(null)");
 		return 0;
 	}
 	if (!strcmp(ifname, MGMT_IF)) {
-		clixon_log(NULL, LOG_WARNING, "ietf-interfaces: refusing to manage %s", MGMT_IF);
+		WARN("ietf-interfaces: refusing to manage %s", MGMT_IF);
 		return 0;
 	}
 	if (is_disabled(iface)) {
@@ -132,8 +131,7 @@ static int if_configure(cxobj *iface)
 	snprintf(path, sizeof(path), "%s/%s.conf", IFDIR, ifname);
 	fp = fopen(path, "w");
 	if (!fp) {
-		clixon_log(NULL, LOG_WARNING, "ietf-interfaces: cannot write %s: %s",
-			   path, strerror(errno));
+		WARN("ietf-interfaces: cannot write %s: %s", path, strerror(errno));
 		return -1;
 	}
 	fprintf(fp, "auto %s\n", ifname);
@@ -147,8 +145,7 @@ static int if_configure(cxobj *iface)
 	 * line; everything else is fine inside a quoted ifupdown alias. */
 	desc = get_str(iface, "description");
 	if (desc && strpbrk(desc, "\r\n"))
-		clixon_log(NULL, LOG_WARNING,
-			   "ietf-interfaces: %s: ignoring description with a newline", ifname);
+		WARN("ietf-interfaces: %s: ignoring description with a newline", ifname);
 	else if (desc)
 		fprintf(fp, "\talias %s\n", desc);
 	fclose(fp);
@@ -205,7 +202,7 @@ int ietf_if_tr_commit(clixon_handle h, transaction_data td)
 
 	/* Reconcile the running state with the drop-ins just rendered. */
 	if (run("ifreload -a"))
-		clixon_log(h, LOG_WARNING, "ietf-interfaces: ifreload failed");
+		WARN("ietf-interfaces: ifreload failed");
 
 	return 0;
 }

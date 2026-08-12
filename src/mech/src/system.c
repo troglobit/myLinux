@@ -179,7 +179,7 @@ int ietf_sys_tr_commit_clock(cxobj *src, cxobj *tgt)
 #ifdef __UCLIBC__
 	snprintf(cmd, sizeof(cmd), "ln -sf /usr/share/zoneinfo/uclibc/%s /etc/TZ", timezone);
 	if (run(cmd)) {
-		clixon_log(NULL, LOG_WARNING, "ietf-system: failed setting timezone %s", timezone);
+		WARN("ietf-system: failed setting timezone %s", timezone);
 		return -1;
 	}
 	return 0;
@@ -189,13 +189,13 @@ int ietf_sys_tr_commit_clock(cxobj *src, cxobj *tgt)
 
 	snprintf(cmd, sizeof(cmd), "cp /usr/share/zoneinfo/%s /etc/localtime", timezone);
 	if (run(cmd)) {
-		clixon_log(NULL, LOG_WARNING, "ietf-system: failed setting timezone %s", timezone);
+		WARN("ietf-system: failed setting timezone %s", timezone);
 		return -1;
 	}
 
 	fp = fopen(fn, "w");
 	if (!fp) {
-		clixon_log(NULL, LOG_WARNING, "ietf-system: failed updating %s: %s", fn, strerror(errno));
+		WARN("ietf-system: failed updating %s: %s", fn, strerror(errno));
 		return -1;
 	}
 	fprintf(fp, "%s\n", timezone);
@@ -219,7 +219,7 @@ int ietf_sys_tr_commit_ntp(cxobj *src, cxobj *tgt)
 
 	fp = fopen(fn, "w");
 	if (!fp) {
-		clixon_log(NULL, LOG_WARNING, "ietf-system: failed updating %s: %s", fn, strerror(errno));
+		WARN("ietf-system: failed updating %s: %s", fn, strerror(errno));
 		return -1;
 	}
 
@@ -287,13 +287,13 @@ int ietf_sys_tr_commit_dns(cxobj *src, cxobj *tgt)
 	int first = 1, valid = 0;
 	FILE *fp;
 
-	clixon_log(NULL, LOG_ERR, "ietf-system: dns src %p tgt %p", src, tgt);
+	ERR("ietf-system: dns src %p tgt %p", src, tgt);
 	if (!tgt)
 		goto disable;
 
 	fp = fopen(fn, "w");
 	if (!fp) {
-		clixon_log(NULL, LOG_WARNING, "ietf-system: failed updating %s: %s", fn, strerror(errno));
+		WARN("ietf-system: failed updating %s: %s", fn, strerror(errno));
 		return -1;
 	}
 
@@ -345,11 +345,11 @@ disable:
 		remove(fn);
 
 	if (run("initctl cond get hook/sys/up")) {
-//		clixon_log(NULL, LOG_ERR, "ietf-system: failed cond get hook/sys/up");
+//		ERR("ietf-system: failed cond get hook/sys/up");
 		return 0;
 	}
 
-	clixon_log(NULL, LOG_ERR, "ietf-status: calling resolvconf -u");
+	ERR("ietf-status: calling resolvconf -u");
 	return run("resolvconf -u");
 }
 
@@ -392,7 +392,7 @@ static int set_password(const char *user, const char *hash)
 	int fd;
 
 	if (lckpwdf()) {
-		clixon_log(NULL, LOG_WARNING, "ietf-system: cannot lock %s", SHADOW_FILE);
+		WARN("ietf-system: cannot lock %s", SHADOW_FILE);
 		return -1;
 	}
 
@@ -438,7 +438,7 @@ static int set_password(const char *user, const char *hash)
 fail:
 	endspent();
 	ulckpwdf();
-	clixon_log(NULL, LOG_WARNING, "ietf-system: failed setting password for user %s", user);
+	WARN("ietf-system: failed setting password for user %s", user);
 
 	return -1;
 }
@@ -459,7 +459,7 @@ static void set_authorized_keys(cxobj *user, const char *name)
 	snprintf(path, sizeof(path), "/home/%s/.ssh/authorized_keys", name);
 	fp = fopen(path, "w");
 	if (!fp) {
-		clixon_log(NULL, LOG_WARNING, "ietf-system: cannot write %s", path);
+		WARN("ietf-system: cannot write %s", path);
 		return;
 	}
 
@@ -492,7 +492,7 @@ static int usr_del(const char *name)
 		return 0;
 
 	if (run("deluser --remove-home %s", name))
-		clixon_log(NULL, LOG_WARNING, "ietf-system: failed deleting user %s", name);
+		WARN("ietf-system: failed deleting user %s", name);
 
 	return 0;
 }
@@ -518,14 +518,13 @@ static int usr_set(cxobj *user)
 	const char *name = get_str(user, "name");
 
 	if (!is_valid_username(name)) {
-		clixon_log(NULL, LOG_WARNING, "ietf-system: rejecting invalid user name \"%s\"",
-			   name ? name : "(null)");
+		WARN("ietf-system: rejecting invalid user name \"%s\"", name ? name : "(null)");
 		return 0;
 	}
 
 	if (!getpwnam(name)) {
 		if (run("adduser -D -s %s %s", usr_shell(user), name)) {
-			clixon_log(NULL, LOG_WARNING, "ietf-system: failed creating user %s", name);
+			WARN("ietf-system: failed creating user %s", name);
 			return 0;
 		}
 
@@ -771,18 +770,18 @@ static int set_datetime(cxobj *xe)
 
         memset(&tm, 0, sizeof(tm));
         if (!strptime(buf, isofmt, &tm)) {
-                clixon_log(NULL, LOG_WARNING, "ietf-system:failed strptime: %s", strerror(errno));
+                WARN("ietf-system:failed strptime: %s", strerror(errno));
 		goto done;
 	}
 
 	snprintf(tz, sizeof(tz), "UTC%s%ld", tm.tm_gmtoff > 0 ? "+" : "", tm.tm_gmtoff / 3600);
 	setenv("TZ", tz, 1);
-//	clixon_log(NULL, LOG_ERR, "time %s gmtoff %ld TZ=%s", buf, tm.tm_gmtoff, tz);
+//	ERR("time %s gmtoff %ld TZ=%s", buf, tm.tm_gmtoff, tz);
 
         tv.tv_sec = mktime(&tm);
         tv.tv_usec = 0;
         if (settimeofday(&tv, NULL)) {
-                clixon_log(NULL, LOG_WARNING, "ietf-system:failed settimeofday: %s", strerror(errno));
+                WARN("ietf-system:failed settimeofday: %s", strerror(errno));
 		goto done;
 	}
 

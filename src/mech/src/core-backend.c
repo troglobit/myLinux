@@ -1,17 +1,15 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 #include <syslog.h>
-#include <signal.h>
-#include <cligen/cligen.h>
-#include <clixon/clixon.h>
-#include <clixon/clixon_backend.h>
+
+#include "common.h"
 
 #define FACTORY_NS "urn:ietf:params:xml:ns:yang:ietf-factory-default"
 
 int core_commit_done(clixon_handle h, transaction_data td)
 {
 	if (transaction_src(td) && system("initctl -b reload"))
-		clixon_log(NULL, LOG_CRIT, "Failed to reload services");
+		CRIT("Failed to reload services");
 
 	return 0;
 }
@@ -29,7 +27,7 @@ static int core_factory_reset(clixon_handle h, cxobj *xe, cbuf *cbret,
 	int ret;
 
 	if (xmldb_exists(h, "factory") != 1) {
-		clixon_log(h, LOG_WARNING, "factory-reset: no factory datastore");
+		WARN("factory-reset: no factory datastore");
 		return netconf_operation_failed(cbret, "application",
 						"no factory configuration");
 	}
@@ -57,7 +55,7 @@ clixon_plugin_api *clixon_plugin_init(clixon_handle h)
 {
 	if (rpc_callback_register(h, core_factory_reset, NULL,
 				  FACTORY_NS, "factory-reset") < 0)
-		clixon_log(h, LOG_WARNING, "core: failed registering factory-reset");
+		WARN("core: failed registering factory-reset");
 
 	return &core_api;
 }
