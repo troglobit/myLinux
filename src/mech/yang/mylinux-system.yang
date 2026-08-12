@@ -25,6 +25,13 @@ module mylinux-system {
       description "POSIX shell (BusyBox ash), the default login shell.";
     }
 
+    identity clish {
+      base shell-type;
+      description
+        "The myLinux command-line interface; a login shell that drops the
+         operator straight into the CLI instead of a POSIX shell.";
+    }
+
     identity false {
       base shell-type;
       description

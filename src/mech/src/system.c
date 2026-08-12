@@ -509,6 +509,8 @@ static const char *usr_shell(cxobj *user)
 
 	if (sh && (strstr(sh, "false") || strstr(sh, "nologin")))
 		return "/bin/false";
+	if (sh && strstr(sh, "clish"))
+		return "/usr/bin/clish";
 
 	return LOGIN_SHELL;
 }
