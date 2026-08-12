@@ -14,6 +14,7 @@ import tempfile
 import time
 import traceback
 from contextlib import contextmanager
+from datetime import datetime
 
 from ncclient import manager
 
@@ -220,9 +221,13 @@ def until(fn, attempts=10, interval=1):
 def run(dut, test, name):
     """Run one test(dut) against `dut`, framed as TAP; returns 0 on pass.
 
-    Emits '# <name>', the steps' ok/not ok lines, and a '1..N' plan.
+    Emits '# <name>' bracketed by start/end timestamps (so a log reader
+    can derive execution time), the steps' ok/not ok lines, and a '1..N'
+    plan.
     """
+    start = datetime.now()
     print(f"# {name}", flush=True)
+    print(f"# started at {start.isoformat(timespec='seconds')}", flush=True)
     dut.nsteps = 0
     rc = 0
     try:
@@ -231,6 +236,9 @@ def run(dut, test, name):
         rc = 1
         traceback.print_exc()
     dut.plan()
+    end = datetime.now()
+    print(f"# ended at {end.isoformat(timespec='seconds')} "
+          f"({(end - start).total_seconds():.1f}s)", flush=True)
     return rc
 
 
