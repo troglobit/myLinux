@@ -139,6 +139,21 @@ class Dut:
             hostkey_verify=False, allow_agent=False, look_for_keys=False,
             timeout=30)
 
+    def reset(self):
+        """Reset running-config to the factory baseline before a test.
+
+        mech's factory-reset RPC (RFC 8808) reapplies the factory
+        datastore, so every case starts from the same clean state.  We use
+        an RPC rather than a datastore copy because clixon accepts only
+        running/candidate/startup as a NETCONF copy-config source, and
+        because this is the same reset an operator gets.
+        """
+        from ncclient.xml_ import to_ele
+
+        rpc = '<factory-reset xmlns="urn:ietf:params:xml:ns:yang:ietf-factory-default"/>'
+        with self.netconf() as nc:
+            nc.dispatch(to_ele(rpc))
+
     def ssh(self, cmd):
         """Run a shell command on the DUT over SSH; returns (rc, output)."""
         import paramiko

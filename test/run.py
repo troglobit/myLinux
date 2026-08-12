@@ -45,6 +45,7 @@ def run_cases(paths):
             print(f"# DUT up (console: {dut.console})")
         for path in paths:
             name = os.path.relpath(path, CASEDIR)
+            dut.reset()             # each case starts from the factory baseline
             if my.run(dut, load(path).test, name):
                 fails += 1
     print(f"# {len(paths) - fails}/{len(paths)} cases passed")
