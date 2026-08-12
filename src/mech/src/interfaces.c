@@ -23,6 +23,7 @@
 
 #define IFDIR   "/etc/network/interfaces.d"
 #define MGMT_IF "eth0"
+#define IETF_IP_NS "urn:ietf:params:xml:ns:yang:ietf-ip"
 
 
 static int run(const char *fmt, ...)
@@ -209,16 +210,66 @@ int ietf_if_tr_commit(clixon_handle h, transaction_data td)
 
 /*
  * Operational state, read straight from the kernel via `ip -j addr show`, so
- * it reflects every interface -- not just the ones in the datastore.
+ * it reflects every interface -- not just the ones in the datastore -- and
+ * carries what a NETCONF client would see: type, index, admin/oper status,
+ * mtu, addresses (with origin) and octet counters.
  */
 static const char *iana_type(json_t *link)
 {
-	json_t *val = json_object_get(link, "link_type");
+	json_t *li = json_object_get(link, "linkinfo");
+	json_t *kind = li ? json_object_get(li, "info_kind") : NULL;
+	json_t *lt;
 
-	if (val && json_is_string(val) &&
-	    !strcmp(json_string_value(val), "loopback"))
+	if (kind && json_is_string(kind)) {
+		const char *k = json_string_value(kind);
+
+		if (!strcmp(k, "vlan"))
+			return "l2vlan";
+		if (!strcmp(k, "bridge"))
+			return "bridge";
+		/* dummy/veth/... have no iana type; fall back to ethernet */
+	}
+
+	lt = json_object_get(link, "link_type");
+	if (lt && json_is_string(lt) && !strcmp(json_string_value(lt), "loopback"))
 		return "softwareLoopback";
+
 	return "ethernetCsmacd";
+}
+
+/* Admin state is the configured up/down; the kernel reports it in flags. */
+static const char *admin_status(json_t *link)
+{
+	json_t *flags = json_object_get(link, "flags");
+	json_t *flag;
+	size_t i;
+
+	if (json_is_array(flags)) {
+		json_array_foreach(flags, i, flag) {
+			if (json_is_string(flag) &&
+			    !strcmp(json_string_value(flag), "UP"))
+				return "up";
+		}
+	}
+
+	return "down";
+}
+
+/*
+ * Best-effort address origin: link-local by scope, DHCP/RA by the kernel's
+ * dynamic flag, otherwise assumed static.
+ */
+static const char *addr_origin(json_t *addr)
+{
+	json_t *scope = json_object_get(addr, "scope");
+
+	if (scope && json_is_string(scope) &&
+	    !strcmp(json_string_value(scope), "link"))
+		return "link-layer";
+	if (json_is_true(json_object_get(addr, "dynamic")))
+		return "dhcp";
+
+	return "static";
 }
 
 static void cprint_lower(cbuf *cb, const char *fmt, json_t *obj, const char *key)
@@ -238,43 +289,77 @@ static void cprint_lower(cbuf *cb, const char *fmt, json_t *obj, const char *key
 	free(str);
 }
 
-/* ietf-ip augment: the IPv4 addresses the kernel has on this interface. */
-static void cprint_addrs(cbuf *cb, json_t *link)
+static void cprint_stats(cbuf *cb, json_t *link)
+{
+	json_t *s = json_object_get(link, "stats64");
+	json_t *rx = s ? json_object_get(s, "rx") : NULL;
+	json_t *tx = s ? json_object_get(s, "tx") : NULL;
+	json_t *rxb = rx ? json_object_get(rx, "bytes") : NULL;
+	json_t *txb = tx ? json_object_get(tx, "bytes") : NULL;
+
+	if (!json_is_integer(rxb) && !json_is_integer(txb))
+		return;
+	cprintf(cb, "<statistics>");
+	if (json_is_integer(rxb))
+		cprintf(cb, "<in-octets>%lld</in-octets>",
+			(long long)json_integer_value(rxb));
+	if (json_is_integer(txb))
+		cprintf(cb, "<out-octets>%lld</out-octets>",
+			(long long)json_integer_value(txb));
+	cprintf(cb, "</statistics>");
+}
+
+/*
+ * ietf-ip augment: one address family's mtu and addresses.  `fam` is the
+ * iproute2 family string ("inet"/"inet6"), `tag` the YANG container name.
+ */
+static void cprint_af(cbuf *cb, json_t *link, const char *fam, const char *tag, int mtu)
 {
 	json_t *addrs = json_object_get(link, "addr_info");
 	json_t *addr;
 	size_t i;
 	int open = 0;
 
-	if (!addrs || !json_is_array(addrs))
-		return;
+	if (mtu > 0) {
+		cprintf(cb, "<%s xmlns=\"%s\"><mtu>%d</mtu>", tag, IETF_IP_NS, mtu);
+		open = 1;
+	}
 
-	json_array_foreach(addrs, i, addr) {
-		json_t *fam = json_object_get(addr, "family");
-		json_t *loc = json_object_get(addr, "local");
-		json_t *len = json_object_get(addr, "prefixlen");
+	if (json_is_array(addrs)) {
+		json_array_foreach(addrs, i, addr) {
+			json_t *f = json_object_get(addr, "family");
+			json_t *loc = json_object_get(addr, "local");
+			json_t *len = json_object_get(addr, "prefixlen");
 
-		if (!fam || !json_is_string(fam) ||
-		    strcmp(json_string_value(fam), "inet"))
-			continue;
-		if (!loc || !json_is_string(loc) || !len || !json_is_integer(len))
-			continue;
+			if (!f || !json_is_string(f) ||
+			    strcmp(json_string_value(f), fam))
+				continue;
+			if (!json_is_string(loc) || !json_is_integer(len))
+				continue;
 
-		if (!open) {
-			cprintf(cb, "<ipv4 xmlns=\"urn:ietf:params:xml:ns:yang:ietf-ip\">");
-			open = 1;
+			if (!open) {
+				cprintf(cb, "<%s xmlns=\"%s\">", tag, IETF_IP_NS);
+				open = 1;
+			}
+			cprintf(cb, "<address><ip>%s</ip>"
+				"<prefix-length>%lld</prefix-length>"
+				"<origin>%s</origin></address>",
+				json_string_value(loc),
+				(long long)json_integer_value(len),
+				addr_origin(addr));
 		}
-		cprintf(cb, "<address><ip>%s</ip><prefix-length>%lld</prefix-length></address>",
-			json_string_value(loc), (long long)json_integer_value(len));
 	}
 
 	if (open)
-		cprintf(cb, "</ipv4>");
+		cprintf(cb, "</%s>", tag);
 }
 
 static void cprint_ifdata(cbuf *cb, json_t *link)
 {
 	json_t *name = json_object_get(link, "ifname");
+	json_t *idx = json_object_get(link, "ifindex");
+	json_t *mtu = json_object_get(link, "mtu");
+	int mtuval = json_is_integer(mtu) ? (int)json_integer_value(mtu) : 0;
 
 	if (!name || !json_is_string(name))
 		return;
@@ -285,9 +370,15 @@ static void cprint_ifdata(cbuf *cb, json_t *link)
 		"<type xmlns:ianaift=\"urn:ietf:params:xml:ns:yang:iana-if-type\">"
 		"ianaift:%s</type>",
 		json_string_value(name), iana_type(link));
-	cprint_lower(cb, "<phys-address>%s</phys-address>", link, "address");
+	if (json_is_integer(idx))
+		cprintf(cb, "<if-index>%lld</if-index>",
+			(long long)json_integer_value(idx));
+	cprintf(cb, "<admin-status>%s</admin-status>", admin_status(link));
 	cprint_lower(cb, "<oper-status>%s</oper-status>", link, "operstate");
-	cprint_addrs(cb, link);
+	cprint_lower(cb, "<phys-address>%s</phys-address>", link, "address");
+	cprint_stats(cb, link);
+	cprint_af(cb, link, "inet", "ipv4", mtuval);
+	cprint_af(cb, link, "inet6", "ipv6", mtuval);
 	cprintf(cb, "</interface>");
 }
 
@@ -299,7 +390,7 @@ int ietf_if_statedata(clixon_handle h, cvec *nsc, char *xpath, cxobj *xstate)
 	size_t i;
 	int rc = -1;
 
-	fp = popen("ip -j addr show", "r");
+	fp = popen("ip -s -d -j addr show", "r");
 	if (!fp)
 		return -1;
 	root = json_loadf(fp, 0, NULL);
