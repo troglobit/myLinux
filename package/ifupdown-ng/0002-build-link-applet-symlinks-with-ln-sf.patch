@@ -1,0 +1,32 @@
+From ed18d3e076ad8c3328a686a5b322c9ca1488ed98 Mon Sep 17 00:00:00 2001
+From: Joachim Wiberg <troglobit@gmail.com>
+Date: Wed, 12 Aug 2026 11:44:43 +0200
+Subject: [PATCH 2/3] build: link applet symlinks with ln -sf
+Organization: Wires
+
+The install target creates the applet symlinks with plain ln -s, so
+re-running 'make install' over an existing tree fails once the symlink
+is already there (File exists).  Use ln -sf so installs are idempotent
+and rebuilds don't need to remove the symlinks first.
+
+Signed-off-by: Joachim Wiberg <troglobit@gmail.com>
+---
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index 778bc2a..53b46db 100644
+--- a/Makefile
++++ b/Makefile
+@@ -207,7 +207,7 @@ check: ${LIBIFUPDOWN_LIB_PREFIXED} ${CMDS_PREFIXED}
+ install: all
+ 	install -D -m755 ${MULTICALL_PREFIXED} ${DESTDIR}${SBINDIR}/${MULTICALL}
+ 	for i in ${CMDS}; do \
+-		ln -s ${MULTICALL} ${DESTDIR}${SBINDIR}/$$i; \
++		ln -sf ${MULTICALL} ${DESTDIR}${SBINDIR}/$$i; \
+ 	done
+ 	for i in ${EXECUTOR_SCRIPTS}; do \
+ 		install -D -m755 executors/${LAYOUT}/$$i ${DESTDIR}${EXECUTOR_PATH}/$$i; \
+-- 
+2.43.0
+

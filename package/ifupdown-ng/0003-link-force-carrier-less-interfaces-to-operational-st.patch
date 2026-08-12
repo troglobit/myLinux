@@ -1,0 +1,72 @@
+From 9aed1308b957b0cb067f5532c710cecb9dc9c781 Mon Sep 17 00:00:00 2001
+From: Joachim Wiberg <troglobit@gmail.com>
+Date: Wed, 12 Aug 2026 12:25:46 +0200
+Subject: [PATCH 3/3] link: force carrier-less interfaces to operational state
+ up
+Organization: Wires
+
+A carrier-less interface -- loopback, dummy, and point-to-point types
+like tun and wireguard -- stays in operstate "unknown" when brought up,
+since there is no carrier for the kernel to track.  Consumers of
+operational state (YANG oper-status, monitoring, ip -br) then see it as
+neither up nor down.
+
+Detect this generically after bring-up: if operstate is "unknown", force
+the interface up.  Interfaces with a real carrier report up, down or
+lowerlayerdown instead and are left untouched, so a genuinely down link
+is not masked.
+
+Signed-off-by: Joachim Wiberg <troglobit@gmail.com>
+---
+ executors/linux/link  | 8 ++++++++
+ tests/linux/link_test | 8 ++++++++
+ 2 files changed, 16 insertions(+)
+
+diff --git a/executors/linux/link b/executors/linux/link
+index 042eb34..eb9132f 100755
+--- a/executors/linux/link
++++ b/executors/linux/link
+@@ -113,6 +113,14 @@ up)
+ 	# TODO: ? Move this into a function and use `set -- "$@" ...` to manage optional parameters
+ 	# Configure mtu, hardware address and alias if defined
+ 	${MOCK} ip link set up dev "$IFACE" ${IF_MTU:+mtu "$IF_MTU"} ${IF_HWADDRESS:+address "$IF_HWADDRESS"} ${IF_ALIAS:+alias "$IF_ALIAS"}
++
++	# A carrier-less interface (loopback, dummy, tunnels, ...) is left in
++	# operstate "unknown" when brought up, which misleads consumers of
++	# operational state.  Force it up.  Interfaces with a real carrier
++	# report up/down/lowerlayerdown here and are left untouched.
++	if [ "$(cat /sys/class/net/"$IFACE"/operstate 2>/dev/null)" = unknown ]; then
++		${MOCK} ip link set dev "$IFACE" state up
++	fi
+ 	;;
+ down)
+ 	# Don't complain about a nonexistent interface when downing it
+diff --git a/tests/linux/link_test b/tests/linux/link_test
+index a007326..d03d496 100755
+--- a/tests/linux/link_test
++++ b/tests/linux/link_test
+@@ -5,6 +5,7 @@ EXECUTOR="$(atf_get_srcdir)/../../executors/linux/link"
+ 
+ tests_init \
+ 	up \
++	carrierless_up \
+ 	down \
+ 	mtu \
+ 	hwaddress \
+@@ -22,6 +23,13 @@ up_body() {
+ 		${EXECUTOR}
+ }
+ 
++# lo is carrier-less (operstate "unknown"), so it must also be forced up.
++carrierless_up_body() {
++	export IFACE=lo PHASE=up MOCK=echo
++	atf_check -s exit:0 -o match:'ip link set dev lo state up' \
++		${EXECUTOR}
++}
++
+ down_body() {
+ 	export IFACE=lo PHASE=down MOCK=echo
+ 	atf_check -s exit:0 -o match:'ip link set down dev lo' \
+-- 
+2.43.0
+

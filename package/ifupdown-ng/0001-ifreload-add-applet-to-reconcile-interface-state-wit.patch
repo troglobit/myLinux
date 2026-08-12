@@ -1,0 +1,569 @@
+From 5cb19911e7ce6b01e6bab97843a4056fd1a20a78 Mon Sep 17 00:00:00 2001
+From: Joachim Wiberg <troglobit@gmail.com>
+Date: Wed, 12 Aug 2026 11:31:06 +0200
+Subject: [PATCH 1/3] ifreload: add applet to reconcile interface state with
+ config
+Organization: Wires
+
+ifupdown-ng brings interfaces up and down, but has no reload: ifup -a
+only brings interfaces up and never tears down ones dropped from the
+config.  ifreload keeps a copy of the last-applied config and, on each
+run, diffs it against the current config -- bringing up new interfaces,
+tearing down removed ones (using the old config so the right down
+executors run), re-applying changed ones, and leaving unchanged
+interfaces alone so a reload never bounces what did not change.
+
+The last-applied copy lives on tmpfs (/run/ifreload), so a fresh boot
+has none and the first run simply records the baseline.
+
+Signed-off-by: Joachim Wiberg <troglobit@gmail.com>
+---
+ .gitignore       |   1 +
+ Makefile         |   9 +-
+ cmd/ifreload.c   | 391 +++++++++++++++++++++++++++++++++++++++++++++++
+ doc/ifreload.scd |  98 ++++++++++++
+ 4 files changed, 498 insertions(+), 1 deletion(-)
+ create mode 100644 cmd/ifreload.c
+ create mode 100644 doc/ifreload.scd
+
+diff --git a/.gitignore b/.gitignore
+index 5e2d300..7e230db 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -14,4 +14,5 @@ ifup
+ ifdown
+ ifctrstat
+ ifparse
++ifreload
+ *.lock
+diff --git a/Makefile b/Makefile
+index 58d85c2..778bc2a 100644
+--- a/Makefile
++++ b/Makefile
+@@ -90,6 +90,12 @@ IFPARSE_SRC = cmd/ifparse.c
+ MULTICALL_${CONFIG_IFPARSE}_OBJ += ${IFPARSE_SRC:.c=.o}
+ CMDS_${CONFIG_IFPARSE} += ifparse
+ 
++# enable ifreload applet (+2 KB)
++CONFIG_IFRELOAD ?= Y
++IFRELOAD_SRC = cmd/ifreload.c
++MULTICALL_${CONFIG_IFRELOAD}_OBJ += ${IFRELOAD_SRC:.c=.o}
++CMDS_${CONFIG_IFRELOAD} += ifreload
++
+ # enable YAML support (+2 KB)
+ CONFIG_YAML ?= Y
+ YAML_SRC = \
+@@ -256,7 +262,8 @@ MANPAGES_8 = \
+ 	doc/ifup.8 \
+ 	doc/ifdown.8 \
+ 	doc/ifctrstat.8 \
+-	doc/ifparse.8
++	doc/ifparse.8 \
++	doc/ifreload.8
+ 
+ MANPAGES_5_PREFIXED = $(addprefix ${BUILDDIR_},${MANPAGES_5})
+ MANPAGES_7_PREFIXED = $(addprefix ${BUILDDIR_},${MANPAGES_7})
+diff --git a/cmd/ifreload.c b/cmd/ifreload.c
+new file mode 100644
+index 0000000..0b04a58
+--- /dev/null
++++ b/cmd/ifreload.c
+@@ -0,0 +1,391 @@
++/*
++ * cmd/ifreload.c
++ * Purpose: reconcile the running interface state to the current config
++ *
++ * Copyright (c) 2026 Joachim Wiberg <troglobit@gmail.com>
++ *
++ * Permission to use, copy, modify, and/or distribute this software for any
++ * purpose with or without fee is hereby granted, provided that the above
++ * copyright notice and this permission notice appear in all copies.
++ *
++ * This software is provided 'as is' and without any warranty, express or
++ * implied.  In no event shall the authors be liable for any damages arising
++ * from the use of this software.
++ */
++
++#define _GNU_SOURCE
++#include <dirent.h>
++#include <limits.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <sys/stat.h>
++#include <unistd.h>
++#include "libifupdown/libifupdown.h"
++#include "cmd/multicall.h"
++
++/*
++ * ifupdown-ng brings interfaces up and down, but has no reload of its own:
++ * `ifup -a` only brings interfaces up and never tears down ones dropped
++ * from the config.  ifreload fills that gap.
++ *
++ * On each run it keeps a copy of the last-applied config, one file per
++ * interface next to the state file, and diffs the current config against
++ * it:
++ *
++ *   new (in current, not last)     -> ifup
++ *   gone (in last, not current)    -> ifdown  (using the old config)
++ *   changed (config differs)       -> ifdown old, then ifup new
++ *   unchanged                      -> left alone (no bounce)
++ *
++ * The comparison is against the stored text, never a re-parse: parsing
++ * re-applies `inherit defaults` and default-executor selection, so a
++ * parse/serialize round-trip is not idempotent -- comparing against a
++ * re-serialized parse would flag every interface as changed.  Comparing
++ * the current serialization against the previous serialization of the
++ * same config is stable.
++ *
++ * The last-applied copy lives beside the state file (on tmpfs), so a fresh
++ * boot has none: the first run treats everything as new, which is a no-op
++ * since the interfaces are already up, and simply records the baseline.
++ */
++
++/* Snapshot directory, derived from the state file so -S relocates it. */
++static const char *
++snapshot_dir(void)
++{
++	static char dir[PATH_MAX];
++
++	snprintf(dir, sizeof dir, "%s.reload.d", exec_opts.state_file);
++
++	return dir;
++}
++
++static const char *
++snapshot_path(const char *ifname)
++{
++	static char path[PATH_MAX];
++
++	snprintf(path, sizeof path, "%s/%s", snapshot_dir(), ifname);
++
++	return path;
++}
++
++/* Serialize one interface in /e/n/i form; canonical enough to diff. */
++static void
++serialize_interface(FILE *f, struct lif_interface *iface)
++{
++	struct lif_node *iter;
++
++	if (iface->is_auto)
++		fprintf(f, "auto %s\n", iface->ifname);
++
++	fprintf(f, "%s %s%s\n", iface->is_template ? "template" : "iface",
++		iface->ifname, iface->no_defaults ? " no-defaults" : "");
++
++	LIF_DICT_FOREACH(iter, &iface->vars)
++	{
++		struct lif_dict_entry *entry = iter->data;
++
++		if (!strcmp(entry->key, "address"))
++		{
++			char buf[512];
++
++			if (lif_address_unparse(entry->data, buf, sizeof buf, true))
++				fprintf(f, "  %s %s\n", entry->key, buf);
++		}
++		else
++			fprintf(f, "  %s %s\n", entry->key, (const char *) entry->data);
++	}
++}
++
++/* Serialized config for one interface, as a string; caller frees. */
++static char *
++interface_config(struct lif_interface *iface)
++{
++	char *buf = NULL;
++	size_t len = 0;
++	FILE *f = open_memstream(&buf, &len);
++
++	if (f == NULL)
++		return NULL;
++
++	serialize_interface(f, iface);
++	fclose(f);
++
++	return buf;
++}
++
++/* Read a whole file into a string; NULL if it does not exist. */
++static char *
++read_file(const char *path)
++{
++	char *buf = NULL;
++	size_t len = 0;
++	FILE *f = fopen(path, "r");
++
++	if (f == NULL)
++		return NULL;
++
++	FILE *m = open_memstream(&buf, &len);
++	if (m != NULL)
++	{
++		char chunk[4096];
++		size_t n;
++
++		while ((n = fread(chunk, 1, sizeof chunk, f)) > 0)
++			fwrite(chunk, 1, n, m);
++		fclose(m);
++	}
++	fclose(f);
++
++	return buf;
++}
++
++static bool
++config_differs(struct lif_interface *iface, const char *stored)
++{
++	char *cur = interface_config(iface);
++	bool differs = cur == NULL || stored == NULL || strcmp(cur, stored) != 0;
++
++	free(cur);
++
++	return differs;
++}
++
++static bool
++change_interface(struct lif_interface *iface, struct lif_dict *collection,
++		 struct lif_dict *state, bool up)
++{
++	if (iface->is_template || iface->has_config_error)
++		return true;
++
++	/* Skip an interface already in the desired state (e.g. eth0 brought
++	 * up at boot), so a reload never bounces what did not change. */
++	if (!exec_opts.force && up && iface->refcount > 0)
++	{
++		iface->is_explicit = false;
++		lif_state_upsert(state, iface->ifname, iface);
++		return true;
++	}
++	if (!exec_opts.force && !up && iface->refcount == 0)
++		return true;
++
++	if (exec_opts.verbose)
++		fprintf(stderr, "%s: bringing interface %s %s\n", argv0,
++			iface->ifname, up ? "up" : "down");
++
++	if (!lif_lifecycle_run(&exec_opts, iface, collection, state, iface->ifname, up))
++	{
++		fprintf(stderr, "%s: failed to bring interface %s %s\n", argv0,
++			iface->ifname, up ? "up" : "down");
++		return false;
++	}
++
++	if (up)
++		lif_state_upsert(state, iface->ifname, iface);
++
++	return true;
++}
++
++/* Bring a gone/changed interface down using its old (stored) config. */
++static bool
++takedown_stored(const char *ifname, struct lif_dict *state)
++{
++	struct lif_dict old = {};
++	struct lif_interface_file_parse_state ps = { .collection = &old };
++	struct lif_dict_entry *entry;
++	bool ret = true;
++
++	lif_interface_collection_init(&old);
++
++	if (!lif_interface_file_parse(&ps, snapshot_path(ifname)))
++		return true;
++
++	lif_lifecycle_count_rdepends(&exec_opts, &old);
++	lif_compat_apply(&old);
++	lif_state_sync(state, &old);
++
++	entry = lif_dict_find(&old, ifname);
++	if (entry != NULL)
++		ret = change_interface(entry->data, &old, state, false);
++
++	return ret;
++}
++
++/* Rewrite the snapshot to the current auto interfaces. */
++static void
++save_applied(struct lif_dict *collection)
++{
++	const char *dir = snapshot_dir();
++	struct lif_node *iter;
++	DIR *d;
++
++	mkdir(dir, 0755);
++
++	/* Drop snapshots for interfaces no longer configured. */
++	d = opendir(dir);
++	if (d != NULL)
++	{
++		struct dirent *ent;
++
++		while ((ent = readdir(d)) != NULL)
++		{
++			struct lif_dict_entry *e;
++
++			if (ent->d_name[0] == '.')
++				continue;
++
++			e = lif_dict_find(collection, ent->d_name);
++			if (e == NULL || !((struct lif_interface *) e->data)->is_auto)
++				unlink(snapshot_path(ent->d_name));
++		}
++		closedir(d);
++	}
++
++	LIF_DICT_FOREACH(iter, collection)
++	{
++		struct lif_dict_entry *entry = iter->data;
++		struct lif_interface *iface = entry->data;
++		FILE *f;
++
++		if (!iface->is_auto)
++			continue;
++
++		f = fopen(snapshot_path(iface->ifname), "w");
++		if (f == NULL)
++		{
++			fprintf(stderr, "%s: cannot write %s\n", argv0,
++				snapshot_path(iface->ifname));
++			continue;
++		}
++		serialize_interface(f, iface);
++		fclose(f);
++	}
++}
++
++static int
++ifreload_main(int argc, char *argv[])
++{
++	(void) argc;
++	(void) argv;
++
++	struct lif_dict cur = {}, state = {};
++	struct lif_interface_file_parse_state parse = { .collection = &cur };
++	struct lif_node *iter;
++	int rc = EXIT_SUCCESS;
++	DIR *d;
++
++	lif_interface_collection_init(&cur);
++
++	if (!lif_state_read_path(&state, exec_opts.state_file))
++	{
++		fprintf(stderr, "%s: could not parse %s\n", argv0, exec_opts.state_file);
++		return EXIT_FAILURE;
++	}
++
++	if (!lif_interface_file_parse(&parse, exec_opts.interfaces_file))
++	{
++		fprintf(stderr, "%s: could not parse %s\n", argv0, exec_opts.interfaces_file);
++		return EXIT_FAILURE;
++	}
++
++	if (lif_lifecycle_count_rdepends(&exec_opts, &cur) == -1)
++	{
++		fprintf(stderr, "%s: could not validate dependency tree\n", argv0);
++		return EXIT_FAILURE;
++	}
++
++	if (!lif_compat_apply(&cur))
++	{
++		fprintf(stderr, "%s: failed to apply compatibility glue\n", argv0);
++		return EXIT_FAILURE;
++	}
++
++	if (!lif_state_sync(&state, &cur))
++	{
++		fprintf(stderr, "%s: could not sync state\n", argv0);
++		return EXIT_FAILURE;
++	}
++
++	/* Pass 1: tear down interfaces gone or changed, from the snapshot,
++	 * so the old config's down executors run. */
++	d = opendir(snapshot_dir());
++	if (d != NULL)
++	{
++		struct dirent *ent;
++
++		while ((ent = readdir(d)) != NULL)
++		{
++			struct lif_dict_entry *ce;
++			char *stored;
++
++			if (ent->d_name[0] == '.')
++				continue;
++
++			ce = lif_dict_find(&cur, ent->d_name);
++			stored = read_file(snapshot_path(ent->d_name));
++
++			if (ce == NULL || config_differs(ce->data, stored))
++				if (!takedown_stored(ent->d_name, &state))
++					rc = EXIT_FAILURE;
++
++			free(stored);
++		}
++		closedir(d);
++	}
++
++	/* Pass 1 changed the state; reset refcounts and re-sync so a
++	 * just-torn-down changed interface is seen as down and brought back
++	 * up below.  lif_state_sync only sets refcounts from records that
++	 * exist, it does not clear one left stale by a removed record. */
++	LIF_DICT_FOREACH(iter, &cur)
++	{
++		struct lif_dict_entry *e = iter->data;
++
++		((struct lif_interface *) e->data)->refcount = 0;
++	}
++	lif_state_sync(&state, &cur);
++
++	/* Pass 2: bring up interfaces new or changed. */
++	LIF_DICT_FOREACH(iter, &cur)
++	{
++		struct lif_dict_entry *entry = iter->data;
++		struct lif_interface *iface = entry->data;
++		char *stored;
++
++		if (!iface->is_auto)
++			continue;
++
++		stored = read_file(snapshot_path(iface->ifname));
++
++		if (stored == NULL || config_differs(iface, stored))
++			if (!change_interface(iface, &cur, &state, true))
++				rc = EXIT_FAILURE;
++
++		free(stored);
++	}
++
++	if (!exec_opts.mock)
++	{
++		save_applied(&cur);
++
++		if (!lif_state_write_path(&state, exec_opts.state_file))
++		{
++			fprintf(stderr, "%s: could not update %s\n", argv0, exec_opts.state_file);
++			return EXIT_FAILURE;
++		}
++	}
++
++	return rc;
++}
++
++struct if_applet ifreload_applet = {
++	.name = "ifreload",
++	.desc = "reconcile interface state with the config",
++	.main = ifreload_main,
++	.usage = "ifreload [options]",
++	.manpage = "8 ifreload",
++	.groups = { &global_option_group, &match_option_group, &exec_option_group, },
++};
++APPLET_REGISTER(ifreload_applet)
+diff --git a/doc/ifreload.scd b/doc/ifreload.scd
+new file mode 100644
+index 0000000..04d7218
+--- /dev/null
++++ b/doc/ifreload.scd
+@@ -0,0 +1,98 @@
++ifreload(8)
++
++# NAME
++
++ifreload - reconcile interface state with the configuration
++
++# SYNOPSIS
++
++ifreload [<_options_>...]
++
++# DESCRIPTION
++
++*ifreload* reconciles the running interface state with the current
++configuration.  Unlike *ifup -a*, which only brings interfaces up, it
++also takes down interfaces that have been removed from the configuration
++and re-applies interfaces whose configuration has changed, while leaving
++unchanged interfaces alone so that a reload never disturbs a link that
++did not change.
++
++It keeps a copy of the last-applied configuration, one file per interface
++alongside the state file, and on each run compares the current
++configuration against it:
++
++- interfaces added since the last run are brought up;
++- interfaces removed since the last run are brought down, using their
++  old configuration so the correct executors run;
++- interfaces whose configuration changed are brought down and back up;
++- unchanged interfaces are left as they are.
++
++The first run after boot has no saved copy, so every interface counts as
++new.  This is a no-op -- the interfaces are already up from boot -- that
++simply records the baseline for later runs.
++
++The comparison is made against the stored text, never a re-parse of it:
++parsing re-applies default inheritance and executor selection, so a
++parse and re-serialize is not idempotent.
++
++# OPTIONS
++
++*-a, --auto*
++	Only match interfaces that are marked as _auto_.  ifreload
++	always operates on the _auto_ interfaces; this option is accepted
++	for consistency with *ifup*(8) and *ifdown*(8).
++
++*-f, --force*
++	Force (de)configuration of interfaces even if their state already
++	matches.
++
++*-h, --help*
++	Display supported options to ifreload.
++
++*-i, --interfaces* _FILE_
++	Use _FILE_ as the config database.
++
++*-n, --no-act*
++	Show what commands would be run instead of actually running them,
++	and do not update the state or the saved configuration.  Useful
++	for testing configuration changes.
++
++*-v, --verbose*
++	Show what commands are being run as they are executed.
++
++*-E, --executor-path* _PATH_
++	Look for executors in the given _PATH_.
++
++*-I, --include* _PATTERN_
++	Include _PATTERN_ when matching against the config or state
++	database.
++
++*-L, --no-lock*
++	Do not use a lockfile to serialize state changes.
++
++*-S, --state-file* _FILE_
++	Use _FILE_ as the state database.  The saved configuration is
++	kept in _FILE_.reload.d.
++
++*-T, --timeout* _TIMEOUT_
++	Wait up to _TIMEOUT_ seconds for executors to complete before
++	raising an error.
++
++*-V, --version*
++	Print the ifupdown-ng version and exit.
++
++*-X, --exclude* _PATTERN_
++	Exclude _PATTERN_ when matching against the config or state
++	database.
++
++# SEE ALSO
++
++*ifupdown-ng.conf*(5)
++*ifup*(8)
++*ifdown*(8)
++*ifquery*(8)
++*interfaces*(5)
++
++# AUTHORS
++
++Joachim Wiberg <troglobit@gmail.com>
+-- 
+2.43.0
+
