@@ -22,9 +22,9 @@ static void show_indented_xml_node(char *tag, cxobj *node, size_t indent)
 	cxobj *child = NULL;
 
 	if (!xml_body_get(node))
-		clicon_log(LOG_DEBUG, "%s: %s%s", tag, indent_str(indent), xml_name(node));
+		clixon_log(NULL, LOG_DEBUG, "%s: %s%s", tag, indent_str(indent), xml_name(node));
 	else
-		clicon_log(LOG_DEBUG, "%s: %s%s = %s", tag, indent_str(indent), xml_name(node), xml_body(node));
+		clixon_log(NULL, LOG_DEBUG, "%s: %s%s = %s", tag, indent_str(indent), xml_name(node), xml_body(node));
 
 	while ((child = xml_child_each(node, child, CX_ELMNT)))
 		show_indented_xml_node(tag, child, indent + 2);
@@ -43,19 +43,19 @@ void show_xml_node_vec(char *tag, cxobj **node_vec, size_t len)
 
 void show_transaction(char *tag, transaction_data td, bool show_data)
 {
-	clicon_log(LOG_DEBUG, "%s:   transaction ID = %lu", tag, transaction_id(td));
+	clixon_log(NULL, LOG_DEBUG, "%s:   transaction ID = %lu", tag, transaction_id(td));
 	if (show_data) {
-		clicon_log(LOG_DEBUG, "%s:   transaction source:", tag);
+		clixon_log(NULL, LOG_DEBUG, "%s:   transaction source:", tag);
 		show_xml_node(tag, transaction_src(td));
-		clicon_log(LOG_DEBUG, "%s:   transaction target:", tag);
+		clixon_log(NULL, LOG_DEBUG, "%s:   transaction target:", tag);
 		show_xml_node(tag, transaction_target(td));
-		clicon_log(LOG_DEBUG, "%s:   transaction deleted:", tag);
+		clixon_log(NULL, LOG_DEBUG, "%s:   transaction deleted:", tag);
 		show_xml_node_vec(tag, transaction_dvec(td), transaction_dlen(td));
-		clicon_log(LOG_DEBUG, "%s:   transaction added:", tag);
+		clixon_log(NULL, LOG_DEBUG, "%s:   transaction added:", tag);
 		show_xml_node_vec(tag, transaction_avec(td), transaction_alen(td));
-		clicon_log(LOG_DEBUG, "%s:   transaction changed source:", tag);
+		clixon_log(NULL, LOG_DEBUG, "%s:   transaction changed source:", tag);
 		show_xml_node_vec(tag, transaction_scvec(td), transaction_clen(td));
-		clicon_log(LOG_DEBUG, "%s:   transaction changed target:", tag);
+		clixon_log(NULL, LOG_DEBUG, "%s:   transaction changed target:", tag);
 		show_xml_node_vec(tag, transaction_tcvec(td), transaction_clen(td));
 	}
 }

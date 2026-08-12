@@ -129,12 +129,12 @@ static int if_configure(cxobj *iface)
 	FILE *fp;
 
 	if (!is_valid_ifname(ifname)) {
-		clicon_log(LOG_WARNING, "ietf-interfaces: rejecting invalid name \"%s\"",
+		clixon_log(NULL, LOG_WARNING, "ietf-interfaces: rejecting invalid name \"%s\"",
 			   ifname ? ifname : "(null)");
 		return 0;
 	}
 	if (!strcmp(ifname, MGMT_IF)) {
-		clicon_log(LOG_WARNING, "ietf-interfaces: refusing to manage %s", MGMT_IF);
+		clixon_log(NULL, LOG_WARNING, "ietf-interfaces: refusing to manage %s", MGMT_IF);
 		return 0;
 	}
 	if (is_disabled(iface)) {
@@ -160,7 +160,7 @@ static int if_configure(cxobj *iface)
 	snprintf(path, sizeof(path), "%s/%s.conf", IFDIR, ifname);
 	fp = fopen(path, "w");
 	if (!fp) {
-		clicon_log(LOG_WARNING, "ietf-interfaces: cannot write %s: %s",
+		clixon_log(NULL, LOG_WARNING, "ietf-interfaces: cannot write %s: %s",
 			   path, strerror(errno));
 		return -1;
 	}
@@ -180,7 +180,7 @@ static int if_configure(cxobj *iface)
 	return 0;			/* ifup -a in tr_commit applies it */
 }
 
-int ietf_if_tr_begin(clicon_handle h, transaction_data td)
+int ietf_if_tr_begin(clixon_handle h, transaction_data td)
 {
 	return 0;
 }
@@ -210,7 +210,7 @@ int ietf_if_tr_commit_interface(cxobj *src, cxobj *tgt)
 	return 0;
 }
 
-int ietf_if_tr_commit(clicon_handle h, transaction_data td)
+int ietf_if_tr_commit(clixon_handle h, transaction_data td)
 {
 	cxobj *src = transaction_src(td), *tgt = transaction_target(td);
 	yang_stmt *yspec = clicon_dbspec_yang(h);
@@ -316,7 +316,7 @@ static void cprint_ifdata(cbuf *cb, json_t *link)
 	cprintf(cb, "</interface>");
 }
 
-int ietf_if_statedata(clicon_handle h, cvec *nsc, char *xpath, cxobj *xstate)
+int ietf_if_statedata(clixon_handle h, cvec *nsc, char *xpath, cxobj *xstate)
 {
 	json_t *root = NULL, *link;
 	cbuf *cb = NULL;
@@ -336,7 +336,7 @@ int ietf_if_statedata(clicon_handle h, cvec *nsc, char *xpath, cxobj *xstate)
 
 	cb = cbuf_new();
 	if (!cb) {
-		clicon_err(OE_UNIX, errno, "cbuf_new");
+		clixon_err(OE_UNIX, errno, "cbuf_new");
 		goto done;
 	}
 
@@ -366,7 +366,7 @@ static clixon_plugin_api ietf_interfaces_api = {
 	.ca_statedata = ietf_if_statedata,
 };
 
-clixon_plugin_api *clixon_plugin_init(clicon_handle h)
+clixon_plugin_api *clixon_plugin_init(clixon_handle h)
 {
 	return &ietf_interfaces_api;
 }

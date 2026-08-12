@@ -13,10 +13,10 @@
 #define IETF_SYSTEM_NS "urn:ietf:params:xml:ns:yang:ietf-system"
 
 /* Not exported in the common Clixon API, needed to run external commands */
-void cli_signal_block(clicon_handle h);
-void cli_signal_unblock(clicon_handle h);
+void cli_signal_block(clixon_handle h);
+void cli_signal_unblock(clixon_handle h);
 
-static int exec(clicon_handle h, char *cmd)
+static int exec(clixon_handle h, char *cmd)
 {
 	int rc;
 
@@ -27,12 +27,12 @@ static int exec(clicon_handle h, char *cmd)
 	return rc;
 }
 
-int cli_exec_shell(clicon_handle h, cvec *cvv, cvec *argv)
+int cli_exec_shell(clixon_handle h, cvec *cvv, cvec *argv)
 {
 	return exec(h, "$SHELL -l");
 }
 
-int cli_exec_show(clicon_handle h, cvec *cvv, cvec *argv)
+int cli_exec_show(clixon_handle h, cvec *cvv, cvec *argv)
 {
 	char cmd[256] = "show -n ";
 	char *arg;
@@ -45,7 +45,7 @@ int cli_exec_show(clicon_handle h, cvec *cvv, cvec *argv)
 	return exec(h, cmd);
 }
 
-int cli_show_factory(clicon_handle h, cvec *cvv, cvec *argv)
+int cli_show_factory(clixon_handle h, cvec *cvv, cvec *argv)
 {
 	/* The factory config is a static seed, not a live datastore Clixon
 	 * can render, so dump it in its stored form. */
@@ -57,7 +57,7 @@ int cli_show_factory(clicon_handle h, cvec *cvv, cvec *argv)
  * work for any admin -- Finit only lets uid 0 issue the privileged
  * halt/reboot, and the CLI runs as the logged-in user.
  */
-static int send_system_rpc(clicon_handle h, const char *op)
+static int send_system_rpc(clixon_handle h, const char *op)
 {
 	cxobj *xtop = NULL, *xrpc, *xret = NULL, *xerr;
 	int rc = -1;
@@ -74,7 +74,7 @@ static int send_system_rpc(clicon_handle h, const char *op)
 		goto done;
 
 	if ((xerr = xpath_first(xret, NULL, "//rpc-error")) != NULL) {
-		clixon_netconf_error(xerr, op, NULL);
+		clixon_netconf_error(h, xerr, op, NULL);
 		goto done;
 	}
 
@@ -88,17 +88,17 @@ done:
 	return rc;
 }
 
-int cli_system_rpc(clicon_handle h, cvec *cvv, cvec *argv)
+int cli_system_rpc(clixon_handle h, cvec *cvv, cvec *argv)
 {
 	if (cvec_len(argv) != 1) {
-		clicon_err(OE_PLUGIN, EINVAL, "usage: cli_system_rpc(\"<rpc>\")");
+		clixon_err(OE_PLUGIN, EINVAL, "usage: cli_system_rpc(\"<rpc>\")");
 		return -1;
 	}
 
 	return send_system_rpc(h, cv_string_get(cvec_i(argv, 0)));
 }
 
-int cli_factory_reset(clicon_handle h, cvec *cvv, cvec *argv)
+int cli_factory_reset(clixon_handle h, cvec *cvv, cvec *argv)
 {
 	/* Arm the flag on the persistent store (wheel-writable); /libexec/mnt
 	 * wipes /mnt/rw on the way back up.  The shell exits non-zero if the
@@ -112,7 +112,7 @@ int cli_factory_reset(clicon_handle h, cvec *cvv, cvec *argv)
 	return send_system_rpc(h, "system-restart");
 }
 
-int cli_exec_log(clicon_handle h, cvec *cvv, cvec *argv)
+int cli_exec_log(clixon_handle h, cvec *cvv, cvec *argv)
 {
 	const char *tool, *fn = "";
 	char cmd[128];
@@ -159,7 +159,7 @@ static clixon_plugin_api cli_api = {
 	.ca_init = clixon_plugin_init,
 };
 
-clixon_plugin_api *clixon_plugin_init(clicon_handle h)
+clixon_plugin_api *clixon_plugin_init(clixon_handle h)
 {
 	return &cli_api;
 }

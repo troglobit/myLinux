@@ -78,7 +78,7 @@ static int run(const char *fmt, ...)
 		rc = -1;
 	}
 
-//	clicon_debug(LOG_ERR, "ietf-system:run(%s) => %d", cmd, rc);
+//	clixon_debug(CLIXON_DBG_DEFAULT, "ietf-system:run(%s) => %d", cmd, rc);
 
 	return rc;
 }
@@ -116,7 +116,7 @@ static int sys_reload_services(void)
 	return run("initctl -nbq touch sysklogd lldpd");
 }
 
-int ietf_sys_tr_begin(clicon_handle h, transaction_data td)
+int ietf_sys_tr_begin(clixon_handle h, transaction_data td)
 {
 	return aug_load(aug);
 }
@@ -179,7 +179,7 @@ int ietf_sys_tr_commit_clock(cxobj *src, cxobj *tgt)
 #ifdef __UCLIBC__
 	snprintf(cmd, sizeof(cmd), "ln -sf /usr/share/zoneinfo/uclibc/%s /etc/TZ", timezone);
 	if (run(cmd)) {
-		clicon_log(LOG_WARNING, "ietf-system: failed setting timezone %s", timezone);
+		clixon_log(NULL, LOG_WARNING, "ietf-system: failed setting timezone %s", timezone);
 		return -1;
 	}
 	return 0;
@@ -189,13 +189,13 @@ int ietf_sys_tr_commit_clock(cxobj *src, cxobj *tgt)
 
 	snprintf(cmd, sizeof(cmd), "cp /usr/share/zoneinfo/%s /etc/localtime", timezone);
 	if (run(cmd)) {
-		clicon_log(LOG_WARNING, "ietf-system: failed setting timezone %s", timezone);
+		clixon_log(NULL, LOG_WARNING, "ietf-system: failed setting timezone %s", timezone);
 		return -1;
 	}
 
 	fp = fopen(fn, "w");
 	if (!fp) {
-		clicon_log(LOG_WARNING, "ietf-system: failed updating %s: %s", fn, strerror(errno));
+		clixon_log(NULL, LOG_WARNING, "ietf-system: failed updating %s: %s", fn, strerror(errno));
 		return -1;
 	}
 	fprintf(fp, "%s\n", timezone);
@@ -219,7 +219,7 @@ int ietf_sys_tr_commit_ntp(cxobj *src, cxobj *tgt)
 
 	fp = fopen(fn, "w");
 	if (!fp) {
-		clicon_log(LOG_WARNING, "ietf-system: failed updating %s: %s", fn, strerror(errno));
+		clixon_log(NULL, LOG_WARNING, "ietf-system: failed updating %s: %s", fn, strerror(errno));
 		return -1;
 	}
 
@@ -287,13 +287,13 @@ int ietf_sys_tr_commit_dns(cxobj *src, cxobj *tgt)
 	int first = 1, valid = 0;
 	FILE *fp;
 
-	clicon_log(LOG_ERR, "ietf-system: dns src %p tgt %p", src, tgt);
+	clixon_log(NULL, LOG_ERR, "ietf-system: dns src %p tgt %p", src, tgt);
 	if (!tgt)
 		goto disable;
 
 	fp = fopen(fn, "w");
 	if (!fp) {
-		clicon_log(LOG_WARNING, "ietf-system: failed updating %s: %s", fn, strerror(errno));
+		clixon_log(NULL, LOG_WARNING, "ietf-system: failed updating %s: %s", fn, strerror(errno));
 		return -1;
 	}
 
@@ -345,11 +345,11 @@ disable:
 		remove(fn);
 
 	if (run("initctl cond get hook/sys/up")) {
-//		clicon_log(LOG_ERR, "ietf-system: failed cond get hook/sys/up");
+//		clixon_log(NULL, LOG_ERR, "ietf-system: failed cond get hook/sys/up");
 		return 0;
 	}
 
-	clicon_log(LOG_ERR, "ietf-status: calling resolvconf -u");
+	clixon_log(NULL, LOG_ERR, "ietf-status: calling resolvconf -u");
 	return run("resolvconf -u");
 }
 
@@ -392,7 +392,7 @@ static int set_password(const char *user, const char *hash)
 	int fd;
 
 	if (lckpwdf()) {
-		clicon_log(LOG_WARNING, "ietf-system: cannot lock %s", SHADOW_FILE);
+		clixon_log(NULL, LOG_WARNING, "ietf-system: cannot lock %s", SHADOW_FILE);
 		return -1;
 	}
 
@@ -438,7 +438,7 @@ static int set_password(const char *user, const char *hash)
 fail:
 	endspent();
 	ulckpwdf();
-	clicon_log(LOG_WARNING, "ietf-system: failed setting password for user %s", user);
+	clixon_log(NULL, LOG_WARNING, "ietf-system: failed setting password for user %s", user);
 
 	return -1;
 }
@@ -459,7 +459,7 @@ static void set_authorized_keys(cxobj *user, const char *name)
 	snprintf(path, sizeof(path), "/home/%s/.ssh/authorized_keys", name);
 	fp = fopen(path, "w");
 	if (!fp) {
-		clicon_log(LOG_WARNING, "ietf-system: cannot write %s", path);
+		clixon_log(NULL, LOG_WARNING, "ietf-system: cannot write %s", path);
 		return;
 	}
 
@@ -492,7 +492,7 @@ static int usr_del(const char *name)
 		return 0;
 
 	if (run("deluser --remove-home %s", name))
-		clicon_log(LOG_WARNING, "ietf-system: failed deleting user %s", name);
+		clixon_log(NULL, LOG_WARNING, "ietf-system: failed deleting user %s", name);
 
 	return 0;
 }
@@ -518,14 +518,14 @@ static int usr_set(cxobj *user)
 	const char *name = get_str(user, "name");
 
 	if (!is_valid_username(name)) {
-		clicon_log(LOG_WARNING, "ietf-system: rejecting invalid user name \"%s\"",
+		clixon_log(NULL, LOG_WARNING, "ietf-system: rejecting invalid user name \"%s\"",
 			   name ? name : "(null)");
 		return 0;
 	}
 
 	if (!getpwnam(name)) {
 		if (run("adduser -D -s %s %s", usr_shell(user), name)) {
-			clicon_log(LOG_WARNING, "ietf-system: failed creating user %s", name);
+			clixon_log(NULL, LOG_WARNING, "ietf-system: failed creating user %s", name);
 			return 0;
 		}
 
@@ -570,7 +570,7 @@ int ietf_sys_tr_commit_auth(cxobj *src, cxobj *tgt)
 	return 0;
 }
 
-int ietf_sys_tr_commit(clicon_handle h, transaction_data td)
+int ietf_sys_tr_commit(clixon_handle h, transaction_data td)
 {
 	cxobj *src = transaction_src(td), *tgt = transaction_target(td);
 	yang_stmt *yspec = clicon_dbspec_yang(h);
@@ -693,7 +693,7 @@ static char *fmtime(time_t t, char *buf, size_t len)
         return buf;
 }
 
-int ietf_sys_statedata(clicon_handle h, cvec *nsc, char *xpath, cxobj *xstate)
+int ietf_sys_statedata(clixon_handle h, cvec *nsc, char *xpath, cxobj *xstate)
 {
         struct sysinfo si;
         time_t now, boot;
@@ -704,7 +704,7 @@ int ietf_sys_statedata(clicon_handle h, cvec *nsc, char *xpath, cxobj *xstate)
 
 	cb = cbuf_new();
 	if (!cb) {
-		clicon_err(OE_UNIX, errno, "ietf-system:cbuf_new");
+		clixon_err(OE_UNIX, errno, "ietf-system:cbuf_new");
 		return -1;
 	}
 
@@ -771,18 +771,18 @@ static int set_datetime(cxobj *xe)
 
         memset(&tm, 0, sizeof(tm));
         if (!strptime(buf, isofmt, &tm)) {
-                clicon_log(LOG_WARNING, "ietf-system:failed strptime: %s", strerror(errno));
+                clixon_log(NULL, LOG_WARNING, "ietf-system:failed strptime: %s", strerror(errno));
 		goto done;
 	}
 
 	snprintf(tz, sizeof(tz), "UTC%s%ld", tm.tm_gmtoff > 0 ? "+" : "", tm.tm_gmtoff / 3600);
 	setenv("TZ", tz, 1);
-//	clicon_log(LOG_ERR, "time %s gmtoff %ld TZ=%s", buf, tm.tm_gmtoff, tz);
+//	clixon_log(NULL, LOG_ERR, "time %s gmtoff %ld TZ=%s", buf, tm.tm_gmtoff, tz);
 
         tv.tv_sec = mktime(&tm);
         tv.tv_usec = 0;
         if (settimeofday(&tv, NULL)) {
-                clicon_log(LOG_WARNING, "ietf-system:failed settimeofday: %s", strerror(errno));
+                clixon_log(NULL, LOG_WARNING, "ietf-system:failed settimeofday: %s", strerror(errno));
 		goto done;
 	}
 
@@ -793,7 +793,7 @@ done:
 	return rc;
 }
 
-static int do_rpc(clicon_handle h,            /* Clicon handle */
+static int do_rpc(clixon_handle h,            /* Clicon handle */
 		  cxobj        *xe,           /* Request: <rpc><xn></rpc> */
 		  cbuf         *cbret,        /* Reply eg <rpc-reply>... */
 		  void         *arg,          /* client_entry */
@@ -803,7 +803,7 @@ static int do_rpc(clicon_handle h,            /* Clicon handle */
 	char *op;
 
 	if ((namespace = xml_find_type_value(xe, NULL, "xmlns", CX_ATTR)) == NULL) {
-		clicon_err(OE_XML, ENOENT, "No namespace given in RPC %s", xml_name(xe));
+		clixon_err(OE_XML, ENOENT, "No namespace given in RPC %s", xml_name(xe));
 		return -1;
 	}
 	if (strcmp(namespace, XMLNS))
@@ -831,16 +831,16 @@ static clixon_plugin_api ietf_system_api = {
 	.ca_statedata = ietf_sys_statedata,
 };
 
-static void register_rpc(clicon_handle h, const char *rpc)
+static void register_rpc(clixon_handle h, const char *rpc)
 {
 	int rc;
 
 	rc = rpc_callback_register(h, do_rpc, NULL, XMLNS, rpc);
 	if (rc < 0)
-		clicon_err(OE_PLUGIN, EINVAL, "ietf-system: failed registering RPC %s", rpc);
+		clixon_err(OE_PLUGIN, EINVAL, "ietf-system: failed registering RPC %s", rpc);
 }
 
-clixon_plugin_api *clixon_plugin_init(clicon_handle h)
+clixon_plugin_api *clixon_plugin_init(clixon_handle h)
 {
 	os_init();
 
@@ -848,7 +848,7 @@ clixon_plugin_api *clixon_plugin_init(clicon_handle h)
 	if (!aug ||
 	    aug_load_file(aug, "/etc/hostname") ||
 	    aug_load_file(aug, "/etc/hosts")) {
-		clicon_err(OE_UNIX, EINVAL,
+		clixon_err(OE_UNIX, EINVAL,
 			   "ietf-system: Augeas initialization failed");
 		return NULL;
 	}

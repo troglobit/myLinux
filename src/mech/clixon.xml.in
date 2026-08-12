@@ -29,6 +29,13 @@
   <CLICON_NACM_MODE>disabled</CLICON_NACM_MODE>
   <CLICON_STREAM_DISCOVERY_RFC5277>true</CLICON_STREAM_DISCOVERY_RFC5277>
   <CLICON_YANG_LIBRARY>false</CLICON_YANG_LIBRARY>
+  <!-- mech reports config-true operational state (interface addresses,
+       hostname) via its state callbacks.  With target-state validation on
+       (the default), clixon merges that state into every commit's target
+       tree, which makes a deleted interface look changed rather than gone
+       and hides it from the backend.  We have no config leafrefs into
+       state, so turn the merge off. -->
+  <CLICON_VALIDATE_TARGET_STATE>false</CLICON_VALIDATE_TARGET_STATE>
   <CLICON_BACKEND_RESTCONF_PROCESS>true</CLICON_BACKEND_RESTCONF_PROCESS>
   <autocli>
     <rule>

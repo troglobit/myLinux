@@ -4,11 +4,8 @@
 #
 ################################################################################
 
-#CLIXON_VERSION = 6.0.0
-#CLIXON_SITE = $(call github,clicon,clixon,$(CLIXON_VERSION))
-CLIXON_VERSION = 3d7f1099a6aa7889b3a0645184089148ef511bf3
-CLIXON_SITE = https://github.com/kernelkit/clixon
-CLIXON_SITE_METHOD = git
+CLIXON_VERSION = 7.8.0
+CLIXON_SITE = $(call github,clicon,clixon,$(CLIXON_VERSION))
 
 CLIXON_LICENSE = Apache-2.0
 CLIXON_LICENSE_FILES = LICENSE.md
