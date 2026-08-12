@@ -1,6 +1,13 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include <arpa/inet.h>
+/*
+ * ifupdown-ng-based interface management.  mech only renders (and removes)
+ * per-interface drop-ins in /etc/network/interfaces.d/, then runs `ifreload`
+ * once to reconcile the running state with them -- ifreload brings up the
+ * new, tears down the removed, re-applies the changed, and leaves everything
+ * else alone.  A missing interface is declared `link-type dummy` so ifupdown
+ * creates it, holds its operstate up, and deletes it again on teardown.
+ */
 #include <ctype.h>
 #include <errno.h>
 #include <jansson.h>
@@ -14,14 +21,6 @@
 
 #include "common.h"
 
-/*
- * Interim ifupdown-based interface management.  mech renders per-interface
- * drop-ins in /etc/network/interfaces.d/ and applies them with a global
- * `ifdown -a`/`ifup -a`.  eth0 (the management link) is off-limits to config
- * so its DHCP is left alone; it still gets bounced by the -a, but the virtio
- * link stays up so the NETCONF/SSH session should ride it out.  Proper
- * interface management awaits dagger in Finit.
- */
 #define IFDIR   "/etc/network/interfaces.d"
 #define MGMT_IF "eth0"
 
@@ -82,35 +81,8 @@ static bool is_valid_ifname(const char *name)
 	return true;
 }
 
-/* BusyBox ifupdown wants a dotted-quad netmask, not a /prefix. */
-static const char *prefix_to_netmask(int plen, char *buf, size_t len)
-{
-	struct in_addr a;
 
-	if (plen < 0)
-		plen = 0;
-	if (plen > 32)
-		plen = 32;
-	a.s_addr = plen ? htonl(~0U << (32 - plen)) : 0;
-	snprintf(buf, len, "%s", inet_ntoa(a));
-
-	return buf;
-}
-
-static void sysfs_net_write(const char *ifname, const char *fn, const char *data)
-{
-	char path[128];
-	FILE *fp;
-
-	snprintf(path, sizeof(path), "/sys/class/net/%s/%s", ifname, fn);
-	fp = fopen(path, "w");
-	if (!fp)
-		return;
-	fprintf(fp, "%s\n", data);
-	fclose(fp);
-}
-
-/* Drop an interface's config; the ifdown -a in tr_commit takes it down. */
+/* Drop an interface's config; the ifreload in tr_commit takes it down. */
 static void if_unconfigure(const char *ifname)
 {
 	if (!is_valid_ifname(ifname) || !strcmp(ifname, MGMT_IF))
@@ -118,13 +90,13 @@ static void if_unconfigure(const char *ifname)
 	run("rm -f %s/%s.conf", IFDIR, ifname);
 }
 
-/* Render an interface's config and bring it up. */
+/* Render an interface's drop-in; the ifreload in tr_commit applies it. */
 static int if_configure(cxobj *iface)
 {
 	char *ifname = get_str(iface, "name");
 	char *ip, *len, *desc;
 	cxobj *ipv4, *address;
-	char path[128], mask[16];
+	char path[128];
 	int missing;
 	FILE *fp;
 
@@ -152,8 +124,8 @@ static int if_configure(cxobj *iface)
 		return 0;
 	}
 
-	/* Middle ground until dagger: if the interface does not exist yet,
-	 * let ifupdown bring it into being as a dummy via a pre-up hook. */
+	/* If the interface does not exist yet, declare it a dummy so
+	 * ifupdown-ng creates it (and holds its operstate up). */
 	snprintf(path, sizeof(path), "/sys/class/net/%s", ifname);
 	missing = access(path, F_OK);
 
@@ -167,17 +139,21 @@ static int if_configure(cxobj *iface)
 	fprintf(fp, "auto %s\n", ifname);
 	fprintf(fp, "iface %s inet static\n", ifname);
 	if (missing)
-		fprintf(fp, "\tpre-up ip link add dev %s type dummy 2>/dev/null || true\n",
-			ifname);
-	fprintf(fp, "\taddress %s\n", ip);
-	fprintf(fp, "\tnetmask %s\n", prefix_to_netmask(atoi(len), mask, sizeof(mask)));
+		fprintf(fp, "\tlink-type dummy\n");
+	fprintf(fp, "\taddress %s/%s\n", ip, len);
+	/* The description is free text from the datastore and lands in a file
+	 * whose grammar has executable hooks (pre-up ...), so a newline would
+	 * let it inject a directive.  Drop it rather than write a broken-out
+	 * line; everything else is fine inside a quoted ifupdown alias. */
+	desc = get_str(iface, "description");
+	if (desc && strpbrk(desc, "\r\n"))
+		clixon_log(NULL, LOG_WARNING,
+			   "ietf-interfaces: %s: ignoring description with a newline", ifname);
+	else if (desc)
+		fprintf(fp, "\talias %s\n", desc);
 	fclose(fp);
 
-	desc = get_str(iface, "description");
-	if (desc)
-		sysfs_net_write(ifname, "ifalias", desc);
-
-	return 0;			/* ifup -a in tr_commit applies it */
+	return 0;			/* ifreload in tr_commit applies it */
 }
 
 int ietf_if_tr_begin(clixon_handle h, transaction_data td)
@@ -214,7 +190,7 @@ int ietf_if_tr_commit(clixon_handle h, transaction_data td)
 {
 	cxobj *src = transaction_src(td), *tgt = transaction_target(td);
 	yang_stmt *yspec = clicon_dbspec_yang(h);
-	int slen = 0, tlen = 0, rc;
+	int slen = 0, tlen = 0;
 	cxobj **sif, **tif;
 
 	if (src && clixon_xml_find_instance_id(src, yspec, &sif, &slen,
@@ -224,12 +200,14 @@ int ietf_if_tr_commit(clixon_handle h, transaction_data td)
 					       "/if:interfaces") < 0)
 		return -1;
 
-	run("ifdown -a");
-	rc = ietf_if_tr_commit_interface(slen ? sif[0] : NULL,
-					 tlen ? tif[0] : NULL);
-	run("ifup -a");
+	ietf_if_tr_commit_interface(slen ? sif[0] : NULL,
+				    tlen ? tif[0] : NULL);
 
-	return rc;
+	/* Reconcile the running state with the drop-ins just rendered. */
+	if (run("ifreload -a"))
+		clixon_log(h, LOG_WARNING, "ietf-interfaces: ifreload failed");
+
+	return 0;
 }
 
 /*
