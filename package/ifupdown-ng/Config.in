@@ -1,0 +1,12 @@
+config BR2_PACKAGE_IFUPDOWN_NG
+	bool "ifupdown-ng"
+	depends on BR2_USE_MMU # fork()
+	select BR2_PACKAGE_IPROUTE2 if !BR2_PACKAGE_BUSYBOX
+	help
+	  ifupdown-ng is a network interface manager compatible with the
+	  /etc/network/interfaces format, with a modern executor and
+	  dependency model that natively handles bridges, VLANs, bonds
+	  and more.  A drop-in replacement for the BusyBox and Debian
+	  ifupdown tools.
+
+	  https://github.com/ifupdown-ng/ifupdown-ng
