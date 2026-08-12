@@ -7,6 +7,10 @@ module mylinux {
         prefix ds;
     }
 
+    import ietf-factory-default {
+        prefix fd;
+    }
+
     import ietf-system {
         prefix sys;
     }
@@ -45,6 +49,10 @@ module mylinux {
     }
     revision 2026-08-07 {
       description "Rebrand the base model as mylinux.";
+      reference "N/A";
+    }
+    revision 2026-08-12 {
+      description "Pull in ietf-factory-default for the factory-reset RPC.";
       reference "N/A";
     }
 
