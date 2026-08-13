@@ -285,12 +285,15 @@ int ietf_sys_tr_commit_dns(cxobj *src, cxobj *tgt)
 {
 	const char *fn = "/etc/resolv.conf.head";
 	cxobj *obj, *opt = NULL, *srv = NULL;
-	int first = 1, valid = 0;
+	int first = 1;
 	FILE *fp;
 
-	ERR("ietf-system: dns src %p tgt %p", src, tgt);
-	if (!tgt)
-		goto disable;
+	/* No dns-resolver config: drop the head, leaving resolvconf to fall
+	 * back to whatever the interfaces (e.g. DHCP) provide. */
+	if (!tgt) {
+		remove(fn);
+		goto reload;
+	}
 
 	fp = fopen(fn, "w");
 	if (!fp) {
@@ -303,7 +306,7 @@ int ietf_sys_tr_commit_dns(cxobj *src, cxobj *tgt)
 		char *str;
 
 		fprintf(fp, "options");
-		str  = get_str(obj, "timeout");
+		str = get_str(obj, "timeout");
 		if (str)
 			fprintf(fp, " timeout:%s", str);
 		str = get_str(obj, "attempts");
@@ -325,32 +328,33 @@ int ietf_sys_tr_commit_dns(cxobj *src, cxobj *tgt)
 	if (!first)
 		fprintf(fp, "\n");
 
+	/* Tag each server with its YANG key in a comment resolvconf ignores,
+	 * so the list round-trips back into operational state (below). */
 	while ((srv = xml_child_each(tgt, srv, CX_ELMNT))) {
+		char *name;
 		cxobj *tmp;
 
 		if (strcmp(xml_name(srv), "server"))
 			continue;
 
 		tmp = xml_find(srv, "udp-and-tcp");
-		if (tmp) {
-			obj = xml_find(tmp, "address");
-			if (obj) {
-				fprintf(fp, "nameserver %s\n", xml_body(obj));
-				valid++;
-			}
-		}
+		obj = tmp ? xml_find(tmp, "address") : NULL;
+		if (!obj)
+			continue;
+
+		name = get_str(srv, "name");
+		if (name)
+			fprintf(fp, "# id:%s\n", name);
+		fprintf(fp, "nameserver %s\n", xml_body(obj));
 	}
 	fclose(fp);
-disable:
-	if (!valid)
-		remove(fn);
 
-	if (run("initctl cond get hook/sys/up")) {
-//		ERR("ietf-system: failed cond get hook/sys/up");
+reload:
+	/* resolvconf rebuilds resolv.conf from the head we just wrote, but
+	 * only once the system is up (the udhcpc hook has run). */
+	if (run("initctl cond get hook/sys/up"))
 		return 0;
-	}
 
-	ERR("ietf-status: calling resolvconf -u");
 	return run("resolvconf -u");
 }
 
@@ -752,6 +756,61 @@ static void cprint_timezone(cbuf *cb)
 }
 
 /*
+ * The applied DNS config, read back from the resolv.conf head mech wrote.
+ * Each server carries its YANG key in a "# id:" comment so the name-keyed
+ * list round-trips; a server without one (should not happen) falls back to
+ * its address as the name.
+ */
+static void cprint_dns(cbuf *cb)
+{
+	char line[512], name[128] = "";
+	int open = 0;
+	FILE *fp;
+
+	fp = fopen("/etc/resolv.conf.head", "r");
+	if (!fp)
+		return;
+
+	while (fgets(line, sizeof(line), fp)) {
+		char *tok;
+
+		line[strcspn(line, "\r\n")] = 0;
+
+		if (!strncmp(line, "# id:", 5)) {
+			snprintf(name, sizeof(name), "%s", line + 5);
+			continue;
+		}
+		if (!strncmp(line, "search ", 7)) {
+			for (tok = strtok(line + 7, " \t"); tok; tok = strtok(NULL, " \t")) {
+				if (!open) {
+					cprintf(cb, "  <dns-resolver>\n");
+					open = 1;
+				}
+				cprintf(cb, "    <search>%s</search>\n", tok);
+			}
+			continue;
+		}
+		if (!strncmp(line, "nameserver ", 11)) {
+			tok = line + 11;
+			while (*tok == ' ' || *tok == '\t')
+				tok++;
+			if (!open) {
+				cprintf(cb, "  <dns-resolver>\n");
+				open = 1;
+			}
+			cprintf(cb, "    <server><name>%s</name>"
+				"<udp-and-tcp><address>%s</address></udp-and-tcp>"
+				"</server>\n", name[0] ? name : tok, tok);
+			name[0] = 0;
+		}
+	}
+	fclose(fp);
+
+	if (open)
+		cprintf(cb, "  </dns-resolver>\n");
+}
+
+/*
  * Each managed user's applied login shell and password hash, read back
  * from /etc/passwd and /etc/shadow, so operational reflects what the
  * account actually got -- not merely what sits in running.  Confined to
@@ -810,6 +869,7 @@ int ietf_sys_statedata(clixon_handle h, cvec *nsc, char *xpath, cxobj *xstate)
 	cprintf(cb, "<system xmlns=\"%s\">", XMLNS);
 	cprintf(cb, "  <hostname>%s</hostname>\n", host);
 	cprint_timezone(cb);
+	cprint_dns(cb);
 	cprint_users(cb);
 	cprintf(cb, "</system>");
 
