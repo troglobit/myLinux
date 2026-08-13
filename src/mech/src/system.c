@@ -2,6 +2,7 @@
 
 #include <augeas.h>
 #include <ctype.h>
+#include <dirent.h>
 #include <errno.h>
 #include <pwd.h>
 #include <shadow.h>
@@ -205,76 +206,99 @@ int ietf_sys_tr_commit_clock(cxobj *src, cxobj *tgt)
 #endif
 }
 
-int ietf_sys_tr_commit_ntp(cxobj *src, cxobj *tgt)
+/* True unless file `fn` already holds exactly `want`. */
+static int file_differs(const char *fn, const char *want)
 {
-	const char *fn = "/etc/chrony.conf";
-	cxobj *obj, *srv = NULL;
-	int valid = 0;
+	char buf[1024];
+	size_t n;
 	FILE *fp;
 
-	if (!tgt) {
-		if (src)
-			goto disable;
-		return 0;
-	}
+	fp = fopen(fn, "r");
+	if (!fp)
+		return 1;
+	n = fread(buf, 1, sizeof(buf) - 1, fp);
+	fclose(fp);
+	buf[n] = 0;
 
-	fp = fopen(fn, "w");
-	if (!fp) {
-		WARN("ietf-system: failed updating %s: %s", fn, strerror(errno));
+	return strcmp(buf, want) != 0;
+}
+
+/*
+ * sntpd is myLinux's NTP client.  It has no config file; the server list
+ * goes on its command line, so the finit service pulls it from
+ * SNTPD_OPTIONS in the env file written here.  Each server is rendered
+ * host[:port][,iburst][,prefer].  association-type is not represented:
+ * sntpd treats the list as a failover set and fans a hostname out over
+ * its resolved addresses, which covers 'pool'; 'peer' (symmetric active)
+ * is out of scope for SNTP.
+ */
+int ietf_sys_tr_commit_ntp(cxobj *src, cxobj *tgt)
+{
+	const char *fn = "/etc/default/sntpd";
+	cxobj *srv = NULL;
+	char *enabled;
+	int n = 0, changed;
+	cbuf *cb;
+
+	if (!tgt)
+		goto disable;
+
+	cb = cbuf_new();
+	if (!cb) {
+		clixon_err(OE_UNIX, errno, "ietf-system:cbuf_new");
 		return -1;
 	}
 
+	cprintf(cb, "SNTPD_OPTIONS=\"");
 	while ((srv = xml_child_each(tgt, srv, CX_ELMNT))) {
-		char *type = "server";
-		int server = 0;
-		cxobj *tmp;
+		char *addr, *port;
+		cxobj *udp;
 
 		if (strcmp(xml_name(srv), "server"))
 			continue;
 
-		obj = xml_find(srv, "association-type");
-		if (obj)
-			type = xml_body(obj);
+		udp = xml_find(srv, "udp");
+		addr = udp ? get_str(udp, "address") : NULL;
+		if (!addr)
+			continue;
 
-		tmp = xml_find(srv, "udp");
-		if (tmp) {
-			obj = xml_find(tmp, "address");
-			if (obj) {
-				fprintf(fp, "%s %s", type, xml_body(obj));
-				server++;
-			}
-			obj = xml_find(tmp, "port");
-			if (server && obj)
-				fprintf(fp, " port %s", xml_body(obj));
-		}
-
-		if (server) {
-			if (is_true(srv, "iburst"))
-				fprintf(fp, " iburst");
-			if (is_true(srv, "prefer"))
-				fprintf(fp, " prefer");
-			fprintf(fp, "\n");
-			valid++;
-		}
+		cprintf(cb, "%s%s", n ? " " : "", addr);
+		port = get_str(udp, "port");
+		if (port && strcmp(port, "123"))
+			cprintf(cb, ":%s", port);
+		if (is_true(srv, "iburst"))
+			cprintf(cb, ",iburst");
+		if (is_true(srv, "prefer"))
+			cprintf(cb, ",prefer");
+		n++;
 	}
+	cprintf(cb, "\"\n");
 
-	fprintf(fp, "driftfile /var/lib/chrony/drift\n");
-	fprintf(fp, "makestep 1.0 3\n");
-	fprintf(fp, "maxupdateskew 100.0\n");
-	fprintf(fp, "dumpdir /var/lib/chrony\n");
-	fprintf(fp, "rtcfile /var/lib/chrony/rtc\n");
-	fclose(fp);
+	/* Rewrite (and restart sntpd) only when the list actually changes,
+	 * so an unrelated commit does not reset its phase-lock loop. */
+	changed = file_differs(fn, cbuf_get(cb));
+	if (changed) {
+		FILE *fp = fopen(fn, "w");
 
-	if (valid && is_true(tgt, "enabled")) {
-		/*
-		 * If chrony is alrady enabled we tell Finit it's been
-		 * modified , so Finit restarts it, otherwise enable it.
-		 */
-		run("initctl -nbq touch chronyd");
-		return run("initctl -nbq enable chronyd");
+		if (!fp) {
+			WARN("ietf-system: failed updating %s: %s", fn, strerror(errno));
+			cbuf_free(cb);
+			return -1;
+		}
+		fputs(cbuf_get(cb), fp);
+		fclose(fp);
+	}
+	cbuf_free(cb);
+
+	/* 'enabled' defaults to true; only an explicit false disables. */
+	enabled = get_str(tgt, "enabled");
+	if (n && (!enabled || strcmp(enabled, "false"))) {
+		if (changed)
+			run("initctl -nbq touch sntpd");
+		return run("initctl -nbq enable sntpd");
 	}
 disable:
-	return run("initctl -nbq disable chronyd");
+	return run("initctl -nbq disable sntpd");
 }
 
 /*
@@ -755,6 +779,114 @@ static void cprint_timezone(cbuf *cb)
 		cprintf(cb, "  <clock><timezone-name>%s</timezone-name></clock>\n", tz);
 }
 
+/* Emit one server from an sntpd command-line token host[:port][,opts]. */
+static void cprint_ntp_server(cbuf *cb, char *tok)
+{
+	char *host = tok, *port = NULL, *opts;
+
+	opts = strchr(tok, ',');
+	if (opts)
+		*opts++ = 0;
+
+	if (*host == '[') {			/* [v6]:port */
+		char *end = strchr(host, ']');
+
+		if (!end)
+			return;
+		host++;
+		*end++ = 0;
+		if (*end == ':')
+			port = end + 1;
+	} else {
+		char *colon = strchr(host, ':');
+
+		/* a lone colon is host:port; several means a bare v6 */
+		if (colon && !strchr(colon + 1, ':')) {
+			*colon = 0;
+			port = colon + 1;
+		}
+	}
+
+	cprintf(cb, "    <server><name>%s</name><udp><address>%s</address>",
+		host, host);
+	if (port)
+		cprintf(cb, "<port>%s</port>", port);
+	cprintf(cb, "</udp>");
+	if (opts && strstr(opts, "iburst"))
+		cprintf(cb, "<iburst>true</iburst>");
+	if (opts && strstr(opts, "prefer"))
+		cprintf(cb, "<prefer>true</prefer>");
+	cprintf(cb, "</server>\n");
+}
+
+/*
+ * NTP client state, read from the live sntpd process (its /proc entry)
+ * rather than the env file, so operational shows what sntpd is really
+ * running with.  Its command line carries no server names, so each server
+ * is keyed by its address; association-type is not tracked (see
+ * tr_commit_ntp).
+ */
+static void cprint_ntp(cbuf *cb)
+{
+	char cmdline[1024], path[280];
+	struct dirent *de;
+	int open = 0;
+	DIR *proc;
+
+	proc = opendir("/proc");
+	if (!proc)
+		return;
+
+	while ((de = readdir(proc))) {
+		char comm[32] = "";
+		char *p;
+		size_t n;
+		FILE *fp;
+
+		if (de->d_name[0] < '1' || de->d_name[0] > '9')
+			continue;
+
+		snprintf(path, sizeof(path), "/proc/%s/comm", de->d_name);
+		fp = fopen(path, "r");
+		if (!fp)
+			continue;
+		p = fgets(comm, sizeof(comm), fp);
+		fclose(fp);
+		comm[strcspn(comm, "\r\n")] = 0;
+		if (!p || strcmp(comm, "sntpd"))
+			continue;
+
+		snprintf(path, sizeof(path), "/proc/%s/cmdline", de->d_name);
+		fp = fopen(path, "r");
+		if (!fp)
+			continue;
+		n = fread(cmdline, 1, sizeof(cmdline) - 1, fp);
+		fclose(fp);
+		cmdline[n] = 0;
+
+		/* Walk the nul-separated argv; servers are the non-option args.
+		 * cprint_ntp_server() splits the token in place, so advance by
+		 * its original length, captured before the call. */
+		for (p = cmdline; p < cmdline + n; ) {
+			size_t len = strlen(p);
+
+			if (*p && *p != '/' && *p != '-') {
+				if (!open) {
+					cprintf(cb, "  <ntp><enabled>true</enabled>\n");
+					open = 1;
+				}
+				cprint_ntp_server(cb, p);
+			}
+			p += len + 1;
+		}
+		break;			/* one supervised sntpd */
+	}
+	closedir(proc);
+
+	if (open)
+		cprintf(cb, "  </ntp>\n");
+}
+
 /*
  * The applied DNS config, read back from the resolv.conf head mech wrote.
  * Each server carries its YANG key in a "# id:" comment so the name-keyed
@@ -869,6 +1001,7 @@ int ietf_sys_statedata(clixon_handle h, cvec *nsc, char *xpath, cxobj *xstate)
 	cprintf(cb, "<system xmlns=\"%s\">", XMLNS);
 	cprintf(cb, "  <hostname>%s</hostname>\n", host);
 	cprint_timezone(cb);
+	cprint_ntp(cb);
 	cprint_dns(cb);
 	cprint_users(cb);
 	cprintf(cb, "</system>");

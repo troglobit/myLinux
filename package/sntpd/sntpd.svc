@@ -1,6 +1,7 @@
 service sntpd {
-    description = "Simple NTP daemon"
+    description = "Simple NTP client (SNTP)"
     runlevel    = "2345"
     conditions  = { "net/route/default" }
-    command     = "/usr/sbin/sntpd -sn"
+    envfile     = "-/etc/default/sntpd"
+    command     = "/usr/sbin/sntpd -sn $SNTPD_OPTIONS"
 }

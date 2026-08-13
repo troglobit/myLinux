@@ -155,6 +155,37 @@ class Dut:
         with self.netconf() as nc:
             nc.dispatch(to_ele(rpc))
 
+    def reboot(self):
+        """Restart the DUT and wait for it to come back up.
+
+        Lets a test check what the system does with its *stored* config on
+        boot -- the startup->running commit -- not just live edits.
+        """
+        from ncclient.xml_ import to_ele
+
+        rpc = '<system-restart xmlns="urn:ietf:params:xml:ns:yang:ietf-system"/>'
+        try:
+            with self.netconf() as nc:
+                nc.dispatch(to_ele(rpc))
+        except BaseException:
+            pass                          # the session drops as it goes down
+
+        # Wait for sshd to disappear (guest going down), then for it to
+        # answer again, so we don't match the pre-reboot session.
+        deadline = time.monotonic() + 60
+        while time.monotonic() < deadline:
+            try:
+                socket.create_connection(("127.0.0.1", SSH_PORT), 1).close()
+                time.sleep(1)
+            except OSError:
+                break
+        self._wait_ssh()
+
+    def copy(self, source, target):
+        """NETCONF <copy-config>, e.g. running -> startup."""
+        with self.netconf() as nc:
+            nc.copy_config(target=target, source=source)
+
     def ssh(self, cmd):
         """Run a shell command on the DUT over SSH; returns (rc, output)."""
         import paramiko
