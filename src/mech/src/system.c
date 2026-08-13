@@ -20,6 +20,7 @@
 #include "common.h"
 
 #define XMLNS "urn:ietf:params:xml:ns:yang:ietf-system"
+#define MYSYS_NS "urn:mylinux:system"
 
 #define LOGIN_SHELL "/bin/sh"
 #define ADMIN_USER  "admin"		/* reserved super-user, until NACM */
@@ -694,6 +695,92 @@ static char *fmtime(time_t t, char *buf, size_t len)
         return buf;
 }
 
+/* Reverse of usr_shell(): map an /etc/passwd login shell to its identity. */
+static const char *shell_ident(const char *sh)
+{
+	if (sh && strstr(sh, "clish"))
+		return "clish";
+	if (sh && (strstr(sh, "false") || strstr(sh, "nologin")))
+		return "false";
+
+	return "sh";
+}
+
+/*
+ * The applied time-zone name: uClibc records it in the /etc/TZ symlink
+ * (-> .../zoneinfo/uclibc/<name>), glibc in /etc/timezone.  Fills buf and
+ * returns 0 on success.
+ */
+static int get_timezone(char *buf, size_t len)
+{
+	const char *mark = "/zoneinfo/uclibc/";
+	char link[256];
+	ssize_t n;
+	FILE *fp;
+	char *p;
+
+	fp = fopen("/etc/timezone", "r");
+	if (fp) {
+		p = fgets(buf, len, fp);
+		fclose(fp);
+		if (p) {
+			buf[strcspn(buf, "\r\n")] = 0;
+			if (buf[0])
+				return 0;
+		}
+	}
+
+	n = readlink("/etc/TZ", link, sizeof(link) - 1);
+	if (n > 0) {
+		link[n] = 0;
+		p = strstr(link, mark);
+		if (p) {
+			snprintf(buf, len, "%s", p + strlen(mark));
+			return 0;
+		}
+	}
+
+	return -1;
+}
+
+static void cprint_timezone(cbuf *cb)
+{
+	char tz[128];
+
+	if (get_timezone(tz, sizeof(tz)) == 0)
+		cprintf(cb, "  <clock><timezone-name>%s</timezone-name></clock>\n", tz);
+}
+
+/*
+ * Each managed user's applied login shell and password hash, read back
+ * from /etc/passwd and /etc/shadow, so operational reflects what the
+ * account actually got -- not merely what sits in running.  Confined to
+ * real login users (uid >= 1000), leaving root and system accounts out.
+ * The password is a hash; RFC 7317 leaves it readable (deny-write only),
+ * and NACM is what restricts who may see it.
+ */
+static void cprint_users(cbuf *cb)
+{
+	struct passwd *pw;
+
+	cprintf(cb, "  <authentication>\n");
+	setpwent();
+	while ((pw = getpwent())) {
+		struct spwd *sp;
+
+		if (pw->pw_uid < 1000 || pw->pw_uid >= 65534)
+			continue;
+		cprintf(cb, "    <user><name>%s</name>", pw->pw_name);
+		sp = getspnam(pw->pw_name);
+		if (sp && sp->sp_pwdp && sp->sp_pwdp[0] == '$')
+			cprintf(cb, "<password>%s</password>", sp->sp_pwdp);
+		cprintf(cb, "<shell xmlns=\"%s\">%s</shell></user>\n",
+			MYSYS_NS, shell_ident(pw->pw_shell));
+	}
+	endpwent();
+	cprintf(cb, "  </authentication>\n");
+}
+
 int ietf_sys_statedata(clixon_handle h, cvec *nsc, char *xpath, cxobj *xstate)
 {
         struct sysinfo si;
@@ -722,6 +809,8 @@ int ietf_sys_statedata(clixon_handle h, cvec *nsc, char *xpath, cxobj *xstate)
 
 	cprintf(cb, "<system xmlns=\"%s\">", XMLNS);
 	cprintf(cb, "  <hostname>%s</hostname>\n", host);
+	cprint_timezone(cb);
+	cprint_users(cb);
 	cprintf(cb, "</system>");
 
 	cprintf(cb, "<system-state xmlns=\"%s\">", XMLNS);
