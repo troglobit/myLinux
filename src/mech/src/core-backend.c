@@ -8,7 +8,12 @@
 
 int core_commit_done(clixon_handle h, transaction_data td)
 {
-	if (transaction_src(td) && system("initctl -b reload"))
+	/*
+	 * Always reload, even on the boot-time startup->running commit
+	 * (which has no source): that is precisely when a service enabled
+	 * from the stored config -- sntpd, say -- must be started.
+	 */
+	if (system("initctl -b reload"))
 		CRIT("Failed to reload services");
 
 	return 0;
