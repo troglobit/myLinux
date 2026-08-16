@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-SNTPD_VERSION = 3.1
+SNTPD_VERSION = 3.2
 SNTPD_SOURCE = sntpd-$(SNTPD_VERSION).tar.gz
 SNTPD_SITE = https://github.com/troglobit/sntpd/releases/download/v$(SNTPD_VERSION)
 SNTPD_LICENSE = GPL-2.0+
