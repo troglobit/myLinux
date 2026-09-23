@@ -1,0 +1,16 @@
+#!/bin/sh
+# Generate a self-signed TLS certificate for the web server, once.
+# /etc is a writable overlay, so the certificate survives reboots.
+set -eu
+
+dir=/etc/merecat
+cert=$dir/cert.pem
+key=$dir/key.pem
+
+[ -f "$cert" ] && [ -f "$key" ] && exit 0
+
+mkdir -p "$dir"
+openssl req -x509 -newkey rsa:2048 -nodes -days 3650 \
+	-keyout "$key" -out "$cert" \
+	-subj "/CN=$(hostname)" >/dev/null 2>&1
+chmod 600 "$key"

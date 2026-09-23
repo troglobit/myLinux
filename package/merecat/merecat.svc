@@ -1,0 +1,7 @@
+# Self-signed TLS certificate, generated on first boot.  /etc is on a
+# writable overlay, so the cert persists and this runs only once.
+run [S] /usr/libexec/gen-https-cert -- Generating self-signed TLS certificate
+
+# The system web server: serves the web UI from /var/www and
+# reverse-proxies /restconf to clixon's native RESTCONF on loopback.
+service [2345] merecat -n -s -- Web server

@@ -1,0 +1,12 @@
+config BR2_PACKAGE_MERECAT
+	bool "merecat"
+	select BR2_PACKAGE_LIBCONFUSE
+	select BR2_PACKAGE_OPENSSL
+	select BR2_PACKAGE_ZLIB
+	help
+	  Merecat is a small HTTP/HTTPS server derived from thttpd, with
+	  CGI, TLS, virtual hosts and a reverse proxy.  In myLinux it is
+	  the system web server: it serves the local web UI and fronts
+	  clixon's native RESTCONF API.
+
+	  https://github.com/troglobit/merecat

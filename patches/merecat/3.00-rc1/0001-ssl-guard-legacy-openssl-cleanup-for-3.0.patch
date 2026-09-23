@@ -1,0 +1,28 @@
+ssl: guard legacy OpenSSL cleanup, unbreak build against OpenSSL 3.0
+
+httpd_ssl_exit() called ENGINE_cleanup() unconditionally, but OpenSSL 3.0
+removed it, so linking failed.  These 1.x-era cleanups are unnecessary
+from 1.1.0 on (the library releases everything at exit), so fold them into
+the same version guard already used for COMP_zlib_cleanup().
+
+Signed-off-by: Joachim Wiberg <troglobit@gmail.com>
+
+--- a/src/ssl.c
++++ b/src/ssl.c
+@@ -358,12 +358,14 @@
+ 	SSL_CTX_free(hs->ctx);
+ 	hs->ctx = NULL;
+ 
++// These explicit cleanups are only needed before OpenSSL 1.1.0; later
++// versions free everything automatically at exit, and ENGINE_cleanup() is
++// gone entirely in OpenSSL 3.0.
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
+ 	ENGINE_cleanup();
+ 	CRYPTO_cleanup_all_ex_data();
+ 	CONF_modules_free();
+ 	CONF_modules_unload(1);
+-// This function is deprecated since OpenSSL 1.1.0, removed in recent versions.
+-#if OPENSSL_VERSION_NUMBER < 0x10100000L
+ 	COMP_zlib_cleanup();
+ #endif
+ }
