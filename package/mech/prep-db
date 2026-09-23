@@ -34,7 +34,12 @@ cat <<'EOF' >"$FACTORY"
   <restconf xmlns="http://clicon.org/restconf">
     <enable>true</enable>
     <auth-type>none</auth-type>
-    <fcgi-socket>/run/clixon/restconf.sock</fcgi-socket>
+    <socket>
+      <namespace>default</namespace>
+      <address>127.0.0.1</address>
+      <port>8090</port>
+      <ssl>false</ssl>
+    </socket>
   </restconf>
 </config>
 EOF
