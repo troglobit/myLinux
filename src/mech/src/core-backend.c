@@ -62,5 +62,13 @@ clixon_plugin_api *clixon_plugin_init(clixon_handle h)
 				  FACTORY_NS, "factory-reset") < 0)
 		WARN("core: failed registering factory-reset");
 
+	/*
+	 * The default event stream of RFC 5277.  Clixon does not create
+	 * it, and without it create-subscription and RESTCONF
+	 * /streams/NETCONF have nothing to attach to.
+	 */
+	if (stream_add(h, "NETCONF", "default NETCONF event stream", 0, NULL) < 0)
+		WARN("core: failed registering NETCONF event stream");
+
 	return &core_api;
 }
