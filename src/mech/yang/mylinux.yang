@@ -11,6 +11,10 @@ module mylinux {
         prefix fd;
     }
 
+    import ietf-netconf-notifications {
+        prefix ncn;
+    }
+
     import ietf-system {
         prefix sys;
     }
@@ -53,6 +57,10 @@ module mylinux {
     }
     revision 2026-08-12 {
       description "Pull in ietf-factory-default for the factory-reset RPC.";
+      reference "N/A";
+    }
+    revision 2026-11-14 {
+      description "Pull in ietf-netconf-notifications for netconf-config-change.";
       reference "N/A";
     }
 

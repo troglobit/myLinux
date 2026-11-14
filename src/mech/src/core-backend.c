@@ -5,6 +5,7 @@
 #include "common.h"
 
 #define FACTORY_NS "urn:ietf:params:xml:ns:yang:ietf-factory-default"
+#define NCN_NS     "urn:ietf:params:xml:ns:yang:ietf-netconf-notifications"
 
 int core_commit_done(clixon_handle h, transaction_data td)
 {
@@ -15,6 +16,16 @@ int core_commit_done(clixon_handle h, transaction_data td)
 	 */
 	if (system("initctl -b reload"))
 		CRIT("Failed to reload services");
+
+	/*
+	 * RFC 6470.  Tells a subscriber, the web UI for one, that what it
+	 * shows is out of date.  The model wants changed-by as well, user
+	 * and session, and the session is not something we are told here.
+	 */
+	if (stream_notify(h, "NETCONF", "<netconf-config-change xmlns=\"%s\">"
+			  "<datastore>running</datastore>"
+			  "</netconf-config-change>", NCN_NS) < 0)
+		WARN("core: failed sending netconf-config-change");
 
 	return 0;
 }
