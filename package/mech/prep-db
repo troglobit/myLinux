@@ -31,18 +31,19 @@ cat <<'EOF' >"$FACTORY"
       </user>
     </authentication>
   </system>
-  <restconf xmlns="http://clicon.org/restconf">
-    <enable>true</enable>
-    <auth-type>none</auth-type>
-    <socket>
-      <namespace>default</namespace>
-      <address>127.0.0.1</address>
-      <port>8090</port>
-      <ssl>false</ssl>
-    </socket>
-  </restconf>
 </config>
 EOF
+
+# The RESTCONF listener used to be configured in the datastore.  It is in
+# /etc/clixon.xml now and clixon no longer loads that model, so a
+# startup-config from before fails to load and we boot without an admin
+# user.  Drop the stale container.
+RESTCONF='<restconf xmlns="http://clicon.org/restconf">'
+if grep -qs "$RESTCONF" "$STARTUP"; then
+	sed -i -e "s|$RESTCONF.*</restconf>||" \
+	       -e "\|$RESTCONF|,\|</restconf>|d" "$STARTUP"
+	logger -sik -p user.notice -t prep-db "Dropped stale RESTCONF config from startup-config"
+fi
 
 # Seed the startup config from the factory on first boot or after a reset.
 # Test -s, not -f: a stray empty startup_db (e.g. one clixon wrote before

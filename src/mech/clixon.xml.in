@@ -35,7 +35,6 @@
        and hides it from the backend.  We have no config leafrefs into
        state, so turn the merge off. -->
   <CLICON_VALIDATE_TARGET_STATE>false</CLICON_VALIDATE_TARGET_STATE>
-  <CLICON_BACKEND_RESTCONF_PROCESS>true</CLICON_BACKEND_RESTCONF_PROCESS>
   <autocli>
     <rule>
       <name>compress</name>
@@ -44,7 +43,10 @@
       <yang-keyword-child>list</yang-keyword-child>
     </rule>
   </autocli>
-  <!-- Native RESTCONF on loopback; Merecat fronts it and terminates TLS. -->
+  <!-- Native RESTCONF on loopback; Merecat fronts it and terminates TLS.
+       Read from here by clixon_restconf, which Finit starts.  It is not
+       in the datastore: a startup-config that got it wrong would take the
+       web UI and RESTCONF down with it. -->
   <restconf>
     <enable>true</enable>
     <auth-type>none</auth-type>
