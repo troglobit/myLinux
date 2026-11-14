@@ -5,15 +5,20 @@ A Dut either *owns* a throwaway qemu boot -- the default, e.g. 'make test'
 (signalled by $MYTEST_ATTACH).  Owned DUTs boot clean from factory and are
 torn down on exit; attached DUTs are left running.
 """
+import base64
+import json
 import os
 import shlex
 import signal
 import socket
+import ssl
 import subprocess
 import sys
 import tempfile
 import time
 import traceback
+import urllib.error
+import urllib.request
 from contextlib import contextmanager
 from datetime import datetime
 
@@ -23,6 +28,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 IMAGES = os.environ.get(
     "MY_IMAGES", os.path.normpath(os.path.join(HERE, "..", "output", "images")))
 SSH_PORT = int(os.environ.get("DUT_SSH_PORT", "2222"))
+HTTPS_PORT = int(os.environ.get("DUT_HTTPS_PORT", "8443"))
 USER = os.environ.get("DUT_USER", "admin")
 PASSWORD = os.environ.get("DUT_PASSWORD", "admin")
 
@@ -139,6 +145,31 @@ class Dut:
             device_params={"name": "default"},
             hostkey_verify=False, allow_agent=False, look_for_keys=False,
             timeout=30)
+
+    def http(self, method, path, body=None, auth=(USER, PASSWORD),
+             accept="application/yang-data+json", timeout=30):
+        """Open an HTTPS request to the DUT's web server, as a web browser
+        would; returns the response, a 4xx/5xx one included.
+
+        `body` is sent as JSON.  `auth` is a (user, password) pair for HTTP
+        Basic, or None to send no credentials.  The DUT's certificate is
+        self-signed, so it is not verified.
+        """
+        req = urllib.request.Request(
+            f"https://127.0.0.1:{HTTPS_PORT}{path}", method=method,
+            data=None if body is None else json.dumps(body).encode())
+        req.add_header("Accept", accept)
+        if body is not None:
+            req.add_header("Content-Type", "application/yang-data+json")
+        if auth:
+            cred = base64.b64encode(":".join(auth).encode()).decode()
+            req.add_header("Authorization", f"Basic {cred}")
+
+        try:
+            return urllib.request.urlopen(
+                req, timeout=timeout, context=ssl._create_unverified_context())
+        except urllib.error.HTTPError as err:
+            return err
 
     def reset(self):
         """Reset running-config to the factory baseline before a test.

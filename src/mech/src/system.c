@@ -25,7 +25,6 @@
 
 #define LOGIN_SHELL "/bin/sh"
 #define ADMIN_USER  "admin"		/* reserved super-user, until NACM */
-#define ADMIN_GROUP "wheel"		/* UNIX group with admin access */
 #define SHADOW_FILE "/etc/shadow"
 
 static augeas *aug;
@@ -380,31 +379,6 @@ reload:
 		return 0;
 
 	return run("resolvconf -u");
-}
-
-/*
- * User names reach system() and file paths below, so constrain them to
- * a safe character set (letters, digits, and _-.) before use -- no '/'
- * to escape /home, no shell metacharacters to inject commands.
- */
-static int is_valid_username(const char *user)
-{
-	size_t i;
-
-	if (!user || !user[0])
-		return 0;
-
-	if (!isalpha((unsigned char)user[0]) && user[0] != '_')
-		return 0;
-
-	for (i = 1; user[i]; i++) {
-		char c = user[i];
-
-		if (!isalnum((unsigned char)c) && c != '_' && c != '-' && c != '.')
-			return 0;
-	}
-
-	return 1;
 }
 
 /*

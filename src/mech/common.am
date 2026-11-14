@@ -5,17 +5,22 @@ CPPFLAGS += -D_DEFAULT_SOURCE -D_XOPEN_SOURCE
 clixonlibdir  = $(libdir)/clixon
 backenddir    = $(clixonlibdir)/backend
 clidir        = $(clixonlibdir)/cli
+restconfdir   = $(clixonlibdir)/restconf
 clispecdir    = $(clixonlibdir)/clispec
 yangdir       = $(datarootdir)/clixon
 
 backend_LTLIBRARIES =
 cli_LTLIBRARIES =
+restconf_LTLIBRARIES =
 noinst_HEADERS =
 clispec_DATA =
 yang_DATA =
 
 cli_libadd = -lclixon -lclixon_cli
 cli_ldflags = -module -avoid-version -shared
+
+restconf_libadd = -lclixon -lclixon_restconf -lcrypt
+restconf_ldflags = -module -avoid-version -shared
 
 backend_cflags = $(augeas_CFLAGS) $(jansson_CFLAGS) $(CFLAGS)
 backend_libadd = $(augeas_LIBS)   $(jansson_LIBS) -lclixon -lclixon_backend common.la

@@ -20,6 +20,12 @@ core_backend_la_LDFLAGS = $(backend_ldflags)
 core_backend_la_LIBADD  = $(backend_libadd)
 core_backend_la_SOURCES = core-backend.c
 
+# RESTCONF: authentication of web and API users.
+restconf_LTLIBRARIES += core-restconf.la
+core_restconf_la_LDFLAGS = $(restconf_ldflags)
+core_restconf_la_LIBADD  = $(restconf_libadd)
+core_restconf_la_SOURCES = core-restconf.c
+
 # Per-model backend plugins.  Helper files use a model prefix, e.g. sys-*.c.
 backend_LTLIBRARIES += system.la
 system_la_CFLAGS  = $(backend_cflags)

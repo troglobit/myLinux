@@ -2,7 +2,6 @@
   <CLICON_CONFIGFILE>@SYSCONFDIR@/clixon.xml</CLICON_CONFIGFILE>
   <CLICON_FEATURE>ietf-netconf:startup</CLICON_FEATURE>
   <CLICON_FEATURE>ietf-netconf:confirmed-commit</CLICON_FEATURE>
-  <CLICON_FEATURE>clixon-restconf:allow-auth-none</CLICON_FEATURE>
   <CLICON_FEATURE>ietf-system:timezone-name</CLICON_FEATURE>
   <CLICON_FEATURE>ietf-system:ntp</CLICON_FEATURE>
   <CLICON_FEATURE>ietf-system:ntp-udp-port</CLICON_FEATURE>
@@ -46,10 +45,11 @@
   <!-- Native RESTCONF on loopback; Merecat fronts it and terminates TLS.
        Read from here by clixon_restconf, which Finit starts.  It is not
        in the datastore: a startup-config that got it wrong would take the
-       web UI and RESTCONF down with it. -->
+       web UI and RESTCONF down with it.  Users log in with HTTP Basic,
+       checked by the core RESTCONF plugin. -->
   <restconf>
     <enable>true</enable>
-    <auth-type>none</auth-type>
+    <auth-type>user</auth-type>
     <socket>
       <namespace>default</namespace>
       <address>127.0.0.1</address>
