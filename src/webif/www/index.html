@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'">
+<title>myLinux</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="webif.css">
+</head>
+<body>
+
+<form id="login" class="login" hidden>
+  <img src="favicon.svg" alt="" width="56" height="56">
+  <h1>myLinux</h1>
+  <label>User name <input name="user" autocomplete="username" autocapitalize="none" required></label>
+  <label>Password <input name="pass" type="password" autocomplete="current-password" required></label>
+  <p class="error" role="alert"></p>
+  <button class="primary">Log in</button>
+</form>
+
+<div id="app" hidden>
+  <header>
+    <a class="brand" href="#status">
+      <img src="favicon.svg" alt="" width="28" height="28">
+      <span id="hostname">myLinux</span>
+    </a>
+    <nav>
+      <a href="#status">Status</a>
+      <a href="#system">System</a>
+      <a href="#interfaces">Interfaces</a>
+      <a href="#maintenance">Maintenance</a>
+    </nav>
+    <span id="live" class="live"></span>
+    <button id="logout" class="quiet">Log out</button>
+  </header>
+  <div id="notice" class="notice" role="status" hidden>
+    <span></span>
+    <button class="quiet">Reload</button>
+  </div>
+  <main id="view"></main>
+</div>
+
+<dialog id="confirm">
+  <form method="dialog">
+    <h2></h2>
+    <p></p>
+    <div class="actions">
+      <button value="cancel" class="quiet">Cancel</button>
+      <button value="ok" class="danger"></button>
+    </div>
+  </form>
+</dialog>
+
+<script src="webif.js"></script>
+</body>
+</html>
