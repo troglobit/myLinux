@@ -1,27 +1,14 @@
 config BR2_PACKAGE_WEBIF
-	bool "webif - Status Console"
-	depends on BR2_PACKAGE_BUSYBOX # httpd
-	select BR2_PACKAGE_HASERL
+	bool "webif - web interface"
+	depends on BR2_PACKAGE_MECH
+	select BR2_PACKAGE_MERECAT
 	help
-	  A web interface for showing different network status. This package
-	  requires awk support on the system, either the one provided by
-	  Busybox or gawk.
+	  The myLinux web interface: status, system and interface
+	  settings, and maintenance.  A static page that talks RESTCONF
+	  to clixon from the browser, so it has no server side of its
+	  own.  Merecat serves it and fronts the RESTCONF API.
 
-	  The default login (user/pass) on the status web pages are admin/admin.
-	  This can be changed in the httpd.conf file, or using 'passwd'.
+	  Log in as any local user with administrator rights.
 
-config BR2_PACKAGE_WEBIF_INSTALL_INDEX_HTML
-	bool "instal index.html in /www which redirects to webif"
-	depends on BR2_PACKAGE_WEBIF
-	help
-	  Installs a /www/index.html which redirects to the status console cgi
-	  scripts.
-
-config BR2_PACKAGE_WEBIF_LANGUAGES
-	bool "install language support"
-	depends on BR2_PACKAGE_WEBIF
-	help
-	  This option installs support for other languages than english.
-
-	  Supported languages: ca, cz, de, dk, ee, es, fr, hr, hu, it, nl, no,
-	                       pl, pt, ru and se.
+comment "webif needs mech"
+	depends on !BR2_PACKAGE_MECH
