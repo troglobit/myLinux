@@ -213,19 +213,31 @@ form.settings { display: grid; gap: 1.25rem; max-width: 34rem; }
 .actions { display: flex; gap: .75rem; align-items: center; }
 .saved { color: var(--up); }
 
-.iface {
+/* One interface, or one user, to a row */
+.iface, .user {
 	display: grid;
 	grid-template-columns: 8rem 1fr 1fr auto auto;
 	gap: .75rem 1rem;
-	align-items: end;
+	align-items: start;
 	padding: 1rem 0;
 	border-bottom: 1px solid var(--line);
 }
-.iface h2 { align-self: center; }
-.iface .check { display: flex; align-items: center; gap: .5rem; padding-bottom: .5rem; }
-.iface .fixed { grid-column: 2 / -1; align-self: center; }
-.iface .actions { flex-direction: column; align-items: flex-start; gap: 0; }
-.iface button { white-space: nowrap; }
+.user { grid-template-columns: 8rem 1fr 1fr 6rem auto; }
+.iface h2, .user h2 { overflow-wrap: anywhere; }
+.iface textarea { min-height: 0; }
+.iface .check { display: flex; align-items: center; gap: .5rem; }
+.iface .actions, .user .actions { flex-direction: column; align-items: flex-start; gap: 0; }
+.iface button, .user button { white-space: nowrap; }
+.user .remove { justify-self: start; }
+
+/* Side by side, what has no label above it lines up with the fields */
+@media (min-width: 40.01rem) {
+	.iface h2, .user h2, .iface .fixed { margin-top: 1.9rem; }
+	.iface .check { margin-top: 2.1rem; }
+	.iface .actions, .user .actions, .user .remove { margin-top: 1.6rem; }
+	.iface .fixed { grid-column: 2 / -1; }
+	.user .actions { grid-column: 5; }
+}
 
 .task {
 	display: flex;
@@ -254,7 +266,6 @@ dialog .actions { justify-content: flex-end; }
 	nav { order: 3; flex-basis: 100%; }
 	.live { margin-left: auto; }
 	main { padding: 1.5rem 1rem 3rem; }
-	.iface { grid-template-columns: 1fr; }
-	.iface .fixed { grid-column: 1; }
+	.iface, .user { grid-template-columns: 1fr; }
 	.task { flex-direction: column; align-items: flex-start; gap: .75rem; }
 }

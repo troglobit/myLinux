@@ -86,6 +86,8 @@ async function get(path) {
 }
 
 const put    = (path, body) => request('PUT', 'data/' + path, body);
+const post   = (path, body) => request('POST', 'data/' + path, body);
+const patch  = (path, body) => request('PATCH', 'data/' + path, body);
 const del    = (path) => request('DELETE', 'data/' + path);
 const invoke = (rpc) => request('POST', 'operations/' + rpc);
 
@@ -105,9 +107,12 @@ function live(on) {
 
 async function listen() {
 	const ctl = stream = new AbortController();
-	let wasOff = false;
+	let gap = false;	/* out of touch for a while, events may be lost */
 
 	while (!ctl.signal.aborted) {
+		const since = Date.now();
+		let ended = false;
+
 		try {
 			const res = await fetch('/streams/NETCONF', {
 				headers: { Authorization: auth, Accept: 'text/event-stream' },
@@ -120,9 +125,11 @@ async function listen() {
 				throw new Error(res.status);
 
 			live(true);
-			own = 0;
-			if (wasOff)
-				changed();	/* we may have missed something */
+			if (gap) {
+				own = 0;
+				changed();
+			}
+			gap = false;
 
 			const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
 			let buf = '';
@@ -130,6 +137,7 @@ async function listen() {
 			for (;;) {
 				const { value, done } = await reader.read();
 
+				ended = done;
 				if (done)
 					break;
 				buf += value;
@@ -145,8 +153,15 @@ async function listen() {
 
 		if (ctl.signal.aborted)
 			break;
+
+		/* The web server ends a stream that has been up for long, for
+		 * us to log in again.  Nothing is lost if we do so at once,
+		 * unless the event of a save of ours was on its way. */
+		if (ended && !own && Date.now() - since > 10000)
+			continue;
+
 		live(false);
-		wasOff = true;
+		gap = true;
 		await new Promise((resolve) => setTimeout(resolve, 3000));
 	}
 }
@@ -199,10 +214,12 @@ function bytes(num) {
 	return `${i ? num.toFixed(1) : num} ${units[i]}`;
 }
 
+const FAMILIES = ['ietf-ip:ipv4', 'ietf-ip:ipv6'];
+
 function addresses(ifc) {
 	const list = [];
 
-	for (const fam of ['ietf-ip:ipv4', 'ietf-ip:ipv6']) {
+	for (const fam of FAMILIES) {
 		for (const addr of ifc[fam]?.address || [])
 			list.push(`${addr.ip}/${addr['prefix-length']}`);
 	}
@@ -270,10 +287,25 @@ function set(obj, key, value) {
 		obj[key] = value;
 }
 
+/*
+ * A write of ours comes back as a change event, to be told from those
+ * of others.  A write that turns out to write nothing returns false.
+ */
+async function write(fn) {
+	own++;
+	try {
+		if (await fn() === false)
+			own--;
+	} catch (err) {
+		own--;
+		throw err;
+	}
+}
+
 /* A form with a save button and its result next to it; save does the saving */
-function settings(cls, save, ...fields) {
+function settings(cls, save, fields, label = 'Save changes') {
 	const msg = h('span', { role: 'status' });
-	const btn = h('button', { class: 'primary' }, 'Save changes');
+	const btn = h('button', { class: 'primary' }, label);
 
 	async function onsubmit(ev) {
 		const form = ev.target;
@@ -289,16 +321,12 @@ function settings(cls, save, ...fields) {
 		}
 
 		btn.disabled = true;
-		own++;
 		try {
-			if (await save((name) => form.elements[name].value.trim(), form) === false)
-				own--;		/* nothing was written, so no event */
+			await write(() => save((name) => form.elements[name].value.trim(), form));
 			edited.delete(form);
 			msg.className = 'saved';
 			msg.textContent = 'Saved';
 		} catch (err) {
-			own--;
-			msg.className = 'error';
 			msg.textContent = err.message;
 		}
 		btn.disabled = false;
@@ -340,7 +368,7 @@ async function system() {
 
 	return [h('section', null,
 		h('h1', null, 'System'),
-		settings('settings', save,
+		settings('settings', save, [
 			h('label', null, 'Host name',
 				h('input', { name: 'hostname', value: sys.hostname || '', maxlength: 63,
 					     placeholder: $('#hostname').textContent })),
@@ -358,7 +386,7 @@ async function system() {
 				h('small', null, 'DNS servers, one address per line. Leave empty to use what DHCP provides.'),
 				h('textarea', { name: 'dns', spellcheck: 'false' }, dns.join('\n'))),
 			h('label', null, 'Search domains',
-				h('input', { name: 'search', value: (sys['dns-resolver']?.search || []).join(' ') }))))];
+				h('input', { name: 'search', value: (sys['dns-resolver']?.search || []).join(' ') }))]))];
 }
 
 /*
@@ -383,7 +411,7 @@ async function interfaces() {
 
 	function row(ifc) {
 		const cfg = config.get(ifc.name);
-		const addr = cfg?.['ietf-ip:ipv4']?.address?.[0];
+		const addrs = addresses(cfg || {});
 
 		if (ifc.name === MGMT_IF) {
 			return h('div', { class: 'iface' },
@@ -394,14 +422,25 @@ async function interfaces() {
 
 		async function save(val, form) {
 			const next = { ...cfg, name: ifc.name, type: cfg?.type || ifc.type };
-			const ipv4 = { ...next['ietf-ip:ipv4'] };
-			const [ip, len] = val('address').split('/');
+			const list = lines(val('addresses'));
 			const path = 'ietf-interfaces:interfaces/interface=' + encodeURIComponent(ifc.name);
+
+			if (!list.every((addr) => /^[0-9a-f:.]+\/\d+$/i.test(addr)))
+				throw new Error('Give each address with its prefix length, like 192.168.1.1/24.');
 
 			set(next, 'enabled', form.elements.enabled.checked ? null : false);
 			set(next, 'description', val('description'));
-			set(ipv4, 'address', ip ? [{ ip, 'prefix-length': Number(len) }] : null);
-			set(next, 'ietf-ip:ipv4', Object.keys(ipv4).length ? ipv4 : null);
+			for (const fam of FAMILIES) {
+				const af = { ...next[fam] };
+				const mine = list.filter((addr) => addr.includes(':') === fam.endsWith('6'));
+
+				set(af, 'address', mine.length ? mine.map((addr) => {
+					const [ip, len] = addr.split('/');
+
+					return { ip, 'prefix-length': Number(len) };
+				}) : null);
+				set(next, fam, Object.keys(af).length ? af : null);
+			}
 
 			/* Nothing but its name and type left: no configuration */
 			if (Object.keys(next).length > 2)
@@ -412,23 +451,113 @@ async function interfaces() {
 				return false;
 		}
 
-		return settings('iface', save,
+		return settings('iface', save, [
 			h('h2', null, ifc.name),
 			h('label', null, 'Description',
 				h('input', { name: 'description', value: cfg?.description || '' })),
-			h('label', null, 'IPv4 address',
-				h('input', { name: 'address', class: 'addr', placeholder: '192.168.1.1/24',
-					     value: addr ? `${addr.ip}/${addr['prefix-length']}` : '',
-					     pattern: '(\\d{1,3}\\.){3}\\d{1,3}/([0-9]|[12][0-9]|3[0-2])',
-					     title: 'An address and prefix length, like 192.168.1.1/24' })),
+			h('label', null, 'Addresses',
+				h('textarea', { name: 'addresses', class: 'addr', spellcheck: 'false',
+						rows: Math.max(2, addrs.length),
+						placeholder: '192.168.1.1/24\n2001:db8::1/64',
+						title: 'IPv4 and IPv6 addresses with prefix length, one per line' },
+					addrs.join('\n'))),
 			h('label', { class: 'check' },
 				h('input', { name: 'enabled', type: 'checkbox', checked: cfg?.enabled !== false }),
-				'Enabled'));
+				'Enabled')]);
 	}
 
 	return [h('section', null,
 		h('h1', null, 'Interfaces'),
 		h('div', null, [...names.values()].filter((ifc) => !isLoopback(ifc)).map(row)))];
+}
+
+/*
+ * Users
+ */
+
+const basic = (user, pass) =>
+	/* Basic wants bytes, btoa() wants Latin-1 */
+	'Basic ' + btoa(String.fromCharCode(...new TextEncoder().encode(`${user}:${pass}`)));
+
+/* The device hashes a password that is marked as clear text with $0$ */
+function password(form) {
+	const pass = form.elements.password.value;
+
+	if (pass !== form.elements.repeat.value)
+		throw new Error('The two passwords differ.');
+
+	return '$0$' + pass;
+}
+
+const secret = (label, name) => h('label', null, label,
+	h('input', { name, type: 'password', autocomplete: 'new-password', required: true }));
+const passwords = () => [secret('New password', 'password'), secret('Repeat it', 'repeat')];
+
+async function users() {
+	const list = (await get('ietf-system:system/authentication?content=config'))?.user || [];
+	const self = atob(auth.slice(6)).split(':')[0];
+	const msg = h('p', { class: 'error', role: 'alert' });
+	const path = (name) => 'ietf-system:system/authentication/user=' + encodeURIComponent(name);
+
+	function row(user) {
+		async function save(val, form) {
+			await patch(path(user.name),
+				{ 'ietf-system:user': [{ name: user.name, password: password(form) }] });
+
+			/* Our own: it is what we log in with from here on */
+			if (user.name === self) {
+				auth = basic(self, form.elements.password.value);
+				sessionStorage.setItem('auth', auth);
+			}
+			form.reset();
+		}
+
+		async function remove() {
+			if (!await confirm(`Remove ${user.name}?`,
+					   'The account and its home directory are deleted.', 'Remove'))
+				return;
+
+			msg.textContent = '';
+			try {
+				await write(() => del(path(user.name)));
+				render();
+			} catch (err) {
+				msg.textContent = err.message;
+			}
+		}
+
+		return settings('user', save, [
+			h('h2', null, user.name),
+			...passwords(),
+			...(user.name === self ? [] : [
+				h('button', { type: 'button', class: 'remove', onclick: remove }, 'Remove')]),
+		], 'Set password');
+	}
+
+	async function add(val, form) {
+		await post('ietf-system:system/authentication',
+			{ 'ietf-system:user': [{ name: val('name'), password: password(form) }] });
+		render();
+	}
+
+	return [
+		h('section', null,
+			h('h1', null, 'Users'),
+			h('p', { class: 'muted' }, 'Only admin can log in here and change settings. ' +
+				'Other users get an account on the device, for SSH.'),
+			h('div', null, list.map(row)),
+			msg),
+		h('section', null,
+			h('h2', null, 'Add a user'),
+			settings('settings', add, [
+				h('label', null, 'User name',
+					h('input', { name: 'name', required: true, maxlength: 32,
+						     autocomplete: 'off', autocapitalize: 'none',
+						     pattern: '[A-Za-z_][A-Za-z0-9_.\\-]*',
+						     title: 'Letters, digits, and _ - . starting with a letter' })),
+				...passwords(),
+			], 'Add user')),
+	];
 }
 
 /*
@@ -507,7 +636,7 @@ async function maintenance() {
  * Frame
  */
 
-const views = { status, system, interfaces, maintenance };
+const views = { status, system, interfaces, users, maintenance };
 
 function hostname() {
 	get('ietf-system:system/hostname').then((host) => {
@@ -566,20 +695,22 @@ function logout() {
 $('#login').addEventListener('submit', async (ev) => {
 	const form = ev.target;
 	const err = form.querySelector('.error');
-	const cred = `${form.elements.user.value}:${form.elements.pass.value}`;
 
 	ev.preventDefault();
 	err.textContent = '';
 
-	/* Basic wants bytes, btoa() wants Latin-1 */
-	auth = 'Basic ' + btoa(String.fromCharCode(...new TextEncoder().encode(cred)));
+	auth = basic(form.elements.user.value, form.elements.pass.value);
 	try {
 		const res = await fetch('/restconf/data/ietf-system:system/hostname', {
 			headers: { Authorization: auth, Accept: 'application/yang-data+json' },
 		});
 
-		if (res.status === 401)
-			throw new Error('Wrong user name or password, or not an administrator.');
+		if (res.status === 401) {
+			const wait = res.headers.get('Retry-After');
+
+			throw new Error(wait ? `Too many failed attempts. Try again in ${wait} seconds.`
+					     : 'Wrong user name or password, or not an administrator.');
+		}
 		if (!res.ok && res.status !== 404)
 			throw new Error(`The device answered ${res.status}.`);
 	} catch (e) {
