@@ -25,6 +25,8 @@
 
 #define ADMIN_GROUP "wheel"		/* UNIX group with admin access */
 
+#define NELEMS(v) (sizeof(v) / sizeof((v)[0]))
+
 /*
  * User names reach system(), file paths and XPath expressions, so constrain them to
  * a safe character set (letters, digits, and _-.) before use -- no '/'
