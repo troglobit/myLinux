@@ -24,6 +24,7 @@
 #define IFDIR   "/etc/network/interfaces.d"
 #define MGMT_IF "eth0"
 #define IETF_IP_NS "urn:ietf:params:xml:ns:yang:ietf-ip"
+#define DUMMY   "\tlink-type dummy\n"
 
 
 static int run(const char *fmt, ...)
@@ -91,6 +92,32 @@ static void if_unconfigure(const char *ifname)
 	run("rm -f %s/%s.conf", IFDIR, ifname);
 }
 
+/*
+ * An interface that does not exist is declared a dummy, so ifupdown-ng
+ * creates it (and holds its operstate up).  It has to stay declared as
+ * one for as long as it is configured: without that line ifreload
+ * removes it, and has nothing to put the new configuration on.
+ */
+static bool is_dummy(const char *ifname, const char *conf)
+{
+	char line[128];
+	bool dummy = false;
+	FILE *fp;
+
+	snprintf(line, sizeof(line), "/sys/class/net/%s", ifname);
+	if (access(line, F_OK))
+		return true;
+
+	fp = fopen(conf, "r");
+	if (!fp)
+		return false;
+	while (!dummy && fgets(line, sizeof(line), fp))
+		dummy = !strcmp(line, DUMMY);
+	fclose(fp);
+
+	return dummy;
+}
+
 /* Render an interface's drop-in; the ifreload in tr_commit applies it. */
 static int if_configure(cxobj *iface)
 {
@@ -98,7 +125,7 @@ static int if_configure(cxobj *iface)
 	char *ip, *len, *desc;
 	cxobj *ipv4, *address;
 	char path[128];
-	int missing;
+	bool dummy;
 	FILE *fp;
 
 	if (!is_valid_ifname(ifname)) {
@@ -124,12 +151,8 @@ static int if_configure(cxobj *iface)
 		return 0;
 	}
 
-	/* If the interface does not exist yet, declare it a dummy so
-	 * ifupdown-ng creates it (and holds its operstate up). */
-	snprintf(path, sizeof(path), "/sys/class/net/%s", ifname);
-	missing = access(path, F_OK);
-
 	snprintf(path, sizeof(path), "%s/%s.conf", IFDIR, ifname);
+	dummy = is_dummy(ifname, path);
 	fp = fopen(path, "w");
 	if (!fp) {
 		WARN("ietf-interfaces: cannot write %s: %s", path, strerror(errno));
@@ -137,8 +160,8 @@ static int if_configure(cxobj *iface)
 	}
 	fprintf(fp, "auto %s\n", ifname);
 	fprintf(fp, "iface %s inet static\n", ifname);
-	if (missing)
-		fprintf(fp, "\tlink-type dummy\n");
+	if (dummy)
+		fputs(DUMMY, fp);
 	fprintf(fp, "\taddress %s/%s\n", ip, len);
 	/* The description is free text from the datastore and lands in a file
 	 * whose grammar has executable hooks (pre-up ...), so a newline would
