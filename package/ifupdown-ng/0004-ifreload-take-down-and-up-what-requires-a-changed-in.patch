@@ -1,0 +1,393 @@
+From 231e3c9ac240dc64fa3c411c4d8b6d9b4fc9ccc4 Mon Sep 17 00:00:00 2001
+From: Joachim Wiberg <troglobit@gmail.com>
+Date: Sun, 15 Nov 2026 22:00:48 +0100
+Subject: [PATCH 4/5] ifreload: take down and up what requires a changed
+ interface
+Organization: Wires
+
+An interface was only ever looked at by itself.  With a bridge that is
+created anew because its address changed, the ports it had are left
+outside it, their own configuration being the same as before, and a
+VLAN on top of it is gone with the old bridge for good.  The same goes
+for anything stacked on an interface that is removed.
+
+Work out what requires an interface that is gone or changed, by its own
+`requires` or what its executors say, and take that down first and up
+again after.  The last-applied config is only parsed when there is
+something to take down.
+
+Interfaces that ifreload brings up are marked explicit in the state
+file, as ifup does for those it is asked for.  Without that they went
+down along with the last interface that required them.
+
+Signed-off-by: Joachim Wiberg <troglobit@gmail.com>
+---
+ cmd/ifreload.c   | 273 ++++++++++++++++++++++++++++++++++++-----------
+ doc/ifreload.scd |   4 +
+ 2 files changed, 216 insertions(+), 61 deletions(-)
+
+diff --git a/cmd/ifreload.c b/cmd/ifreload.c
+index 0b04a58..6898101 100644
+--- a/cmd/ifreload.c
++++ b/cmd/ifreload.c
+@@ -38,6 +38,11 @@
+  *   changed (config differs)       -> ifdown old, then ifup new
+  *   unchanged                      -> left alone (no bounce)
+  *
++ * An interface that requires one that is gone or changed goes down and
++ * up with it, unchanged or not: a VLAN does not survive the interface
++ * under it being removed, and a port has to be put back in a bridge that
++ * was created anew.
++ *
+  * The comparison is against the stored text, never a re-parse: parsing
+  * re-applies `inherit defaults` and default-executor selection, so a
+  * parse/serialize round-trip is not idempotent -- comparing against a
+@@ -153,62 +158,223 @@ config_differs(struct lif_interface *iface, const char *stored)
+ 	return differs;
+ }
+ 
++/* Bring up an interface that is new or changed, or went with one. */
+ static bool
+-change_interface(struct lif_interface *iface, struct lif_dict *collection,
+-		 struct lif_dict *state, bool up)
++bring_up(struct lif_interface *iface, struct lif_dict *collection, struct lif_dict *state)
+ {
+ 	if (iface->is_template || iface->has_config_error)
+ 		return true;
+ 
+-	/* Skip an interface already in the desired state (e.g. eth0 brought
++	/* Leave an interface that is up already alone (e.g. eth0 brought
+ 	 * up at boot), so a reload never bounces what did not change. */
+-	if (!exec_opts.force && up && iface->refcount > 0)
++	if (exec_opts.force || iface->refcount == 0)
+ 	{
+-		iface->is_explicit = false;
+-		lif_state_upsert(state, iface->ifname, iface);
+-		return true;
++		if (exec_opts.verbose)
++			fprintf(stderr, "%s: bringing interface %s up\n", argv0, iface->ifname);
++
++		if (!lif_lifecycle_run(&exec_opts, iface, collection, state, iface->ifname, true))
++		{
++			fprintf(stderr, "%s: failed to bring interface %s up\n", argv0, iface->ifname);
++			return false;
++		}
+ 	}
+-	if (!exec_opts.force && !up && iface->refcount == 0)
+-		return true;
+ 
+-	if (exec_opts.verbose)
+-		fprintf(stderr, "%s: bringing interface %s %s\n", argv0,
+-			iface->ifname, up ? "up" : "down");
++	/* Ours to keep up, like one named to ifup: without this it goes
++	 * down with the last interface that requires it. */
++	iface->is_explicit = true;
++	lif_state_upsert(state, iface->ifname, iface);
++
++	return true;
++}
++
++/* True if the snapshot of ifname is of an interface gone or changed. */
++static bool
++is_stale(struct lif_dict *cur, const char *ifname)
++{
++	struct lif_dict_entry *entry = lif_dict_find(cur, ifname);
++	char *stored = read_file(snapshot_path(ifname));
++	bool stale = stored != NULL && (entry == NULL || config_differs(entry->data, stored));
++
++	free(stored);
+ 
+-	if (!lif_lifecycle_run(&exec_opts, iface, collection, state, iface->ifname, up))
++	return stale;
++}
++
++/* True if there is anything to take down at all, which is seldom. */
++static bool
++any_stale(struct lif_dict *cur)
++{
++	struct dirent *ent;
++	bool stale = false;
++	DIR *d;
++
++	d = opendir(snapshot_dir());
++	if (d == NULL)
++		return false;
++
++	while (!stale && (ent = readdir(d)) != NULL)
++		stale = ent->d_name[0] != '.' && is_stale(cur, ent->d_name);
++	closedir(d);
++
++	return stale;
++}
++
++/* The last-applied config, all of it, as a collection of its own. */
++static void
++load_applied(struct lif_dict *old)
++{
++	struct lif_interface_file_parse_state ps = { .collection = old };
++	struct dirent *ent;
++	DIR *d;
++
++	lif_interface_collection_init(old);
++
++	d = opendir(snapshot_dir());
++	if (d == NULL)
++		return;
++
++	while ((ent = readdir(d)) != NULL)
+ 	{
+-		fprintf(stderr, "%s: failed to bring interface %s %s\n", argv0,
+-			iface->ifname, up ? "up" : "down");
++		if (ent->d_name[0] != '.')
++			lif_interface_file_parse(&ps, snapshot_path(ent->d_name));
++	}
++	closedir(d);
++
++	/* What each of them requires is in there already, see save_applied() */
++	lif_compat_apply(old);
++}
++
++/* True if iface requires ifname, by its own word or its executors'. */
++static bool
++requires(struct lif_interface *iface, const char *ifname)
++{
++	struct lif_dict_entry *entry = lif_dict_find(&iface->vars, "requires");
++	char buf[4096] = {};
++	char *bufp = buf;
++
++	if (entry == NULL)
+ 		return false;
++
++	strlcpy(buf, entry->data, sizeof buf);
++	for (char *tok = lif_next_token(&bufp); *tok; tok = lif_next_token(&bufp))
++	{
++		if (!strcmp(tok, ifname))
++			return true;
+ 	}
+ 
+-	if (up)
+-		lif_state_upsert(state, iface->ifname, iface);
++	return false;
++}
+ 
+-	return true;
++/*
++ * True if an interface in the set has to go before ifname can: it requires
++ * ifname, and is not in turn required by it.  The two ends of a veth
++ * pair require each other, and neither waits for the other.
++ */
++static bool
++held_up(struct lif_dict *set, struct lif_interface *iface)
++{
++	struct lif_node *iter;
++
++	LIF_DICT_FOREACH(iter, set)
++	{
++		struct lif_dict_entry *entry = iter->data;
++		struct lif_interface *other = entry->data;
++
++		if (other != iface && requires(other, iface->ifname) && !requires(iface, other->ifname))
++			return true;
++	}
++
++	return false;
++}
++
++/*
++ * The interfaces of the last-applied config to take down: those that are
++ * gone or changed, and those that require one of them.
++ */
++static void
++find_stale(struct lif_dict *stale, struct lif_dict *old, struct lif_dict *cur)
++{
++	struct lif_node *iter;
++	bool grew;
++
++	LIF_DICT_FOREACH(iter, old)
++	{
++		struct lif_dict_entry *entry = iter->data;
++
++		if (is_stale(cur, entry->key))
++			lif_dict_add(stale, entry->key, entry->data);
++	}
++
++	do
++	{
++		grew = false;
++
++		LIF_DICT_FOREACH(iter, old)
++		{
++			struct lif_dict_entry *entry = iter->data;
++			struct lif_interface *iface = entry->data;
++			struct lif_node *siter;
++
++			if (lif_dict_find(stale, entry->key) != NULL)
++				continue;
++
++			LIF_DICT_FOREACH(siter, stale)
++			{
++				struct lif_dict_entry *se = siter->data;
++
++				if (!requires(iface, se->key))
++					continue;
++
++				lif_dict_add(stale, entry->key, iface);
++				grew = true;
++				break;
++			}
++		}
++	} while (grew);
+ }
+ 
+-/* Bring a gone/changed interface down using its old (stored) config. */
++/*
++ * Take the stale interfaces down with their old config, so its down
++ * executors run.  What is on top goes first: every round takes down
++ * those that nothing left is held up on.  The ones taken down are moved
++ * to gone.
++ */
+ static bool
+-takedown_stored(const char *ifname, struct lif_dict *state)
++takedown_stale(struct lif_dict *stale, struct lif_dict *old, struct lif_dict *state,
++	       struct lif_dict *gone)
+ {
+-	struct lif_dict old = {};
+-	struct lif_interface_file_parse_state ps = { .collection = &old };
+-	struct lif_dict_entry *entry;
++	struct lif_node *iter, *next;
+ 	bool ret = true;
+ 
+-	lif_interface_collection_init(&old);
++	while (stale->list.head != NULL)
++	{
++		bool progress = false;
+ 
+-	if (!lif_interface_file_parse(&ps, snapshot_path(ifname)))
+-		return true;
++		LIF_DICT_FOREACH_SAFE(iter, next, stale)
++		{
++			struct lif_dict_entry *entry = iter->data;
++			struct lif_interface *iface = entry->data;
++
++			/* A loop of more than two cannot be, but if so: just go */
++			if (held_up(stale, iface) && (progress || next != NULL))
++				continue;
+ 
+-	lif_lifecycle_count_rdepends(&exec_opts, &old);
+-	lif_compat_apply(&old);
+-	lif_state_sync(state, &old);
++			if (exec_opts.verbose)
++				fprintf(stderr, "%s: bringing interface %s down\n", argv0, iface->ifname);
+ 
+-	entry = lif_dict_find(&old, ifname);
+-	if (entry != NULL)
+-		ret = change_interface(entry->data, &old, state, false);
++			if (!lif_lifecycle_run(&exec_opts, iface, old, state, iface->ifname, false))
++			{
++				fprintf(stderr, "%s: failed to bring interface %s down\n", argv0, iface->ifname);
++				ret = false;
++			}
++
++			/* Down it is, whoever else the state file says uses it */
++			lif_state_delete(state, iface->ifname);
++			lif_dict_add(gone, entry->key, NULL);
++			lif_dict_delete_entry(stale, entry);
++			progress = true;
++		}
++	}
+ 
+ 	return ret;
+ }
+@@ -270,11 +436,10 @@ ifreload_main(int argc, char *argv[])
+ 	(void) argc;
+ 	(void) argv;
+ 
+-	struct lif_dict cur = {}, state = {};
++	struct lif_dict cur = {}, old = {}, state = {}, stale = {}, gone = {};
+ 	struct lif_interface_file_parse_state parse = { .collection = &cur };
+ 	struct lif_node *iter;
+ 	int rc = EXIT_SUCCESS;
+-	DIR *d;
+ 
+ 	lif_interface_collection_init(&cur);
+ 
+@@ -308,31 +473,15 @@ ifreload_main(int argc, char *argv[])
+ 		return EXIT_FAILURE;
+ 	}
+ 
+-	/* Pass 1: tear down interfaces gone or changed, from the snapshot,
+-	 * so the old config's down executors run. */
+-	d = opendir(snapshot_dir());
+-	if (d != NULL)
++	/* Pass 1: tear down interfaces gone or changed, and what requires
++	 * them, from the snapshot. */
++	if (any_stale(&cur))
+ 	{
+-		struct dirent *ent;
+-
+-		while ((ent = readdir(d)) != NULL)
+-		{
+-			struct lif_dict_entry *ce;
+-			char *stored;
+-
+-			if (ent->d_name[0] == '.')
+-				continue;
+-
+-			ce = lif_dict_find(&cur, ent->d_name);
+-			stored = read_file(snapshot_path(ent->d_name));
+-
+-			if (ce == NULL || config_differs(ce->data, stored))
+-				if (!takedown_stored(ent->d_name, &state))
+-					rc = EXIT_FAILURE;
+-
+-			free(stored);
+-		}
+-		closedir(d);
++		load_applied(&old);
++		lif_state_sync(&state, &old);
++		find_stale(&stale, &old, &cur);
++		if (!takedown_stale(&stale, &old, &state, &gone))
++			rc = EXIT_FAILURE;
+ 	}
+ 
+ 	/* Pass 1 changed the state; reset refcounts and re-sync so a
+@@ -347,7 +496,8 @@ ifreload_main(int argc, char *argv[])
+ 	}
+ 	lif_state_sync(&state, &cur);
+ 
+-	/* Pass 2: bring up interfaces new or changed. */
++	/* Pass 2: bring up interfaces new or changed, and those that went
++	 * down with one that was. */
+ 	LIF_DICT_FOREACH(iter, &cur)
+ 	{
+ 		struct lif_dict_entry *entry = iter->data;
+@@ -359,8 +509,9 @@ ifreload_main(int argc, char *argv[])
+ 
+ 		stored = read_file(snapshot_path(iface->ifname));
+ 
+-		if (stored == NULL || config_differs(iface, stored))
+-			if (!change_interface(iface, &cur, &state, true))
++		if (stored == NULL || config_differs(iface, stored) ||
++		    lif_dict_find(&gone, iface->ifname) != NULL)
++			if (!bring_up(iface, &cur, &state))
+ 				rc = EXIT_FAILURE;
+ 
+ 		free(stored);
+diff --git a/doc/ifreload.scd b/doc/ifreload.scd
+index 04d7218..84ab48c 100644
+--- a/doc/ifreload.scd
++++ b/doc/ifreload.scd
+@@ -27,6 +27,10 @@ configuration against it:
+ - interfaces whose configuration changed are brought down and back up;
+ - unchanged interfaces are left as they are.
+ 
++An interface that requires one that is brought down goes down and up
++with it, whether its own configuration changed or not: a VLAN on top of
++a bridge that is created anew, or a port of that bridge.
++
+ The first run after boot has no saved copy, so every interface counts as
+ new.  This is a no-op -- the interfaces are already up from boot -- that
+ simply records the baseline for later runs.
+-- 
+2.43.0
+

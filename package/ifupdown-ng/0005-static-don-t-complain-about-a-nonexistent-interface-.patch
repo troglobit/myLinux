@@ -1,0 +1,32 @@
+From 3ea110f23060db48e827267848d25f02def6fb9b Mon Sep 17 00:00:00 2001
+From: Joachim Wiberg <troglobit@gmail.com>
+Date: Sun, 15 Nov 2026 22:15:56 +0100
+Subject: [PATCH 5/5] static: don't complain about a nonexistent interface when
+ downing it
+Organization: Wires
+
+Like the link executor.  The other end of a veth pair is gone along
+with the first one, and its own turn to go down then fails on the
+address flush, which keeps the rest of its teardown from running.
+
+Signed-off-by: Joachim Wiberg <troglobit@gmail.com>
+---
+ executors/linux/static | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/executors/linux/static b/executors/linux/static
+index 367fd3a..1f9f3de 100755
+--- a/executors/linux/static
++++ b/executors/linux/static
+@@ -50,6 +50,8 @@ up)
+ 	configure_gateways add
+ 	;;
+ down)
++	# Don't complain about a nonexistent interface when downing it
++	[ -d "/sys/class/net/${IFACE}" ] || [ -n "${MOCK}" ] || exit 0
+ 	flush
+ 	;;
+ *)	exit 0 ;;
+-- 
+2.43.0
+
