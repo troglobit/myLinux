@@ -23,6 +23,6 @@ restconf_libadd = -lclixon -lclixon_restconf -lcrypt
 restconf_ldflags = -module -avoid-version -shared
 
 backend_cflags = $(augeas_CFLAGS) $(jansson_CFLAGS) $(CFLAGS)
-backend_libadd = $(augeas_LIBS)   $(jansson_LIBS) -lclixon -lclixon_backend common.la
+backend_libadd = $(augeas_LIBS)   $(jansson_LIBS) -lclixon -lclixon_backend -lcrypt common.la
 backend_ldflags = -module -avoid-version -shared
 

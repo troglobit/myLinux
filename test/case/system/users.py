@@ -6,6 +6,9 @@ one with defaults -- confirm the UNIX accounts and the applied shell, read
 the applied shell and password back from the operational datastore (mech
 derives them from /etc/passwd and /etc/shadow), then delete the users and
 confirm they are gone.
+
+A password may also be given as clear text, marked with a '$0$' prefix
+(iana-crypt-hash).  The system then stores the hash of it.
 """
 import re
 
@@ -73,6 +76,31 @@ def test(dut):
         assert shell_of(xml, "op1") == "clish", xml
         assert shell_of(xml, "op2") == "sh", xml
         assert password_of(xml, "op1") == HASH, xml
+
+    with dut.step("Set the password of 'op2' as clear text"):
+        with dut.netconf() as nc:
+            nc.edit_config(target="candidate", config=f"""
+              <config xmlns="{NETCONF_NS}">
+                <system xmlns="{SYS_NS}">
+                  <authentication>
+                    <user>
+                      <name>op2</name>
+                      <password>$0$clear text</password>
+                    </user>
+                  </authentication>
+                </system>
+              </config>""")
+            nc.commit()
+
+    with dut.step("Confirm running-config holds a hash of it, the one applied"):
+        with dut.netconf() as nc:
+            stored = password_of(nc.get_config("running", filter=("subtree", AUTH_FILTER)).xml, "op2")
+        assert stored.startswith("$6$"), stored
+        my.until(lambda: password_of(dut.get_oper(AUTH_FILTER), "op2") == stored)
+
+    with dut.step("Log in as 'op2' with that password"):
+        rc, out = dut.ssh("id -un", user="op2", password="clear text")
+        assert rc == 0 and out.strip() == "op2", out
 
     with dut.step("Delete both users over NETCONF"):
         with dut.netconf() as nc:

@@ -217,14 +217,14 @@ class Dut:
         with self.netconf() as nc:
             nc.copy_config(target=target, source=source)
 
-    def ssh(self, cmd):
+    def ssh(self, cmd, user=USER, password=PASSWORD):
         """Run a shell command on the DUT over SSH; returns (rc, output)."""
         import paramiko
 
         cli = paramiko.SSHClient()
         cli.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        cli.connect("127.0.0.1", port=SSH_PORT, username=USER,
-                    password=PASSWORD, look_for_keys=False, allow_agent=False,
+        cli.connect("127.0.0.1", port=SSH_PORT, username=user,
+                    password=password, look_for_keys=False, allow_agent=False,
                     timeout=30)
         try:
             _, out, err = cli.exec_command(cmd)

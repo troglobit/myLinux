@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 #include <augeas.h>
+#include <crypt.h>
 #include <ctype.h>
 #include <dirent.h>
 #include <errno.h>
@@ -11,6 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <syslog.h>
+#include <sys/random.h>
 #include <sys/stat.h>
 #include <sys/utsname.h>
 #include <sys/sysinfo.h>
@@ -120,6 +122,22 @@ static int sys_reload_services(void)
 int ietf_sys_tr_begin(clixon_handle h, transaction_data td)
 {
 	return aug_load(aug);
+}
+
+/*
+ * Clear text passwords are hashed on their way in, see hash_passwords().
+ * One that still got this far came some way we do not know of.  Refuse
+ * it, or it is stored as it is.
+ */
+int ietf_sys_tr_validate(clixon_handle h, transaction_data td)
+{
+	if (xpath_first(transaction_target(td), NULL,
+			"system/authentication/user[starts-with(password,'$0$')]")) {
+		clixon_err(OE_CFG, 0, "ietf-system: clear text password was not hashed");
+		return -1;
+	}
+
+	return 0;
 }
 
 int ietf_sys_tr_commit_hostname(cxobj *src, cxobj *tgt)
@@ -382,6 +400,80 @@ reload:
 }
 
 /*
+ * SHA-512 crypt of a clear text password, with a salt of its own.  The
+ * caller frees it.
+ */
+static char *hash_password(const char *clear)
+{
+	static const char tbl[] = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+				  "abcdefghijklmnopqrstuvwxyz";
+	char salt[] = "$6$0123456789abcdef";
+	unsigned char rnd[16];
+	char *hash;
+	size_t i;
+
+	if (getrandom(rnd, sizeof(rnd), 0) != sizeof(rnd))
+		return NULL;
+	for (i = 0; i < sizeof(rnd); i++)
+		salt[3 + i] = tbl[rnd[i] % 64];
+
+	hash = crypt(clear, salt);
+	if (!hash || hash[0] != '$')
+		return NULL;
+
+	return strdup(hash);
+}
+
+/*
+ * iana-crypt-hash: a password that starts with $0$ is clear text, and
+ * what gets stored is its hash.  Replaces such passwords in a tree of
+ * configuration, top being the parent of the system container.
+ */
+static int hash_passwords(cxobj *top)
+{
+	cxobj *sys = xml_find(top, "system");
+	cxobj *auth = sys ? xml_find(sys, "authentication") : NULL;
+	cxobj *user = NULL;
+
+	while (auth && (user = xml_child_each(auth, user, CX_ELMNT))) {
+		cxobj *pw = xml_find(user, "password");
+		char *val = pw ? xml_body(pw) : NULL;
+		char *hash;
+		int rc;
+
+		if (!val || strncmp(val, "$0$", 3))
+			continue;
+
+		hash = hash_password(val + 3);
+		rc = hash ? xml_value_set(xml_body_get(pw), hash) : -1;
+		free(hash);
+		if (rc < 0) {
+			clixon_err(OE_UNIX, errno, "ietf-system: failed hashing password");
+			return -1;
+		}
+	}
+
+	return 0;
+}
+
+/*
+ * Sees every edit-config before clixon does, plugins register their
+ * callbacks first, so no clear text password reaches a datastore.
+ */
+static int ietf_sys_edit_config(clixon_handle h, cxobj *xe, cbuf *cbret, void *arg, void *regarg)
+{
+	cxobj *config = xml_find(xe, "config");
+
+	return config ? hash_passwords(config) : 0;
+}
+
+/* A datastore read from file, a startup-config written by hand for one */
+static int ietf_sys_upgrade(clixon_handle h, const char *db, cxobj *xt, modstate_diff_t *msd)
+{
+	return hash_passwords(xt);
+}
+
+/*
  * Install a user's password hash straight into /etc/shadow.  BusyBox
  * chpasswd is not built, so we rewrite the file directly, clearing the
  * aging fields since the wall clock is unreliable at boot.
@@ -393,6 +485,10 @@ static int set_password(const char *user, const char *hash)
 	struct spwd *sp;
 	FILE *fp;
 	int fd;
+
+	/* Clear text is hashed long before this.  If not, it is no password. */
+	if (!strncmp(pw, "$0$", 3))
+		pw = "*";
 
 	if (lckpwdf()) {
 		WARN("ietf-system: cannot lock %s", SHADOW_FILE);
@@ -1082,7 +1178,10 @@ static clixon_plugin_api ietf_system_api = {
 	.ca_name = "ietf-system",
 	.ca_init = clixon_plugin_init,
 
+	.ca_datastore_upgrade = ietf_sys_upgrade,
+
 	.ca_trans_begin = ietf_sys_tr_begin,
+	.ca_trans_validate = ietf_sys_tr_validate,
 	.ca_trans_commit = ietf_sys_tr_commit,
 
 	.ca_statedata = ietf_sys_statedata,
@@ -1113,6 +1212,9 @@ clixon_plugin_api *clixon_plugin_init(clixon_handle h)
 	register_rpc(h, "set-current-datetime");
 	register_rpc(h, "system-restart");
 	register_rpc(h, "system-shutdown");
+
+	if (rpc_callback_register(h, ietf_sys_edit_config, NULL, NETCONF_BASE_NAMESPACE, "edit-config") < 0)
+		clixon_err(OE_PLUGIN, EINVAL, "ietf-system: failed registering for edit-config");
 
 	return &ietf_system_api;
 }
