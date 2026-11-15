@@ -26,7 +26,6 @@
 #define IETF_IP_NS "urn:ietf:params:xml:ns:yang:ietf-ip"
 #define DUMMY   "\tlink-type dummy\n"
 
-
 static int run(const char *fmt, ...)
 {
 	char cmd[256];
@@ -118,14 +117,29 @@ static bool is_dummy(const char *ifname, const char *conf)
 	return dummy;
 }
 
+/* The addresses of one family, "ipv4" or "ipv6", as ifupdown wants them */
+static void cprint_addresses(cbuf *cb, cxobj *iface, char *family)
+{
+	cxobj *af = xml_find(iface, family);
+	cxobj *addr = NULL;
+
+	while (af && (addr = xml_child_each(af, addr, CX_ELMNT))) {
+		char *ip = get_str(addr, "ip");
+		char *len = get_str(addr, "prefix-length");
+
+		if (!strcmp(xml_name(addr), "address") && ip && len)
+			cprintf(cb, "\taddress %s/%s\n", ip, len);
+	}
+}
+
 /* Render an interface's drop-in; the ifreload in tr_commit applies it. */
 static int if_configure(cxobj *iface)
 {
 	char *ifname = get_str(iface, "name");
-	char *ip, *len, *desc;
-	cxobj *ipv4, *address;
 	char path[128];
 	bool dummy;
+	char *desc;
+	cbuf *cb;
 	FILE *fp;
 
 	if (!is_valid_ifname(ifname)) {
@@ -141,13 +155,14 @@ static int if_configure(cxobj *iface)
 		return 0;
 	}
 
-	/* XXX: single IPv4 address for now; IPv6 and multiple addresses TODO. */
-	ipv4 = xml_find(iface, "ipv4");
-	address = ipv4 ? xml_find(ipv4, "address") : NULL;
-	ip = address ? get_str(address, "ip") : NULL;
-	len = address ? get_str(address, "prefix-length") : NULL;
-	if (!ip || !len) {
+	cb = cbuf_new();
+	if (!cb)
+		return -1;
+	cprint_addresses(cb, iface, "ipv4");
+	cprint_addresses(cb, iface, "ipv6");
+	if (!cbuf_len(cb)) {
 		if_unconfigure(ifname);		/* nothing to set, clear stale */
+		cbuf_free(cb);
 		return 0;
 	}
 
@@ -156,13 +171,15 @@ static int if_configure(cxobj *iface)
 	fp = fopen(path, "w");
 	if (!fp) {
 		WARN("ietf-interfaces: cannot write %s: %s", path, strerror(errno));
+		cbuf_free(cb);
 		return -1;
 	}
 	fprintf(fp, "auto %s\n", ifname);
-	fprintf(fp, "iface %s inet static\n", ifname);
+	fprintf(fp, "iface %s\n", ifname);
 	if (dummy)
 		fputs(DUMMY, fp);
-	fprintf(fp, "\taddress %s/%s\n", ip, len);
+	fputs(cbuf_get(cb), fp);
+	cbuf_free(cb);
 	/* The description is free text from the datastore and lands in a file
 	 * whose grammar has executable hooks (pre-up ...), so a newline would
 	 * let it inject a directive.  Drop it rather than write a broken-out
