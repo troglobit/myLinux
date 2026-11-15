@@ -32,6 +32,9 @@ module mylinux {
     import iana-if-type {
         prefix ianaift;
     }
+    import mylinux-interfaces {
+        prefix myif;
+    }
 
     import clixon-autocli {
         prefix autocli;
@@ -61,6 +64,11 @@ module mylinux {
     }
     revision 2026-11-14 {
       description "Pull in ietf-netconf-notifications for netconf-config-change.";
+      reference "N/A";
+    }
+
+    revision 2026-11-15 {
+      description "Pull in mylinux-interfaces.";
       reference "N/A";
     }
 

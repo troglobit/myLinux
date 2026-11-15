@@ -10,7 +10,7 @@ import my
 
 IF_NS = "urn:ietf:params:xml:ns:yang:ietf-interfaces"
 IP_NS = "urn:ietf:params:xml:ns:yang:ietf-ip"
-IANA_NS = "urn:ietf:params:xml:ns:yang:iana-if-type"
+MYIF_NS = "urn:mylinux:interfaces"
 NETCONF_NS = "urn:ietf:params:xml:ns:netconf:base:1.0"
 
 IFACE = "dummy0"
@@ -24,10 +24,10 @@ def test(dut):
         with dut.netconf() as nc:
             nc.edit_config(target="candidate", config=f"""
               <config xmlns="{NETCONF_NS}">
-                <interfaces xmlns="{IF_NS}" xmlns:ianaift="{IANA_NS}">
+                <interfaces xmlns="{IF_NS}" xmlns:myif="{MYIF_NS}">
                   <interface>
                     <name>{IFACE}</name>
-                    <type>ianaift:ethernetCsmacd</type>
+                    <type>myif:dummy</type>
                     <ipv4 xmlns="{IP_NS}">
                       <address>
                         <ip>{ADDR}</ip>
@@ -56,7 +56,7 @@ def test(dut):
     with dut.step(f"'show interface {IFACE}' details the address"):
         out = dut.cli(f"show interface {IFACE}")
         assert IFACE in out, out
-        assert "ethernet" in out, out
+        assert "dummy" in out, out
         assert "operational status" in out, out
         assert f"{ADDR}/{PLEN} (static)" in out, out
 

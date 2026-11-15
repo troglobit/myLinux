@@ -8,6 +8,7 @@ torn down on exit; attached DUTs are left running.
 import base64
 import json
 import os
+import re
 import shlex
 import signal
 import socket
@@ -171,6 +172,22 @@ class Dut:
         except urllib.error.HTTPError as err:
             return err
 
+    def edit(self, config):
+        """Merge `config`, what goes inside a NETCONF <config>, into the
+        running configuration.  The 'nc' prefix is there for operation
+        attributes.  A commit that is refused raises RPCError, and leaves
+        nothing behind in candidate for the next one to trip on.
+        """
+        ns = "urn:ietf:params:xml:ns:netconf:base:1.0"
+        with self.netconf() as nc:
+            nc.edit_config(target="candidate", config=(
+                f'<config xmlns="{ns}" xmlns:nc="{ns}">{config}</config>'))
+            try:
+                nc.commit()
+            except Exception:
+                nc.discard_changes()
+                raise
+
     def reset(self):
         """Reset running-config to the factory baseline before a test.
 
@@ -286,6 +303,13 @@ class Dut:
     def plan(self):
         """Emit the TAP plan line for the steps run so far."""
         print(f"1..{self.nsteps}", flush=True)
+
+
+def interface(xml, name):
+    """The <interface> element named `name` in a reply, or "" if it is
+    not there, for a case to look for what it expects inside it."""
+    m = re.search(rf"<interface>\s*<name>{re.escape(name)}</name>.*?</interface>", xml, re.S)
+    return m.group(0) if m else ""
 
 
 def until(fn, attempts=10, interval=1):

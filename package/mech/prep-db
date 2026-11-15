@@ -13,15 +13,41 @@ STARTUP=/var/lib/misc/startup_db
 mkdir -p "$DBDIR" /var/lib/misc
 ln -sf "$STARTUP" "$DBDIR/startup_db"
 
+# The Ethernet ports of the device: what has hardware behind it and is
+# not a wireless LAN.
+ports()
+{
+	for dev in /sys/class/net/*; do
+		[ -e "$dev/device" ] || continue
+		[ -e "$dev/wireless" ] || [ -e "$dev/phy80211" ] && continue
+		echo "${dev##*/}"
+	done
+}
+
+# One port as an ietf-interfaces list entry, on one line for sed's sake.
+# Anything for $2 puts a DHCP client on it.
+port()
+{
+	printf '<interface><name>%s</name>' "$1"
+	printf '<type xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>'
+	[ -z "$2" ] || printf '<ipv4 xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><dhcp xmlns="urn:mylinux:interfaces"/></ipv4>'
+	printf '</interface>'
+}
+
+IFS_OPEN='<interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces">'
+UPLINK=$(ports | head -1)
+
 # TODO: Maybe copy in a proper factory config from
 # /usr/share/vendor/<hardware-id>_db or similar.
-# Right now we generate one from probed data.
+# Right now we generate one from probed data: every port up, and a DHCP
+# client on the first of them.
 #
 # The quoted heredoc keeps the shell from mangling the '$6$' password
 # hash.  'admin' logs in with password 'admin' until a real factory-reset
 # flow lets the operator set their own; mech creates the UNIX account
 # (in group wheel) when this config is applied on first boot.
-cat <<'EOF' >"$FACTORY"
+{
+	cat <<'EOF'
 <config>
   <system xmlns="urn:ietf:params:xml:ns:yang:ietf-system">
     <authentication>
@@ -31,8 +57,15 @@ cat <<'EOF' >"$FACTORY"
       </user>
     </authentication>
   </system>
-</config>
 EOF
+	echo "  $IFS_OPEN"
+	for ifname in $(ports); do
+		[ "$ifname" = "$UPLINK" ] && dhcp=yes || dhcp=
+		echo "    $(port "$ifname" $dhcp)"
+	done
+	echo "  </interfaces>"
+	echo "</config>"
+} >"$FACTORY"
 
 # The RESTCONF listener used to be configured in the datastore.  It is in
 # /etc/clixon.xml now and clixon no longer loads that model, so a
@@ -44,6 +77,36 @@ if grep -qs "$RESTCONF" "$STARTUP"; then
 	       -e "\|$RESTCONF|,\|</restconf>|d" "$STARTUP"
 	logger -sik -p user.notice -t prep-db "Dropped stale RESTCONF config from startup-config"
 fi
+
+# The system used to start a DHCP client on the first port by itself.
+# Now that is configuration like any other, which a startup-config from
+# before does not have, and without it nobody can reach the device.
+# What such a startup-config does say about the port was never applied,
+# so that goes.  Without a port to go by, try again next boot.
+if [ -s "$STARTUP" ] && [ ! -e "$STARTUP.v1" ] && [ -n "$UPLINK" ]; then
+	awk -v name="<name>$UPLINK</name>" '
+		/^[ \t]*<interface[ >]/ { hold = 1; buf = "" }
+		hold {
+			buf = buf $0 "\n"
+			if (/<\/interface>/) {
+				if (!index(buf, name))
+					printf "%s", buf
+				hold = 0
+			}
+			next
+		}
+		{ print }' "$STARTUP" >"$STARTUP+"
+	mv "$STARTUP+" "$STARTUP"
+
+	if grep -qs "<name>$UPLINK</name>" "$STARTUP"; then
+		logger -sik -p user.warning -t prep-db "Cannot tell what startup-config says of $UPLINK, see to it that it has an address"
+	else
+		grep -qs "$IFS_OPEN" "$STARTUP" || sed -i "s|</config>|$IFS_OPEN</interfaces></config>|" "$STARTUP"
+		sed -i "s|$IFS_OPEN|&$(port "$UPLINK" yes)|" "$STARTUP"
+		logger -sik -p user.notice -t prep-db "Added $UPLINK with DHCP to startup-config"
+	fi
+fi
+[ -z "$UPLINK" ] || touch "$STARTUP.v1"
 
 # Seed the startup config from the factory on first boot or after a reset.
 # Test -s, not -f: a stray empty startup_db (e.g. one clixon wrote before

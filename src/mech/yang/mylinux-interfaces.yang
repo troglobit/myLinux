@@ -1,0 +1,110 @@
+module mylinux-interfaces {
+    yang-version 1.1;
+    namespace "urn:mylinux:interfaces";
+    prefix myif;
+
+    import ietf-interfaces {
+        prefix if;
+    }
+
+    import ietf-ip {
+        prefix ip;
+    }
+
+    import iana-if-type {
+        prefix ianaift;
+    }
+
+    description
+        "myLinux augments to ietf-interfaces and ietf-ip: interface types
+         IANA has no name for, bridges and their ports, veth pairs, VLAN
+         interfaces, and the DHCP client.";
+
+    revision 2026-11-15 {
+      description "Initial revision.";
+      reference "N/A";
+    }
+
+    identity veth {
+      base ianaift:ilan;
+      description "One end of a virtual Ethernet pair.";
+    }
+
+    identity dummy {
+      base ianaift:other;
+      description
+        "An interface that goes nowhere.  It is always up, which makes it
+         a place for addresses that should not depend on a link.";
+    }
+
+    augment "/if:interfaces/if:interface" {
+      when "derived-from-or-self(if:type, 'myif:veth')";
+      description "Virtual Ethernet pairs.";
+
+      container veth {
+        description "Virtual Ethernet (veth) pair.";
+
+        leaf peer {
+          type if:interface-ref;
+          mandatory true;
+          description
+            "The interface at the other end of the pair.  It has to be a
+             veth as well, with this interface as its peer.";
+        }
+      }
+    }
+
+    augment "/if:interfaces/if:interface" {
+      when "derived-from-or-self(if:type, 'ianaift:l2vlan')";
+      description "VLAN interfaces.";
+
+      container vlan {
+        description "An 802.1Q VLAN on top of another interface.";
+
+        leaf id {
+          type uint16 {
+            range "1..4094";
+          }
+          mandatory true;
+          description "VLAN ID.";
+        }
+
+        leaf lower-layer-if {
+          type if:interface-ref;
+          mandatory true;
+          description
+            "The interface that carries the tagged frames, another one
+             than this.";
+        }
+      }
+    }
+
+    augment "/if:interfaces/if:interface" {
+      when "not(derived-from-or-self(if:type, 'ianaift:softwareLoopback'))";
+      description "Bridge ports.";
+
+      container bridge-port {
+        presence "The interface is a port of a bridge.";
+        description
+          "Membership in a bridge.  A port has no addresses of its own,
+           they go on the bridge.";
+
+        leaf bridge {
+          type if:interface-ref;
+          mandatory true;
+          description
+            "The bridge this interface is a port of.  It has to be of type
+             bridge, and another interface than this one.";
+        }
+      }
+    }
+
+    augment "/if:interfaces/if:interface/ip:ipv4" {
+      description "DHCP client.";
+
+      container dhcp {
+        presence "Get an address, and with it routes and name servers, from DHCP.";
+        description "DHCPv4 client.";
+      }
+    }
+}
