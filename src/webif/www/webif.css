@@ -63,12 +63,12 @@ button {
 	color: var(--ink);
 	cursor: pointer;
 }
-button:disabled { opacity: .5; cursor: default; }
+button:disabled { cursor: default; }
 button.primary  { background: var(--ink); border-color: var(--ink); color: var(--bg); }
 button.danger   { background: var(--red); border-color: var(--red); color: #fff; }
 button.quiet    { background: none; }
 
-input, textarea {
+input, textarea, select {
 	font: inherit;
 	width: 100%;
 	padding: .4rem .55rem;
@@ -81,8 +81,11 @@ input[type=checkbox] { width: 1.1rem; height: 1.1rem; margin: 0; accent-color: v
 textarea { resize: vertical; min-height: 4.5rem; }
 
 label { display: block; font-weight: 600; font-size: .9rem; }
-label input, label textarea { margin-top: .25rem; font-weight: 400; font-size: 1rem; }
-label small { display: block; font-weight: 400; color: var(--muted); }
+label input, label textarea, label select { margin-top: .25rem; font-weight: 400; font-size: 1rem; }
+:disabled { opacity: .5; }
+small { display: block; font-weight: 400; color: var(--muted); }
+h2 small, td small { font-size: .85rem; }
+.check { display: flex; align-items: center; gap: .5rem; }
 
 .error { color: var(--red); min-height: 1.5em; }
 
@@ -216,26 +219,27 @@ form.settings { display: grid; gap: 1.25rem; max-width: 34rem; }
 /* One interface, or one user, to a row */
 .iface, .user {
 	display: grid;
-	grid-template-columns: 8rem 1fr 1fr auto auto;
+	grid-template-columns: 9rem 1fr 1fr 11rem 6rem auto;
 	gap: .75rem 1rem;
 	align-items: start;
 	padding: 1rem 0;
 	border-bottom: 1px solid var(--line);
 }
-.user { grid-template-columns: 8rem 1fr 1fr 6rem auto; }
+.user { grid-template-columns: 9rem 1fr 1fr 6rem auto; }
 .iface h2, .user h2 { overflow-wrap: anywhere; }
 .iface textarea { min-height: 0; }
-.iface .check { display: flex; align-items: center; gap: .5rem; }
+.iface .options { display: grid; gap: .5rem; }
 .iface .actions, .user .actions { flex-direction: column; align-items: flex-start; gap: 0; }
 .iface button, .user button { white-space: nowrap; }
-.user .remove { justify-self: start; }
+.remove { justify-self: start; }
 
 /* Side by side, what has no label above it lines up with the fields */
-@media (min-width: 40.01rem) {
-	.iface h2, .user h2, .iface .fixed { margin-top: 1.9rem; }
-	.iface .check { margin-top: 2.1rem; }
-	.iface .actions, .user .actions, .user .remove { margin-top: 1.6rem; }
-	.iface .fixed { grid-column: 2 / -1; }
+@media (min-width: 52.01rem) {
+	.iface h2, .user h2 { margin-top: 1.9rem; }
+	.iface .options, .iface .actions, .user .actions, .remove { margin-top: 1.6rem; }
+	.iface .remove { grid-column: 5; grid-row: 1; }
+	.iface .actions { grid-column: 6; }
+	.user .remove { grid-column: 4; grid-row: 1; }
 	.user .actions { grid-column: 5; }
 }
 
@@ -261,11 +265,14 @@ dialog::backdrop { background: rgb(0 0 0 / .5); }
 dialog form { display: grid; gap: 1rem; }
 dialog .actions { justify-content: flex-end; }
 
+@media (max-width: 52rem) {
+	.iface, .user { grid-template-columns: 1fr; }
+}
+
 @media (max-width: 40rem) {
 	header { padding: .6rem 1rem; gap: .5rem 1rem; }
 	nav { order: 3; flex-basis: 100%; }
 	.live { margin-left: auto; }
 	main { padding: 1.5rem 1rem 3rem; }
-	.iface, .user { grid-template-columns: 1fr; }
 	.task { flex-direction: column; align-items: flex-start; gap: .75rem; }
 }

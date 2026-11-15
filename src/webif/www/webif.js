@@ -229,7 +229,10 @@ function addresses(ifc) {
 
 const fact = (label, value) => h('div', null, h('dt', null, label), h('dd', null, value));
 const isUp = (ifc) => ifc['oper-status'] === 'up';
-const isLoopback = (ifc) => (ifc.type || '').endsWith('softwareLoopback');
+
+/* The type of an interface, an identity less the module it is from */
+const kind = (ifc) => (ifc?.type || '').split(':').pop();
+const isLoopback = (ifc) => kind(ifc) === 'softwareLoopback';
 
 async function status() {
 	const [state, ifs] = await Promise.all([
@@ -245,7 +248,7 @@ async function status() {
 		h('section', null,
 			h('h1', null, 'Status'),
 			h('div', { class: 'faceplate', role: 'img', 'aria-label': 'Ports and their link state' },
-				list.filter((ifc) => !isLoopback(ifc)).map((ifc) =>
+				list.filter((ifc) => kind(ifc) === 'ethernetCsmacd').map((ifc) =>
 					h('div', { class: 'jack' + (isUp(ifc) ? ' up' : '') +
 							  (ifc['admin-status'] === 'down' ? ' off' : '') },
 						h('i'), ifc.name))),
@@ -263,7 +266,7 @@ async function status() {
 						h('th', null, 'Addresses'), h('th', null, 'Hardware address'),
 						h('th', { class: 'num' }, 'Received'), h('th', { class: 'num' }, 'Sent'))),
 					h('tbody', null, list.map((ifc) => h('tr', null,
-						h('td', null, ifc.name),
+						h('td', null, ifc.name, h('small', null, about(ifc))),
 						h('td', null, h('span', { class: 'state' + (isUp(ifc) ? ' up' : '') },
 							ifc['oper-status'] || 'unknown')),
 						h('td', { class: 'addr' }, addresses(ifc).map((addr) => h('div', null, addr))),
@@ -393,43 +396,60 @@ async function system() {
  * Interfaces
  */
 
-/* The port mech leaves to the system, see MGMT_IF in its interfaces.c */
-const MGMT_IF = 'eth0';
+const MYIF = 'mylinux-interfaces:';
+const KINDS = { bridge: 'Bridge', l2vlan: 'VLAN', veth: 'veth', dummy: 'Dummy', ethernetCsmacd: 'Ethernet' };
+
+/* What an interface is, in a few words */
+function about(ifc) {
+	const vlan = ifc[MYIF + 'vlan'];
+	const peer = ifc[MYIF + 'veth']?.peer;
+
+	if (vlan)
+		return `VLAN ${vlan.id} on ${vlan['lower-layer-if']}`;
+	if (peer)
+		return `veth, other end ${peer}`;
+
+	return KINDS[kind(ifc)] || kind(ifc);
+}
+
+const option = (value, text, selected) => h('option', { value, selected: !!selected }, text);
+const check = (name, text, checked, disabled) => h('label', { class: 'check' },
+	h('input', { name, type: 'checkbox', checked: !!checked, disabled: !!disabled }), text);
 
 async function interfaces() {
 	const [oper, conf] = await Promise.all([
 		get('ietf-interfaces:interfaces'),
 		get('ietf-interfaces:interfaces?content=config'),
 	]);
-	const config = new Map((conf?.interface || []).map((ifc) => [ifc.name, ifc]));
-	const names = new Map((oper?.interface || []).map((ifc) => [ifc.name, ifc]));
+	const config = conf?.interface || [];
+	const all = new Map((oper?.interface || []).map((ifc) => [ifc.name, ifc]));
+	const msg = h('p', { class: 'error', role: 'alert' });
 
-	for (const [name, ifc] of config) {
-		if (!names.has(name))
-			names.set(name, ifc);
-	}
+	/* What is configured counts, also for an interface that is not there */
+	for (const ifc of config)
+		all.set(ifc.name, { ...all.get(ifc.name), ...ifc });
+
+	const shown = [...all.values()].filter((ifc) => !isLoopback(ifc));
+	const bridges = config.filter((ifc) => kind(ifc) === 'bridge').map((ifc) => ifc.name);
+	const path = (name) => 'ietf-interfaces:interfaces/interface=' + encodeURIComponent(name);
 
 	function row(ifc) {
-		const cfg = config.get(ifc.name);
+		const cfg = config.find((it) => it.name === ifc.name);
 		const addrs = addresses(cfg || {});
-
-		if (ifc.name === MGMT_IF) {
-			return h('div', { class: 'iface' },
-				h('h2', null, ifc.name),
-				h('p', { class: 'muted fixed' }, 'The management port. The system sets it up ' +
-					'with DHCP, it cannot be changed here.'));
-		}
+		const bridge = cfg?.[MYIF + 'bridge-port']?.bridge || '';
+		const created = cfg && kind(cfg) !== 'ethernetCsmacd';
 
 		async function save(val, form) {
 			const next = { ...cfg, name: ifc.name, type: cfg?.type || ifc.type };
-			const list = lines(val('addresses'));
-			const path = 'ietf-interfaces:interfaces/interface=' + encodeURIComponent(ifc.name);
+			const port = form.elements.bridge?.value;
+			const list = port ? [] : lines(val('addresses'));
 
 			if (!list.every((addr) => /^[0-9a-f:.]+\/\d+$/i.test(addr)))
 				throw new Error('Give each address with its prefix length, like 192.168.1.1/24.');
 
 			set(next, 'enabled', form.elements.enabled.checked ? null : false);
 			set(next, 'description', val('description'));
+			set(next, MYIF + 'bridge-port', port ? { bridge: port } : null);
 			for (const fam of FAMILIES) {
 				const af = { ...next[fam] };
 				const mine = list.filter((addr) => addr.includes(':') === fam.endsWith('6'));
@@ -439,36 +459,140 @@ async function interfaces() {
 
 					return { ip, 'prefix-length': Number(len) };
 				}) : null);
+				if (fam.endsWith('4'))
+					set(af, MYIF + 'dhcp', form.elements.dhcp.checked && !port ? {} : null);
 				set(next, fam, Object.keys(af).length ? af : null);
 			}
 
 			/* Nothing but its name and type left: no configuration */
-			if (Object.keys(next).length > 2)
-				await put(path, { 'ietf-interfaces:interface': [next] });
+			if (Object.keys(next).length > 2 || created)
+				await put(path(ifc.name), { 'ietf-interfaces:interface': [next] });
 			else if (cfg)
-				await del(path);
+				await del(path(ifc.name));
 			else
 				return false;
 		}
 
+		/* Goes with what cannot be without it: the other end of a veth
+		 * pair, and the place its ports have in a bridge. */
+		async function remove() {
+			const peer = cfg[MYIF + 'veth']?.peer;
+			const upper = config.find((it) => it[MYIF + 'vlan']?.['lower-layer-if'] === ifc.name);
+
+			msg.textContent = '';
+			if (upper) {
+				msg.textContent = `Remove ${upper.name} first, it is on top of ${ifc.name}.`;
+				return;
+			}
+			if (!await confirm(`Remove ${ifc.name}?`, peer ? `${peer}, the other end, goes with it.`
+					   : 'The interface and its settings are deleted.', 'Remove'))
+				return;
+
+			try {
+				/* All of them are written back, so as they are now */
+				const now = await get('ietf-interfaces:interfaces?content=config');
+				const rest = now.interface.filter((it) => it.name !== ifc.name && it.name !== peer).map((it) => {
+					const { [MYIF + 'bridge-port']: port, ...other } = it;
+
+					return port?.bridge === ifc.name ? other : it;
+				});
+
+				await write(() => put('ietf-interfaces:interfaces',
+					{ 'ietf-interfaces:interfaces': { interface: rest } }));
+				render();
+			} catch (err) {
+				msg.textContent = err.message;
+			}
+		}
+
+		/* A port of a bridge has no addresses of its own */
+		function ported(ev) {
+			const form = ev.target.form;
+
+			form.elements.addresses.disabled = form.elements.dhcp.disabled = !!ev.target.value;
+		}
+
 		return settings('iface', save, [
-			h('h2', null, ifc.name),
+			h('h2', null, ifc.name, h('small', null, about(ifc))),
 			h('label', null, 'Description',
 				h('input', { name: 'description', value: cfg?.description || '' })),
 			h('label', null, 'Addresses',
 				h('textarea', { name: 'addresses', class: 'addr', spellcheck: 'false',
-						rows: Math.max(2, addrs.length),
+						rows: Math.max(2, addrs.length), disabled: !!bridge,
 						placeholder: '192.168.1.1/24\n2001:db8::1/64',
 						title: 'IPv4 and IPv6 addresses with prefix length, one per line' },
 					addrs.join('\n'))),
-			h('label', { class: 'check' },
-				h('input', { name: 'enabled', type: 'checkbox', checked: cfg?.enabled !== false }),
-				'Enabled')]);
+			h('div', { class: 'options' },
+				check('enabled', 'Enabled', cfg?.enabled !== false),
+				check('dhcp', 'Address from DHCP', cfg?.['ietf-ip:ipv4']?.[MYIF + 'dhcp'], bridge),
+				...(kind(ifc) !== 'bridge' && bridges.length ? [
+					h('label', null, 'Port of bridge',
+						h('select', { name: 'bridge', onchange: ported },
+							option('', 'None', !bridge),
+							bridges.map((name) => option(name, name, name === bridge))))] : [])),
+			...(created ? [h('button', { type: 'button', class: 'remove', onclick: remove }, 'Remove')] : []),
+		]);
 	}
 
-	return [h('section', null,
-		h('h1', null, 'Interfaces'),
-		h('div', null, [...names.values()].filter((ifc) => !isLoopback(ifc)).map(row)))];
+	/* The fields of the form below that only some types have */
+	function typed(ev) {
+		for (const el of ev.target.form.querySelectorAll('[data-for]')) {
+			el.hidden = el.dataset.for !== ev.target.value;
+			for (const field of el.querySelectorAll('input, select'))
+				field.disabled = el.hidden;
+		}
+	}
+
+	async function add(val, form) {
+		const type = val('type');
+		const ifc = { name: val('name'), type: (type in { veth: 1, dummy: 1 } ? MYIF : 'iana-if-type:') + type };
+		const list = [ifc];
+
+		if (type === 'l2vlan') {
+			ifc[MYIF + 'vlan'] = { id: Number(val('id')), 'lower-layer-if': val('lower') };
+			ifc.name ||= `${val('lower')}.${val('id')}`;
+		}
+		if (type === 'veth') {
+			ifc[MYIF + 'veth'] = { peer: val('peer') };
+			list.push({ name: val('peer'), type: ifc.type, [MYIF + 'veth']: { peer: ifc.name } });
+		}
+		if (!ifc.name)
+			throw new Error('Give the interface a name.');
+		if (list.some((it) => all.has(it.name)))
+			throw new Error('There is an interface with that name already.');
+
+		await patch('ietf-interfaces:interfaces', { 'ietf-interfaces:interfaces': { interface: list } });
+		render();
+	}
+
+	const ifname = { maxlength: 15, pattern: '[A-Za-z0-9_.\\-]+', autocomplete: 'off', autocapitalize: 'none',
+			 title: 'Up to 15 letters, digits, and _ - .' };
+
+	return [
+		h('section', null,
+			h('h1', null, 'Interfaces'),
+			h('div', null, shown.map(row)),
+			msg),
+		h('section', null,
+			h('h2', null, 'Add an interface'),
+			settings('settings', add, [
+				h('label', null, 'Type',
+					h('select', { name: 'type', onchange: typed },
+						option('bridge', 'Bridge', true), option('l2vlan', 'VLAN'),
+						option('veth', 'veth pair'), option('dummy', 'Dummy'))),
+				h('label', null, 'Name',
+					h('small', { 'data-for': 'l2vlan', hidden: true },
+						'Leave empty to name it after the interface it is on and its VLAN ID.'),
+					h('input', { name: 'name', ...ifname })),
+				h('label', { 'data-for': 'l2vlan', hidden: true }, 'On top of',
+					h('select', { name: 'lower', disabled: true },
+						shown.map((ifc) => option(ifc.name, ifc.name)))),
+				h('label', { 'data-for': 'l2vlan', hidden: true }, 'VLAN ID',
+					h('input', { name: 'id', type: 'number', min: 1, max: 4094, required: true, disabled: true })),
+				h('label', { 'data-for': 'veth', hidden: true }, 'Name of the other end',
+					h('input', { name: 'peer', required: true, disabled: true, ...ifname })),
+			], 'Add interface')),
+	];
 }
 
 /*
