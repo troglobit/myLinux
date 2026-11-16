@@ -134,17 +134,21 @@ static int is_admin(const char *user)
 /*
  * We run as www-data and cannot read /etc/shadow.  What the backend puts
  * there is the user's password leaf as it is, so ask for that.
+ *
+ * Returns -1 if the backend does not answer, as when the device is on
+ * its way down.  That is not the same as a user without a password.
  */
-static char *password_hash(clixon_handle h, const char *user)
+static int password_hash(clixon_handle h, const char *user, char **hash)
 {
 	cxobj *xt = NULL, *xp;
 	cvec *nsc = NULL;
-	char *hash = NULL;
+	int rc = -1;
 	cbuf *cb;
 
+	*hash = NULL;
 	cb = cbuf_new();
 	if (!cb)
-		return NULL;
+		return -1;
 	cprintf(cb, "/sys:system/sys:authentication/sys:user[sys:name='%s']/sys:password", user);
 
 	nsc = xml_nsctx_init("sys", IETF_SYS_NS);
@@ -155,7 +159,8 @@ static char *password_hash(clixon_handle h, const char *user)
 
 	xp = xpath_first(xt, nsc, "%s", cbuf_get(cb));
 	if (xp && xml_body(xp))
-		hash = strdup(xml_body(xp));
+		*hash = strdup(xml_body(xp));
+	rc = 0;
 done:
 	if (xt)
 		xml_free(xt);
@@ -163,15 +168,17 @@ done:
 		xml_nsctx_free(nsc);
 	cbuf_free(cb);
 
-	return hash;
+	return rc;
 }
 
+/* Returns 1 if the password is the user's, 0 if not, -1 if we cannot tell */
 static int check_password(clixon_handle h, const char *user, const char *pass)
 {
 	char *hash, *res;
 	int ok = 0;
 
-	hash = password_hash(h, user);
+	if (password_hash(h, user, &hash))
+		return -1;
 	if (!hash)
 		return 0;
 
@@ -197,6 +204,7 @@ static int core_auth(clixon_handle h, void *req, clixon_auth_type_t type, char *
 	char addr[INET6_ADDRSTRLEN];
 	char *auth, *user, *pass;
 	time_t now = uptime();
+	int ok;
 	struct client *cl;
 	time_t wait = 0;
 
@@ -229,7 +237,12 @@ static int core_auth(clixon_handle h, void *req, clixon_auth_type_t type, char *
 	pass = strchr(user, ':');
 	if (pass) {
 		*pass++ = 0;
-		if (is_valid_username(user) && check_password(h, user, pass) && is_admin(user)) {
+		ok = is_valid_username(user) ? check_password(h, user, pass) : 0;
+		if (ok < 0) {
+			free(user);
+			return -1;
+		}
+		if (ok && is_admin(user)) {
 			if (cl)
 				cl->fails = 0;
 			*authp = user;
