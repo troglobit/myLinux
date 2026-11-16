@@ -33,4 +33,25 @@ define MECH_GEN_YANG_TREE
 endef
 MECH_POST_INSTALL_TARGET_HOOKS += MECH_GEN_YANG_TREE
 
+# The web interface builds its forms from the models, as JSON.  The tool
+# that writes it reads them the way clixon does, features included.
+ifeq ($(BR2_PACKAGE_WEBIF),y)
+MECH_DEPENDENCIES += host-libyang
+
+define MECH_BUILD_YANG2JSON
+	$(HOSTCC) $(HOST_CFLAGS) -o $(@D)/yang2json $(@D)/tools/yang2json.c \
+		$(HOST_LDFLAGS) -lyang
+endef
+MECH_POST_BUILD_HOOKS += MECH_BUILD_YANG2JSON
+
+define MECH_GEN_SCHEMA
+	mkdir -p $(TARGET_DIR)/var/www
+	$(@D)/yang2json -p $(TARGET_DIR)/usr/share/clixon \
+		$$(sed -n 's|.*<CLICON_FEATURE>\(.*\)</CLICON_FEATURE>.*|-F \1|p' $(@D)/clixon.xml.in) \
+		mylinux >$(TARGET_DIR)/var/www/schema.json
+	gzip -9kf $(TARGET_DIR)/var/www/schema.json
+endef
+MECH_POST_INSTALL_TARGET_HOOKS += MECH_GEN_SCHEMA
+endif
+
 $(eval $(autotools-package))

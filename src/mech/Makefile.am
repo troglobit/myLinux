@@ -6,4 +6,4 @@ ACLOCAL_AMFLAGS = -I m4
 noinst_HEADERS += include/common.h
 
 sysconf_DATA = clixon.xml
-EXTRA_DIST = NOTICE
+EXTRA_DIST = NOTICE tools/yang2json.c
