@@ -15,7 +15,7 @@ WEBIF_LICENSE = GPL-2.0
 define WEBIF_INSTALL_TARGET_CMDS
 	mkdir -p $(TARGET_DIR)/var/www
 	cp -r $(@D)/www/. $(TARGET_DIR)/var/www/
-	cd $(TARGET_DIR)/var/www && gzip -9kf index.html webif.css webif.js
+	cd $(TARGET_DIR)/var/www && gzip -9kf index.html webif.css webif.js yang.js
 endef
 
 $(eval $(generic-package))

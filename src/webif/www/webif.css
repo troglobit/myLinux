@@ -69,7 +69,7 @@ label { display: block; font-weight: 600; font-size: .9rem; }
 label input, label textarea, label select { margin-top: .25rem; font-weight: 400; font-size: 1rem; }
 :disabled { opacity: .5; }
 small { display: block; font-weight: 400; color: var(--muted); }
-h2 small, td small { font-size: .85rem; }
+td small { font-size: .85rem; }
 .check { display: flex; align-items: center; gap: .5rem; }
 
 .error { color: var(--red); min-height: 1.5em; }
@@ -117,7 +117,32 @@ nav a:hover { color: var(--ink); }
 nav a[aria-current] { color: var(--ink); background: var(--bg); font-weight: 600; }
 
 .live { font-size: .9rem; color: var(--muted); }
-header select { width: auto; }
+
+/* The menu of who is logged in */
+.menu { position: relative; }
+.menu > summary {
+	padding: .35rem .75rem;
+	border: 1px solid var(--line);
+	border-radius: 4px;
+	list-style: none;
+}
+.menu > summary::-webkit-details-marker { display: none; }
+.menu > summary::after { content: " \25be"; color: var(--muted); }
+.menu > div {
+	position: absolute;
+	right: 0;
+	top: calc(100% + .4rem);
+	z-index: 1;
+	width: 17rem;
+	display: grid;
+	gap: 1rem;
+	padding: 1rem;
+	border: 1px solid var(--line);
+	border-radius: 6px;
+	background: var(--surface);
+	box-shadow: 0 6px 20px rgb(0 0 0 / .18);
+}
+.menu a { color: inherit; }
 
 .notice {
 	display: flex;
@@ -198,36 +223,76 @@ td.num, th.num { text-align: right; }
 
 /* Forms */
 
-form.settings { display: grid; gap: 1.25rem; max-width: 34rem; }
+form.settings { display: grid; gap: 1.25rem; max-width: 46rem; }
 .actions { display: flex; gap: .75rem; align-items: center; }
 .saved { color: var(--up); }
 
-/* One interface, or one user, to a row */
-.iface, .user {
+/* What a form is made of, from the models: fields side by side as
+   they fit, and boxes around what belongs together */
+.fields {
 	display: grid;
-	grid-template-columns: 9rem 1fr 1fr 11rem 6rem auto;
-	gap: .75rem 1rem;
+	grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+	gap: 1rem 1.25rem;
 	align-items: start;
-	padding: 1rem 0;
-	border-bottom: 1px solid var(--line);
 }
-.user { grid-template-columns: 9rem 1fr 1fr 6rem auto; }
-.iface h2, .user h2 { overflow-wrap: anywhere; }
-.iface textarea { min-height: 0; }
-.iface .options { display: grid; gap: .5rem; }
-.iface .actions, .user .actions { flex-direction: column; align-items: flex-start; gap: 0; }
-.iface button, .user button { white-space: nowrap; }
-.remove { justify-self: start; }
+.fields > fieldset { grid-column: 1 / -1; }
+.fields > .check { align-self: end; padding-bottom: .5rem; }
 
-/* Side by side, what has no label above it lines up with the fields */
-@media (min-width: 52.01rem) {
-	.iface h2, .user h2 { margin-top: 1.9rem; }
-	.iface .options, .iface .actions, .user .actions, .remove { margin-top: 1.6rem; }
-	.iface .remove { grid-column: 5; grid-row: 1; }
-	.iface .actions { grid-column: 6; }
-	.user .remove { grid-column: 4; grid-row: 1; }
-	.user .actions { grid-column: 5; }
+fieldset {
+	margin: 0;
+	padding: .75rem 1rem 1rem;
+	border: 1px solid var(--line);
+	border-radius: 6px;
+	min-width: 0;
 }
+legend { padding: 0 .4rem; font-weight: 600; font-size: .9rem; }
+legend label { display: flex; align-items: center; gap: .5rem; }
+legend select { width: auto; margin: 0; }
+
+/* A list: its rows, each with a way out, and a way to add one */
+.rows { display: grid; gap: .5rem; }
+.rows:not(:empty) { margin-bottom: .75rem; }
+.line { display: flex; gap: .5rem; align-items: center; }
+.bare { display: flex; flex: 1; gap: .5rem; align-items: center; flex-wrap: wrap; min-width: 0; }
+.bare > input:not([type=checkbox]), .bare > select, .bare > textarea, .line > input, .line > select { flex: 1 1 8rem; width: auto; min-width: 0; }
+.bare > input[type=number] { flex: 0 1 8rem; }
+.bare > .check { flex: none; }
+button.remove { flex: none; padding: .2rem .6rem; border-color: transparent; color: var(--muted); font-size: 1.2rem; line-height: 1; }
+button.remove:hover { color: var(--red); }
+button.add { padding: .25rem .75rem; font-size: .9rem; }
+.pair { display: flex; gap: .5rem; }
+
+/* Something to a row, that folds out to its settings */
+details > summary { cursor: pointer; }
+details.row { border-bottom: 1px solid var(--line); }
+details.row > summary {
+	display: grid;
+	grid-template-columns: 9rem 1fr 7rem 1.5fr;
+	gap: 1rem;
+	align-items: baseline;
+	padding: .85rem 1.75rem .85rem 0;
+	list-style: none;
+	position: relative;
+}
+details.row > summary::-webkit-details-marker { display: none; }
+details.row > summary::after {
+	content: "";
+	position: absolute;
+	right: .4rem;
+	top: 1.2rem;
+	width: .5rem;
+	height: .5rem;
+	border: solid var(--muted);
+	border-width: 0 2px 2px 0;
+	rotate: 45deg;
+}
+details.row[open] > summary::after { rotate: 225deg; top: 1.45rem; }
+details.row > summary:hover b { text-decoration: underline; }
+details.row > summary > * { overflow-wrap: anywhere; min-width: 0; }
+details.row > form { padding: .5rem 0 1.5rem; max-width: none; }
+details.entry { padding: .5rem .75rem; border: 1px solid var(--line); border-radius: 4px; }
+details.entry[open] > summary { margin-bottom: .75rem; }
+details.entry > button { margin-top: .75rem; }
 
 .task {
 	display: flex;
@@ -251,16 +316,12 @@ dialog::backdrop { background: rgb(0 0 0 / .5); }
 dialog form { display: grid; gap: 1rem; }
 dialog .actions { justify-content: flex-end; }
 
-@media (max-width: 52rem) {
-	.iface, .user { grid-template-columns: 1fr; }
-}
-
 @media (max-width: 40rem) {
 	header { padding: .6rem 1rem; gap: .5rem 1rem; }
 	nav { order: 3; flex-basis: 100%; }
 	.brand { flex: 1; min-width: 0; }
 	.brand span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-	header select, header button { padding: .3rem .5rem; }
+	details.row > summary { grid-template-columns: 1fr 1fr; gap: .25rem 1rem; }
 	main { padding: 1.5rem 1rem 3rem; }
 	.task { flex-direction: column; align-items: flex-start; gap: .75rem; }
 }

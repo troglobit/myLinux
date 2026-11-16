@@ -1,13 +1,14 @@
 /* myLinux web interface: a RESTCONF client, all of it runs in the browser */
 'use strict';
 
-const $ = (sel) => document.querySelector(sel);
 const view = $('#view');
 
-const IDLE = 15;		/* minutes with nobody at the controls before we log out */
+const SESSION = 24;		/* hours a login lasts, at the most */
 
 let auth = sessionStorage.getItem('auth');
-let seen = Number(sessionStorage.getItem('seen')) || Date.now();	/* when somebody last was */
+let since = Number(sessionStorage.getItem('since')) || Date.now();	/* when we logged in */
+let seen = Number(sessionStorage.getItem('seen')) || Date.now();	/* when somebody last was at the controls */
+let idle = Number(localStorage.getItem('idle') ?? 15);			/* minutes without that before we log out */
 let heard = 0;			/* when the device last answered us */
 let current = null;		/* name of the view on show */
 let renders = 0;		/* tells a render that a later one overtook it */
@@ -15,23 +16,6 @@ let stream = null;		/* AbortController of the event stream */
 let own = 0;			/* change events to expect from our own saves */
 let stale = false;		/* changed elsewhere since the forms were filled in */
 const edited = new Set();	/* forms with unsaved edits */
-
-/* Build an element; text always goes in as text, never as markup */
-function h(tag, attrs, ...kids) {
-	const el = document.createElement(tag);
-
-	for (const [key, val] of Object.entries(attrs || {})) {
-		if (key.startsWith('on'))
-			el.addEventListener(key.slice(2), val);
-		else if (val === true)
-			el.setAttribute(key, '');
-		else if (val !== false)
-			el.setAttribute(key, val);
-	}
-	el.append(...kids.flat());
-
-	return el;
-}
 
 /*
  * RESTCONF
@@ -125,7 +109,7 @@ async function listen() {
 	let gap = false;	/* out of touch for a while, events may be lost */
 
 	while (!ctl.signal.aborted) {
-		const since = Date.now();
+		const begun = Date.now();
 		const link = new AbortController();
 		let ended = false;
 		let pulse;
@@ -190,7 +174,7 @@ async function listen() {
 		/* The web server ends a stream that has been up for long, for
 		 * us to log in again.  Nothing is lost if we do so at once,
 		 * unless the event of a save of ours was on its way. */
-		if (ended && !own && Date.now() - since > 10000)
+		if (ended && !own && Date.now() - begun > 10000)
 			continue;
 
 		live(false);
@@ -264,8 +248,11 @@ const fact = (label, value) => h('div', null, h('dt', null, label), h('dd', null
 const isUp = (ifc) => ifc['oper-status'] === 'up';
 
 /* The type of an interface, an identity less the module it is from */
-const kind = (ifc) => (ifc?.type || '').split(':').pop();
+const kind = (ifc) => local(ifc?.type || '');
 const isLoopback = (ifc) => kind(ifc) === 'softwareLoopback';
+
+/* Link light and state of an interface; one that is only configured has none */
+const link = (ifc) => h('span', { class: 'state' + (isUp(ifc) ? ' up' : '') }, ifc['oper-status'] || 'not there');
 
 async function status() {
 	const [state, ifs] = await Promise.all([
@@ -300,8 +287,7 @@ async function status() {
 						h('th', { class: 'num' }, 'Received'), h('th', { class: 'num' }, 'Sent'))),
 					h('tbody', null, list.map((ifc) => h('tr', null,
 						h('td', null, ifc.name, h('small', null, about(ifc))),
-						h('td', null, h('span', { class: 'state' + (isUp(ifc) ? ' up' : '') },
-							ifc['oper-status'] || 'unknown')),
+						h('td', null, link(ifc)),
 						h('td', { class: 'addr' }, addresses(ifc).map((addr) => h('div', null, addr))),
 						h('td', { class: 'addr' }, ifc['phys-address'] || ''),
 						h('td', { class: 'num' }, bytes(Number(ifc.statistics?.['in-octets'] || 0))),
@@ -312,16 +298,6 @@ async function status() {
 /*
  * System
  */
-
-const lines = (text) => text.split(/[\s,]+/).filter(Boolean);
-
-/* Set, or with nothing to set remove, a member of a configuration object */
-function set(obj, key, value) {
-	if (value === '' || value == null)
-		delete obj[key];
-	else
-		obj[key] = value;
-}
 
 /*
  * A write of ours comes back as a change event, to be told from those
@@ -339,12 +315,12 @@ async function write(fn) {
 }
 
 /* A form with a save button and its result next to it; save does the saving */
-function settings(cls, save, fields, label = 'Save changes') {
+function settings(save, fields, label = 'Save changes', more = []) {
 	const msg = h('span', { role: 'status' });
 	const btn = h('button', { class: 'primary' }, label);
 
 	async function onsubmit(ev) {
-		const form = ev.target;
+		const form = ev.currentTarget;
 
 		ev.preventDefault();
 		msg.className = 'error';
@@ -358,7 +334,7 @@ function settings(cls, save, fields, label = 'Save changes') {
 
 		btn.disabled = true;
 		try {
-			await write(() => save((name) => form.elements[name].value.trim(), form));
+			await write(save);
 			edited.delete(form);
 			msg.className = 'saved';
 			msg.textContent = 'Saved';
@@ -368,61 +344,55 @@ function settings(cls, save, fields, label = 'Save changes') {
 		btn.disabled = false;
 	}
 
-	return h('form', { class: cls, onsubmit }, fields, h('div', { class: 'actions' }, btn, msg));
+	return h('form', { class: 'settings', onsubmit }, fields, h('div', { class: 'actions' }, btn, more, msg));
 }
+
+/* What the system page shows of ietf-system, and what it calls it */
+const SYSTEM = {
+	hide: ['system/authentication', 'system/ntp/enabled', 'system/ntp/server/name', 'system/dns-resolver/server/name'],
+	labels: {
+		'system/hostname': 'Host name',
+		'system/clock': 'Clock',
+		'system/clock/timezone-name': 'Time zone',
+		'system/ntp': 'Set the clock from time servers (NTP)',
+		'system/ntp/server': 'Time servers',
+		'system/ntp/server/iburst': 'Burst at start',
+		'system/ntp/server/prefer': 'Preferred',
+		'system/dns-resolver': 'Name resolution (DNS)',
+		'system/dns-resolver/search': 'Search domains',
+		'system/dns-resolver/server': 'Name servers',
+		'system/dns-resolver/options/timeout': 'Timeout',
+		'system/dns-resolver/options/attempts': 'Attempts',
+	},
+	items: {
+		'system/ntp/server': 'server',
+		'system/dns-resolver/search': 'domain',
+		'system/dns-resolver/server': 'server',
+	},
+	/* A server is listed by a name of its own, for which its address will do */
+	fill: {
+		'system/ntp/server': (srv) => { srv.name ??= srv.udp?.address; },
+		'system/dns-resolver/server': (srv) => { srv.name ??= srv['udp-and-tcp']?.address; },
+	},
+};
 
 async function system() {
 	const sys = await get('ietf-system:system?content=config') || {};
-	const ntp = (sys.ntp?.server || []).map((srv) => srv.udp?.address).filter(Boolean);
-	const dns = (sys['dns-resolver']?.server || []).map((srv) => srv['udp-and-tcp']?.address).filter(Boolean);
+	const body = group(schemaAt('ietf-system:system'), sys, SYSTEM, 'system');
 
-	/* Write back all of the container, so what we do not show, the
-	 * users for one, is kept and what was cleared here goes away. */
-	async function save(val) {
+	/* All of the container is written back, so what we do not show,
+	 * the users for one, is kept and what was cleared here goes away. */
+	async function save() {
 		const next = structuredClone(sys);
-		const servers = lines(val('ntp'));
-		const resolvers = lines(val('dns'));
-		const search = lines(val('search'));
 
-		set(next, 'hostname', val('hostname'));
-		set(next, 'contact', val('contact'));
-		set(next, 'location', val('location'));
-		set(next, 'clock', val('timezone') ? { ...next.clock, 'timezone-name': val('timezone') } : null);
-		set(next, 'ntp', servers.length ? {
-			...next.ntp,
-			server: servers.map((addr) => ({ name: addr, udp: { address: addr } })),
-		} : null);
-		set(next, 'dns-resolver', resolvers.length || search.length ? {
-			...next['dns-resolver'],
-			search: search.length ? search : undefined,
-			server: resolvers.map((addr) => ({ name: addr, 'udp-and-tcp': { address: addr } })),
-		} : null);
-
+		body.apply(next);
 		await put('ietf-system:system', { 'ietf-system:system': next });
 		hostname();
 	}
 
 	return [h('section', null,
 		h('h1', null, 'System'),
-		settings('settings', save, [
-			h('label', null, 'Host name',
-				h('input', { name: 'hostname', value: sys.hostname || '', maxlength: 63,
-					     placeholder: $('#hostname').textContent })),
-			h('label', null, 'Contact',
-				h('input', { name: 'contact', value: sys.contact || '' })),
-			h('label', null, 'Location',
-				h('input', { name: 'location', value: sys.location || '' })),
-			h('label', null, 'Time zone',
-				h('input', { name: 'timezone', value: sys.clock?.['timezone-name'] || '',
-					     placeholder: 'Europe/Stockholm' })),
-			h('label', null, 'Time servers',
-				h('small', null, 'NTP servers, one per line. Leave empty to not sync the clock.'),
-				h('textarea', { name: 'ntp', spellcheck: 'false' }, ntp.join('\n'))),
-			h('label', null, 'Name servers',
-				h('small', null, 'DNS servers, one address per line. Leave empty to use what DHCP provides.'),
-				h('textarea', { name: 'dns', spellcheck: 'false' }, dns.join('\n'))),
-			h('label', null, 'Search domains',
-				h('input', { name: 'search', value: (sys['dns-resolver']?.search || []).join(' ') }))]))];
+		settings(save, body.el))];
 }
 
 /*
@@ -430,7 +400,53 @@ async function system() {
  */
 
 const MYIF = 'mylinux-interfaces:';
-const KINDS = { bridge: 'Bridge', l2vlan: 'VLAN', veth: 'veth', dummy: 'Dummy', ethernetCsmacd: 'Ethernet' };
+
+/* The types there is a way to create, as the model spells them */
+const CREATED = {
+	'iana-if-type:bridge': 'Bridge',
+	'iana-if-type:l2vlan': 'VLAN',
+	[MYIF + 'veth']: 'veth pair',
+	[MYIF + 'dummy']: 'Dummy',
+};
+
+/* What the interfaces page shows of an interface, and what it calls it */
+const IFACES = {
+	hide: ['interface/name', 'interface/type'],
+	labels: {
+		'interface/ietf-ip:ipv4': 'IPv4',
+		'interface/ietf-ip:ipv4/address': 'Addresses',
+		'interface/ietf-ip:ipv4/address/ip': 'Address',
+		[`interface/ietf-ip:ipv4/${MYIF}dhcp`]: 'Address from DHCP',
+		'interface/ietf-ip:ipv6': 'IPv6',
+		'interface/ietf-ip:ipv6/address': 'Addresses',
+		'interface/ietf-ip:ipv6/address/ip': 'Address',
+		[`interface/${MYIF}bridge-port`]: 'Port of a bridge',
+		[`interface/${MYIF}vlan`]: 'VLAN',
+		[`interface/${MYIF}vlan/id`]: 'VLAN ID',
+		[`interface/${MYIF}vlan/lower-layer-if`]: 'On top of',
+		[`interface/${MYIF}veth`]: 'veth pair',
+		[`interface/${MYIF}veth/peer`]: 'Name of the other end',
+	},
+	/* There with an address or DHCP in them, and not without */
+	implied: ['interface/ietf-ip:ipv4', 'interface/ietf-ip:ipv6'],
+};
+
+const opened = new Set();	/* rows folded out, to be so again after a render */
+
+/* A row that folds out to the settings of what it is about, made when first asked for */
+function fold(key, summary, make) {
+	const el = h('details', { class: 'row', open: opened.has(key), ontoggle }, h('summary', null, summary));
+
+	function ontoggle() {
+		opened[el.open ? 'add' : 'delete'](key);
+		if (el.open && el.children.length === 1)
+			el.append(make());
+	}
+	if (el.open)
+		el.append(make());
+
+	return el;
+}
 
 /* What an interface is, in a few words */
 function about(ifc) {
@@ -442,12 +458,8 @@ function about(ifc) {
 	if (peer)
 		return `veth, other end ${peer}`;
 
-	return KINDS[kind(ifc)] || kind(ifc);
+	return CREATED[ifc.type] ?? (kind(ifc) === 'ethernetCsmacd' ? 'Ethernet' : kind(ifc));
 }
-
-const option = (value, text, selected) => h('option', { value, selected: !!selected }, text);
-const check = (name, text, checked, disabled) => h('label', { class: 'check' },
-	h('input', { name, type: 'checkbox', checked: !!checked, disabled: !!disabled }), text);
 
 async function interfaces() {
 	const [oper, conf] = await Promise.all([
@@ -457,53 +469,53 @@ async function interfaces() {
 	const config = conf?.interface || [];
 	const all = new Map((oper?.interface || []).map((ifc) => [ifc.name, ifc]));
 	const msg = h('p', { class: 'error', role: 'alert' });
+	const sn = schemaAt('ietf-interfaces:interfaces/interface');
 
 	/* What is configured counts, also for an interface that is not there */
 	for (const ifc of config)
 		all.set(ifc.name, { ...all.get(ifc.name), ...ifc });
 
-	const shown = [...all.values()].filter((ifc) => !isLoopback(ifc));
+	const list = [...all.values()].filter((ifc) => !isLoopback(ifc));
+	const names = list.map((ifc) => ifc.name);
 	const bridges = config.filter((ifc) => kind(ifc) === 'bridge').map((ifc) => ifc.name);
 	const path = (name) => 'ietf-interfaces:interfaces/interface=' + encodeURIComponent(name);
 
 	function row(ifc) {
-		const cfg = config.find((it) => it.name === ifc.name);
-		const addrs = addresses(cfg || {});
-		const bridge = cfg?.[MYIF + 'bridge-port']?.bridge || '';
-		const created = cfg && kind(cfg) !== 'ethernetCsmacd';
+		let cfg = config.find((it) => it.name === ifc.name);
+		const type = cfg?.type || ifc.type;
+		const created = type in CREATED;
+		const port = `interface/${MYIF}bridge-port`;
+		let body;
 
-		async function save(val, form) {
-			const next = { ...cfg, name: ifc.name, type: cfg?.type || ifc.type };
-			const port = form.elements.bridge?.value;
-			const list = port ? [] : lines(val('addresses'));
+		const form = () => {
+			body = group(sn, cfg, {
+				...IFACES,
+				entry: { type },
+				/* Which veth is at the other end is not for changing,
+				 * and without a bridge there is nothing to be a port of */
+				hide: [...IFACES.hide, `interface/${MYIF}veth`, ...(bridges.length ? [] : [port])],
+				refs: (at) => (at.startsWith(port) ? bridges : names).filter((name) => name !== ifc.name),
+			}, 'interface');
 
-			if (!list.every((addr) => /^[0-9a-f:.]+\/\d+$/i.test(addr)))
-				throw new Error('Give each address with its prefix length, like 192.168.1.1/24.');
+			return settings(save, body.el, 'Save changes',
+				created ? h('button', { type: 'button', class: 'danger', onclick: remove }, 'Remove') : []);
+		};
 
-			set(next, 'enabled', form.elements.enabled.checked ? null : false);
-			set(next, 'description', val('description'));
-			set(next, MYIF + 'bridge-port', port ? { bridge: port } : null);
-			for (const fam of FAMILIES) {
-				const af = { ...next[fam] };
-				const mine = list.filter((addr) => addr.includes(':') === fam.endsWith('6'));
+		async function save() {
+			const next = { ...structuredClone(cfg), name: ifc.name, type };
 
-				set(af, 'address', mine.length ? mine.map((addr) => {
-					const [ip, len] = addr.split('/');
-
-					return { ip, 'prefix-length': Number(len) };
-				}) : null);
-				if (fam.endsWith('4'))
-					set(af, MYIF + 'dhcp', form.elements.dhcp.checked && !port ? {} : null);
-				set(next, fam, Object.keys(af).length ? af : null);
-			}
+			body.apply(next);
 
 			/* Nothing but its name and type left: no configuration */
-			if (Object.keys(next).length > 2 || created)
+			if (Object.keys(next).length > 2 || created) {
 				await put(path(ifc.name), { 'ietf-interfaces:interface': [next] });
-			else if (cfg)
+				cfg = next;
+			} else if (cfg) {
 				await del(path(ifc.name));
-			else
+				cfg = undefined;
+			} else {
 				return false;
+			}
 		}
 
 		/* Goes with what cannot be without it: the other end of a veth
@@ -525,9 +537,9 @@ async function interfaces() {
 				/* All of them are written back, so as they are now */
 				const now = await get('ietf-interfaces:interfaces?content=config');
 				const rest = now.interface.filter((it) => it.name !== ifc.name && it.name !== peer).map((it) => {
-					const { [MYIF + 'bridge-port']: port, ...other } = it;
+					const { [MYIF + 'bridge-port']: member, ...other } = it;
 
-					return port?.bridge === ifc.name ? other : it;
+					return member?.bridge === ifc.name ? other : it;
 				});
 
 				await write(() => put('ietf-interfaces:interfaces',
@@ -538,93 +550,73 @@ async function interfaces() {
 			}
 		}
 
-		/* A port of a bridge has no addresses of its own */
-		function ported(ev) {
-			const form = ev.target.form;
-
-			form.elements.addresses.disabled = form.elements.dhcp.disabled = !!ev.target.value;
-		}
-
-		return settings('iface', save, [
-			h('h2', null, ifc.name, h('small', null, about(ifc))),
-			h('label', null, 'Description',
-				h('input', { name: 'description', value: cfg?.description || '' })),
-			h('label', null, 'Addresses',
-				h('textarea', { name: 'addresses', class: 'addr', spellcheck: 'false',
-						rows: Math.max(2, addrs.length), disabled: !!bridge,
-						placeholder: '192.168.1.1/24\n2001:db8::1/64',
-						title: 'IPv4 and IPv6 addresses with prefix length, one per line' },
-					addrs.join('\n'))),
-			h('div', { class: 'options' },
-				check('enabled', 'Enabled', cfg?.enabled !== false),
-				check('dhcp', 'Address from DHCP', cfg?.['ietf-ip:ipv4']?.[MYIF + 'dhcp'], bridge),
-				...(kind(ifc) !== 'bridge' && bridges.length ? [
-					h('label', null, 'Port of bridge',
-						h('select', { name: 'bridge', onchange: ported },
-							option('', 'None', !bridge),
-							bridges.map((name) => option(name, name, name === bridge))))] : [])),
-			...(created ? [h('button', { type: 'button', class: 'remove', onclick: remove }, 'Remove')] : []),
-		]);
+		return fold(ifc.name, [
+			h('b', null, ifc.name), h('span', { class: 'muted' }, about(ifc)),
+			link(ifc),
+			h('span', { class: 'addr' }, addresses(ifc).join(', ')),
+		], form);
 	}
 
-	/* The fields of the form below that only some types have */
-	function typed(ev) {
-		for (const el of ev.target.form.querySelectorAll('[data-for]')) {
-			el.hidden = el.dataset.for !== ev.target.value;
-			for (const field of el.querySelectorAll('input, select'))
-				field.disabled = el.hidden;
+	/* A new interface is its type and name, and what its type cannot be without */
+	function adder() {
+		const type = h('select', { name: 'type', onchange: typed },
+			Object.entries(CREATED).map(([id, text]) => option(id, text)));
+		const name = h('input', { name: 'name', maxlength: 15, autocomplete: 'off', autocapitalize: 'none' });
+		const needs = [`interface/${MYIF}vlan`, `interface/${MYIF}veth`];
+		const slot = h('div', { class: 'fields' });
+		let body;
+
+		function typed() {
+			body = group(sn, undefined, {
+				...IFACES,
+				entry: { type: type.value },
+				only: needs,
+				/* The other end of a veth pair is not there to pick, we make it */
+				refs: (at) => (at.endsWith('veth/peer') ? null : names),
+			}, 'interface');
+			slot.replaceChildren(body.el);
 		}
+		typed();
+
+		async function add() {
+			const ifc = { name: name.value.trim(), type: type.value };
+			const made = [ifc];
+
+			body.apply(ifc);
+
+			const vlan = ifc[MYIF + 'vlan'];
+			const peer = ifc[MYIF + 'veth']?.peer;
+
+			if (vlan)
+				ifc.name ||= `${vlan['lower-layer-if']}.${vlan.id}`;
+			if (peer)
+				made.push({ name: peer, type: ifc.type, [MYIF + 'veth']: { peer: ifc.name } });
+			if (!ifc.name)
+				throw new Error('Give the interface a name.');
+			if (made.some((it) => all.has(it.name)))
+				throw new Error('There is an interface with that name already.');
+
+			await patch('ietf-interfaces:interfaces', { 'ietf-interfaces:interfaces': { interface: made } });
+			opened.add(ifc.name);
+			render();
+		}
+
+		return settings(add, [
+			h('div', { class: 'fields' },
+				h('label', null, 'Type', type),
+				h('label', null, 'Name', h('small', null, 'A VLAN left without one is named after what it is on and its ID.'), name)),
+			slot,
+		], 'Add interface');
 	}
-
-	async function add(val, form) {
-		const type = val('type');
-		const ifc = { name: val('name'), type: (type in { veth: 1, dummy: 1 } ? MYIF : 'iana-if-type:') + type };
-		const list = [ifc];
-
-		if (type === 'l2vlan') {
-			ifc[MYIF + 'vlan'] = { id: Number(val('id')), 'lower-layer-if': val('lower') };
-			ifc.name ||= `${val('lower')}.${val('id')}`;
-		}
-		if (type === 'veth') {
-			ifc[MYIF + 'veth'] = { peer: val('peer') };
-			list.push({ name: val('peer'), type: ifc.type, [MYIF + 'veth']: { peer: ifc.name } });
-		}
-		if (!ifc.name)
-			throw new Error('Give the interface a name.');
-		if (list.some((it) => all.has(it.name)))
-			throw new Error('There is an interface with that name already.');
-
-		await patch('ietf-interfaces:interfaces', { 'ietf-interfaces:interfaces': { interface: list } });
-		render();
-	}
-
-	const ifname = { maxlength: 15, pattern: '[A-Za-z0-9_.\\-]+', autocomplete: 'off', autocapitalize: 'none',
-			 title: 'Up to 15 letters, digits, and _ - .' };
 
 	return [
 		h('section', null,
 			h('h1', null, 'Interfaces'),
-			h('div', null, shown.map(row)),
+			h('div', null, list.map(row)),
 			msg),
 		h('section', null,
 			h('h2', null, 'Add an interface'),
-			settings('settings', add, [
-				h('label', null, 'Type',
-					h('select', { name: 'type', onchange: typed },
-						option('bridge', 'Bridge', true), option('l2vlan', 'VLAN'),
-						option('veth', 'veth pair'), option('dummy', 'Dummy'))),
-				h('label', null, 'Name',
-					h('small', { 'data-for': 'l2vlan', hidden: true },
-						'Leave empty to name it after the interface it is on and its VLAN ID.'),
-					h('input', { name: 'name', ...ifname })),
-				h('label', { 'data-for': 'l2vlan', hidden: true }, 'On top of',
-					h('select', { name: 'lower', disabled: true },
-						shown.map((ifc) => option(ifc.name, ifc.name)))),
-				h('label', { 'data-for': 'l2vlan', hidden: true }, 'VLAN ID',
-					h('input', { name: 'id', type: 'number', min: 1, max: 4094, required: true, disabled: true })),
-				h('label', { 'data-for': 'veth', hidden: true }, 'Name of the other end',
-					h('input', { name: 'peer', required: true, disabled: true, ...ifname })),
-			], 'Add interface')),
+			adder()),
 	];
 }
 
@@ -632,41 +624,59 @@ async function interfaces() {
  * Users
  */
 
+/* Who we are logged in as */
+const whoami = () => atob(auth.slice(6)).split(':')[0];
+
 const basic = (user, pass) =>
 	/* Basic wants bytes, btoa() wants Latin-1 */
 	'Basic ' + btoa(String.fromCharCode(...new TextEncoder().encode(`${user}:${pass}`)));
 
-/* The device hashes a password that is marked as clear text with $0$ */
-function password(form) {
-	const pass = form.elements.password.value;
-
-	if (pass !== form.elements.repeat.value)
-		throw new Error('The two passwords differ.');
-
-	return '$0$' + pass;
-}
-
-const secret = (label, name) => h('label', null, label,
-	h('input', { name, type: 'password', autocomplete: 'new-password', required: true }));
-const passwords = () => [secret('New password', 'password'), secret('Repeat it', 'repeat')];
+/* What the users page shows of a user, and what it calls it */
+const USERS = {
+	hide: ['user/name'],
+	labels: {
+		'user/mylinux-system:shell': 'Login shell',
+		'user/authorized-key': 'SSH keys',
+		'user/authorized-key/key-data': 'Key',
+	},
+	names: { 'mylinux-system:sh': 'Shell', 'mylinux-system:clish': 'Command line interface', 'mylinux-system:false': 'No login' },
+	items: { 'user/authorized-key': 'key' },
+};
 
 async function users() {
 	const list = (await get('ietf-system:system/authentication?content=config'))?.user || [];
-	const self = atob(auth.slice(6)).split(':')[0];
+	const self = whoami();
 	const msg = h('p', { class: 'error', role: 'alert' });
+	const sn = schemaAt('ietf-system:system/authentication/user');
 	const path = (name) => 'ietf-system:system/authentication/user=' + encodeURIComponent(name);
 
-	function row(user) {
-		async function save(val, form) {
-			await patch(path(user.name),
-				{ 'ietf-system:user': [{ name: user.name, password: password(form) }] });
+	/* Our own password is what we log in with from here on */
+	function relogin(user) {
+		if (user.name !== self || !user.password?.startsWith('$0$'))
+			return;
+		auth = basic(self, user.password.slice(3));
+		sessionStorage.setItem('auth', auth);
+	}
 
-			/* Our own: it is what we log in with from here on */
-			if (user.name === self) {
-				auth = basic(self, form.elements.password.value);
-				sessionStorage.setItem('auth', auth);
-			}
-			form.reset();
+	function row(user) {
+		let body;
+
+		const form = () => {
+			body = group(sn, user, USERS, 'user');
+
+			return settings(save, body.el, 'Save changes',
+				user.name === self ? [] : h('button', { type: 'button', class: 'danger', onclick: remove }, 'Remove'));
+		};
+
+		async function save() {
+			const next = structuredClone(user);
+
+			body.apply(next);
+			await put(path(user.name), { 'ietf-system:user': [next] });
+			relogin(next);
+
+			/* For the hash the device made of a new password */
+			render();
 		}
 
 		async function remove() {
@@ -683,17 +693,28 @@ async function users() {
 			}
 		}
 
-		return settings('user', save, [
-			h('h2', null, user.name),
-			...passwords(),
-			...(user.name === self ? [] : [
-				h('button', { type: 'button', class: 'remove', onclick: remove }, 'Remove')]),
-		], 'Set password');
+		return fold('user ' + user.name, [
+			h('b', null, user.name),
+			h('span', { class: 'muted' }, user.name === self ? 'You' : ''),
+		], form);
 	}
 
-	async function add(val, form) {
-		await post('ietf-system:system/authentication',
-			{ 'ietf-system:user': [{ name: val('name'), password: password(form) }] });
+	/* A new user is a name and a password, the rest is set on its row */
+	const fresh = group(sn, undefined, {
+		...USERS,
+		hide: [],
+		only: ['user/name', 'user/password'],
+		labels: { 'user/name': 'User name' },
+	}, 'user');
+
+	async function add() {
+		const user = {};
+
+		fresh.apply(user);
+		if (!user.name)
+			throw new Error('Give the user a name.');
+		await post('ietf-system:system/authentication', { 'ietf-system:user': [user] });
+		opened.add('user ' + user.name);
 		render();
 	}
 
@@ -706,14 +727,7 @@ async function users() {
 			msg),
 		h('section', null,
 			h('h2', null, 'Add a user'),
-			settings('settings', add, [
-				h('label', null, 'User name',
-					h('input', { name: 'name', required: true, maxlength: 32,
-						     autocomplete: 'off', autocapitalize: 'none',
-						     pattern: '[A-Za-z_][A-Za-z0-9_.\\-]*',
-						     title: 'Letters, digits, and _ - . starting with a letter' })),
-				...passwords(),
-			], 'Add user')),
+			settings(add, fresh.el, 'Add user')),
 	];
 }
 
@@ -809,6 +823,7 @@ async function render(quiet) {
 	let kids;
 
 	try {
+		schema ??= await (await fetch('schema.json')).json();
 		kids = await views[name]();
 	} catch (err) {
 		if (quiet === true)
@@ -833,6 +848,7 @@ async function render(quiet) {
 function start() {
 	$('#login').hidden = true;
 	$('#app').hidden = false;
+	$('#whoami').textContent = whoami();
 	live(false);
 	hostname();
 	render();
@@ -878,14 +894,16 @@ $('#login').addEventListener('submit', async (ev) => {
 		return;
 	}
 
+	since = Date.now();
 	sessionStorage.setItem('auth', auth);
+	sessionStorage.setItem('since', since);
 	form.elements.pass.value = '';
 	start();
 });
 
 $('#logout').addEventListener('click', () => logout());
 $('#notice button').addEventListener('click', () => render());
-view.addEventListener('input', (ev) => edited.add(ev.target.form));
+view.addEventListener('input', (ev) => edited.add(ev.target.closest('form')));
 window.addEventListener('hashchange', () => render());
 
 /* Kept with the login, so that reloading the page does not start the clock over */
@@ -897,13 +915,16 @@ function active() {
 	seen = now;
 }
 
-/* Has whoever logged in left?  Then so do we, and say why. */
+/* Has whoever logged in left, or been in for too long?  Then out we go, and say why. */
 function left() {
-	if (Date.now() - seen <= IDLE * 60000)
-		return false;
-	logout(`Logged out after ${IDLE} minutes without activity.`);
+	const now = Date.now();
 
-	return true;
+	if (now - since > SESSION * 3600000)
+		logout(`Logged out, ${SESSION} hours after logging in.`);
+	else if (idle && now - seen > idle * 60000)
+		logout(`Logged out after ${idle} minutes without activity.`);
+
+	return !auth;
 }
 
 for (const type of ['pointermove', 'pointerdown', 'keydown', 'scroll'])
@@ -920,6 +941,22 @@ $('#theme').value = document.documentElement.style.colorScheme = localStorage.ge
 $('#theme').addEventListener('change', (ev) => {
 	document.documentElement.style.colorScheme = ev.target.value;
 	localStorage.setItem('theme', ev.target.value);
+});
+
+$('#idle').value = idle;
+$('#idle').addEventListener('change', (ev) => {
+	idle = Number(ev.target.value);
+	localStorage.setItem('idle', idle);
+});
+
+/* The menu folds up when the click, or the Escape, is not for it */
+window.addEventListener('click', (ev) => {
+	if (!$('#user').contains(ev.target) || ev.target.closest('a, button'))
+		$('#user').open = false;
+});
+window.addEventListener('keydown', (ev) => {
+	if (ev.key === 'Escape')
+		$('#user').open = false;
 });
 
 if (!auth)

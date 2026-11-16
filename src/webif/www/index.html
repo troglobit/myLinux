@@ -33,12 +33,29 @@
       <a href="#maintenance">Maintenance</a>
     </nav>
     <span id="live" class="live"></span>
-    <select id="theme" aria-label="Colors" title="Light or dark colors">
-      <option value="">Auto</option>
-      <option value="light">Light</option>
-      <option value="dark">Dark</option>
-    </select>
-    <button id="logout" class="quiet">Log out</button>
+    <details id="user" class="menu">
+      <summary id="whoami"></summary>
+      <div>
+        <label>Colors
+          <select id="theme">
+            <option value="">As the browser has it</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </label>
+        <label>Log out when idle
+          <select id="idle">
+            <option value="5">After 5 minutes</option>
+            <option value="15">After 15 minutes</option>
+            <option value="60">After an hour</option>
+            <option value="0">Never</option>
+          </select>
+          <small>A login lasts 24 hours at the most.</small>
+        </label>
+        <a href="#users">Users and passwords</a>
+        <button id="logout">Log out</button>
+      </div>
+    </details>
   </header>
   <div id="notice" class="notice" role="status" hidden>
     <span></span>
@@ -58,6 +75,7 @@
   </form>
 </dialog>
 
+<script src="yang.js"></script>
 <script src="webif.js"></script>
 </body>
 </html>
