@@ -4,7 +4,11 @@
 const $ = (sel) => document.querySelector(sel);
 const view = $('#view');
 
+const IDLE = 15;		/* minutes with nobody at the controls before we log out */
+
 let auth = sessionStorage.getItem('auth');
+let seen = Number(sessionStorage.getItem('seen')) || Date.now();	/* when somebody last was */
+let heard = 0;			/* when the device last answered us */
 let current = null;		/* name of the view on show */
 let renders = 0;		/* tells a render that a later one overtook it */
 let stream = null;		/* AbortController of the event stream */
@@ -51,6 +55,8 @@ async function request(method, path, body) {
 	});
 	const text = await res.text();
 	let data = null;
+
+	heard = Date.now();
 
 	try {
 		data = text ? JSON.parse(text) : null;
@@ -105,18 +111,42 @@ function live(on) {
 		      : 'Not connected for live updates';
 }
 
+/* Rejects unless the device answers, and RESTCONF on it, within five seconds */
+async function alive() {
+	const res = await fetch('/.well-known/host-meta', { cache: 'no-store', signal: AbortSignal.timeout(5000) });
+
+	if (!res.ok)
+		throw new Error(res.status);
+	heard = Date.now();
+}
+
 async function listen() {
 	const ctl = stream = new AbortController();
 	let gap = false;	/* out of touch for a while, events may be lost */
 
 	while (!ctl.signal.aborted) {
 		const since = Date.now();
+		const link = new AbortController();
 		let ended = false;
+		let pulse;
 
 		try {
+			/* Asked first, an absent device costs us five seconds
+			 * and not as long as the browser cares to wait */
+			await alive();
+
+			/* A device that is switched off or out of reach leaves
+			 * the stream open and silent, the same as when nothing
+			 * happens.  So when we have heard nothing from it for a
+			 * while we ask, and give the stream up if it is alone. */
+			pulse = setInterval(() => {
+				if (!document.hidden && Date.now() - heard >= 5000)
+					alive().catch(() => link.abort());
+			}, 5000);
+
 			const res = await fetch('/streams/NETCONF', {
 				headers: { Authorization: auth, Accept: 'text/event-stream' },
-				signal: ctl.signal,
+				signal: AbortSignal.any([ctl.signal, link.signal]),
 			});
 
 			if (res.status === 401)
@@ -140,6 +170,7 @@ async function listen() {
 				ended = done;
 				if (done)
 					break;
+				heard = Date.now();
 				buf += value;
 
 				const events = buf.split(/\r?\n\r?\n/);
@@ -149,6 +180,8 @@ async function listen() {
 			}
 		} catch (err) {
 			/* Device restarting or out of reach, try again below */
+		} finally {
+			clearInterval(pulse);
 		}
 
 		if (ctl.signal.aborted)
@@ -806,13 +839,15 @@ function start() {
 	listen();
 }
 
-function logout() {
+function logout(why = '') {
 	auth = null;
 	sessionStorage.removeItem('auth');
 	stream?.abort();
 	view.replaceChildren();
+	$('#confirm').close();
 	$('#app').hidden = true;
 	$('#login').hidden = false;
+	$('#login .error').textContent = why;
 	$('#login').elements.user.focus();
 }
 
@@ -848,18 +883,46 @@ $('#login').addEventListener('submit', async (ev) => {
 	start();
 });
 
-$('#logout').addEventListener('click', logout);
+$('#logout').addEventListener('click', () => logout());
 $('#notice button').addEventListener('click', () => render());
 view.addEventListener('input', (ev) => edited.add(ev.target.form));
 window.addEventListener('hashchange', () => render());
 
-/* Counters and link state move without a configuration change */
+/* Kept with the login, so that reloading the page does not start the clock over */
+function active() {
+	const now = Date.now();
+
+	if (now - seen > 10000)
+		sessionStorage.setItem('seen', now);
+	seen = now;
+}
+
+/* Has whoever logged in left?  Then so do we, and say why. */
+function left() {
+	if (Date.now() - seen <= IDLE * 60000)
+		return false;
+	logout(`Logged out after ${IDLE} minutes without activity.`);
+
+	return true;
+}
+
+for (const type of ['pointermove', 'pointerdown', 'keydown', 'scroll'])
+	window.addEventListener(type, active, { capture: true, passive: true });
+
 setInterval(() => {
-	if (auth && current === 'status' && !document.hidden)
+	/* Counters and link state move without a configuration change */
+	if (auth && !left() && current === 'status' && !document.hidden)
 		render(true);
 }, 5000);
 
-if (auth)
-	start();
-else
+/* Light or dark; with neither chosen the style sheet leaves it to the browser */
+$('#theme').value = document.documentElement.style.colorScheme = localStorage.getItem('theme') || '';
+$('#theme').addEventListener('change', (ev) => {
+	document.documentElement.style.colorScheme = ev.target.value;
+	localStorage.setItem('theme', ev.target.value);
+});
+
+if (!auth)
 	logout();
+else if (!left())
+	start();

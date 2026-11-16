@@ -1,33 +1,18 @@
 /* myLinux web interface */
 
 :root {
-	--bg:      #f1f2f3;
-	--surface: #ffffff;
-	--ink:     #1f262d;
-	--muted:   #5d6873;
-	--line:    #d5d9dd;
-	--up:      #23884c;
-	--down:    #9aa3ab;
-	--red:     #c83b35;	/* from the logo */
-	--yellow:  #f1ce36;	/* from the logo */
-	--jack:    #2b333b;
-	--focus:   #1d6fb8;
+	--bg:      light-dark(#f1f2f3, #171b1f);
+	--surface: light-dark(#ffffff, #20262c);
+	--ink:     light-dark(#1f262d, #e6e9ec);
+	--muted:   light-dark(#5d6873, #9aa5af);
+	--line:    light-dark(#d5d9dd, #363f48);
+	--up:      light-dark(#23884c, #4cc47d);
+	--down:    light-dark(#9aa3ab, #5d6873);
+	--red:     light-dark(#c83b35, #e8635c);	/* from the logo */
+	--yellow:  #f1ce36;				/* from the logo */
+	--jack:    light-dark(#2b333b, #0e1114);
+	--focus:   light-dark(#1d6fb8, #6bb3f0);
 	color-scheme: light dark;
-}
-
-@media (prefers-color-scheme: dark) {
-	:root {
-		--bg:      #171b1f;
-		--surface: #20262c;
-		--ink:     #e6e9ec;
-		--muted:   #9aa5af;
-		--line:    #363f48;
-		--up:      #4cc47d;
-		--down:    #5d6873;
-		--red:     #e8635c;
-		--jack:    #0e1114;
-		--focus:   #6bb3f0;
-	}
 }
 
 * { box-sizing: border-box; }
@@ -132,6 +117,7 @@ nav a:hover { color: var(--ink); }
 nav a[aria-current] { color: var(--ink); background: var(--bg); font-weight: 600; }
 
 .live { font-size: .9rem; color: var(--muted); }
+header select { width: auto; }
 
 .notice {
 	display: flex;
@@ -272,7 +258,9 @@ dialog .actions { justify-content: flex-end; }
 @media (max-width: 40rem) {
 	header { padding: .6rem 1rem; gap: .5rem 1rem; }
 	nav { order: 3; flex-basis: 100%; }
-	.live { margin-left: auto; }
+	.brand { flex: 1; min-width: 0; }
+	.brand span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+	header select, header button { padding: .3rem .5rem; }
 	main { padding: 1.5rem 1rem 3rem; }
 	.task { flex-direction: column; align-items: flex-start; gap: .75rem; }
 }
