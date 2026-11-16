@@ -11,6 +11,10 @@ module mylinux-system {
         "myLinux augments to ietf-system, for features pioneered in
          Infix's confd.";
 
+    revision 2026-11-16 {
+      description "Deviations for what of ietf-system is not supported.";
+      reference "N/A";
+    }
     revision 2026-08-07 {
       description "Initial revision: per-user login shell.";
       reference "N/A";
@@ -50,5 +54,15 @@ module mylinux-system {
           "The user's login shell.  When omitted the account gets the
            default POSIX shell.";
       }
+    }
+
+    deviation "/sys:system/sys:ntp/sys:server/sys:association-type" {
+      description "A time server is a server, the client is no peer of it.";
+      deviate not-supported;
+    }
+
+    deviation "/sys:system/sys:authentication/sys:user-authentication-order" {
+      description "Local users are the only ones there are.";
+      deviate not-supported;
     }
 }

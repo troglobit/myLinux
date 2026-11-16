@@ -60,10 +60,51 @@ static int core_factory_reset(clixon_handle h, cxobj *xe, cbuf *cbret,
 	return 0;
 }
 
+/* Is the node something that was set, and not just defaults that clixon filled in? */
+static int is_set(cxobj *x)
+{
+	cxobj *child = NULL;
+	int leaf = 1;
+
+	if (xml_flag(x, XML_FLAG_DEFAULT))
+		return 0;
+
+	while ((child = xml_child_each(x, child, CX_ELMNT))) {
+		if (is_set(child))
+			return 1;
+		leaf = 0;
+	}
+
+	return leaf;
+}
+
+static int unsupported(cxobj *x, void *arg)
+{
+	yang_stmt *ys = xml_spec(x);
+
+	if (ys && yang_flag_get(ys, YANG_FLAG_NOT_SUPPORT) && is_set(x)) {
+		clixon_err(OE_CFG, 0, "%s is not supported", xml_name(x));
+		return -1;
+	}
+
+	return 0;
+}
+
+/*
+ * To clixon "deviate not-supported" means that the node's must
+ * statements go unchecked.  The node itself it takes as before, so
+ * turning it down is left to us.
+ */
+static int core_validate(clixon_handle h, transaction_data td)
+{
+	return xml_apply(transaction_target(td), CX_ELMNT, unsupported, NULL) < 0 ? -1 : 0;
+}
+
 static clixon_plugin_api core_api = {
 	.ca_name = "core",
 	.ca_init = clixon_plugin_init,
 
+	.ca_trans_validate = core_validate,
 	.ca_trans_commit_done = core_commit_done,
 };
 

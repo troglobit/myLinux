@@ -107,4 +107,49 @@ module mylinux-interfaces {
         description "DHCPv4 client.";
       }
     }
+
+    /*
+     * Of ietf-ip, addresses are what can be set.  The rest is said to
+     * be unsupported instead of being taken and then ignored.
+     */
+
+    deviation "/if:interfaces/if:interface/ip:ipv4/ip:enabled" {
+      deviate not-supported;
+    }
+
+    deviation "/if:interfaces/if:interface/ip:ipv4/ip:forwarding" {
+      deviate not-supported;
+    }
+
+    deviation "/if:interfaces/if:interface/ip:ipv4/ip:mtu" {
+      deviate not-supported;
+    }
+
+    deviation "/if:interfaces/if:interface/ip:ipv4/ip:neighbor" {
+      deviate not-supported;
+    }
+
+    deviation "/if:interfaces/if:interface/ip:ipv6/ip:enabled" {
+      deviate not-supported;
+    }
+
+    deviation "/if:interfaces/if:interface/ip:ipv6/ip:forwarding" {
+      deviate not-supported;
+    }
+
+    deviation "/if:interfaces/if:interface/ip:ipv6/ip:mtu" {
+      deviate not-supported;
+    }
+
+    deviation "/if:interfaces/if:interface/ip:ipv6/ip:neighbor" {
+      deviate not-supported;
+    }
+
+    deviation "/if:interfaces/if:interface/ip:ipv6/ip:dup-addr-detect-transmits" {
+      deviate not-supported;
+    }
+
+    deviation "/if:interfaces/if:interface/ip:ipv6/ip:autoconf" {
+      deviate not-supported;
+    }
 }

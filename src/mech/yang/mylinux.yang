@@ -72,7 +72,14 @@ module mylinux {
       reference "N/A";
     }
 
-    deviation /sys:system/clock/timezone-utc-offset {
+    revision 2026-11-16 {
+      description
+        "The deviation for the UTC offset names the choice and case on
+         the way to it, as a schema node identifier has to.";
+      reference "N/A";
+    }
+
+    deviation "/sys:system/sys:clock/sys:timezone/sys:timezone-utc-offset/sys:timezone-utc-offset" {
       deviate not-supported;
     }
 }
