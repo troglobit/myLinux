@@ -80,7 +80,8 @@ module mylinux-interfaces {
     }
 
     augment "/if:interfaces/if:interface" {
-      when "not(derived-from-or-self(if:type, 'ianaift:softwareLoopback'))";
+      when "not(derived-from-or-self(if:type, 'ianaift:softwareLoopback')) and "
+         + "not(derived-from-or-self(if:type, 'ianaift:bridge'))";
       description "Bridge ports.";
 
       container bridge-port {
